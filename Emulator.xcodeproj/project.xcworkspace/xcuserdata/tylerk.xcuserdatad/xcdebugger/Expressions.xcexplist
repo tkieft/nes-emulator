@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "RomReader::RomReader(std::__1::basic_string&lt;char, std::__1::char_traits&lt;char&gt;, std::__1::allocator&lt;char&gt; &gt;):RomReader.cpp">
+      </ContextState>
+      <ContextState
+         contextName = "Processor::execute():Processor.cpp">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>
