@@ -9,30 +9,30 @@
 #ifndef __Emulator__PPU__
 #define __Emulator__PPU__
 
-// PPU CONTROL 1
-
-
-#define VBLANK_BIT  7
-#define VBLANK_MASK 0x80
-
-#include <iostream>
+#include "defines.h"
 
 class PPU {
 private:
-    uint8_t vram[0x4000];
+    uint8_t vram[0x3F20];
     uint8_t spr_ram[0x100];
     
     uint8_t control_1;
     uint8_t control_2;
     uint8_t status;
     uint8_t sprite_memory_address;
+    uint16_t vram_address;
+    uint8_t horizontal_scroll;
+    uint8_t vertical_scroll;
+    
+    bool first_write;
     
     uint8_t read_memory(uint16_t address);
     void store_memory(uint16_t address, uint8_t word);
     
-    
 public:
     PPU();
+    void set_chr_rom(uint8_t * chr_rom);
+
     uint8_t read_status();
     
     uint8_t read_control_1();
@@ -45,6 +45,9 @@ public:
     void set_sprite_memory_address(uint8_t value);
     void set_sprite_data(uint8_t value);
     uint8_t read_sprite_data();
+    
+    uint8_t write_scroll_register(uint8_t value);
+    
 };
 
 #endif /* defined(__Emulator__PPU__) */

@@ -19,9 +19,9 @@ int main(int argc, char* argv[]) {
 
     RomReader reader("/Users/tylerk/Downloads/mario.nes");
     PPU ppu;
-    Processor processor(&ppu, reader.getPrgRom(), reader.getChrRom());
+    Processor processor(&ppu, reader.get_prg_rom());
 
-    for(int i = 0; i < 100; i++) {
+    while (true) {
         processor.execute();
     }
     

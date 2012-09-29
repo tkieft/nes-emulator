@@ -22,30 +22,30 @@ RomReader::RomReader(string filename) {
             throw "This is not a valid NES ROM!";
         }
         
-        prgRomBytes = header[PRG_ROM_BYTE] * PRG_ROM_PAGE_SIZE;
-        chrRomBytes = header[CHR_ROM_BYTE] * CHR_ROM_PAGE_SIZE;
-        prgRamBytes = header[PRG_RAM_BYTE] * PRG_RAM_PAGE_SIZE;
-        if (!prgRamBytes) prgRamBytes = PRG_RAM_PAGE_SIZE;
+        prg_rom_bytes = header[PRG_ROM_BYTE] * PRG_ROM_PAGE_SIZE;
+        chr_rom_bytes = header[CHR_ROM_BYTE] * CHR_ROM_PAGE_SIZE;
+        prg_ram_bytes = header[PRG_RAM_BYTE] * PRG_RAM_PAGE_SIZE;
+        if (!prg_ram_bytes) prg_ram_bytes = PRG_RAM_PAGE_SIZE;
         
         // Error checking
-        if (!prgRomBytes) {
+        if (!prg_rom_bytes) {
             throw "Program ROM bytes = 0.";
         }
         
-        if (HEADER_SIZE + prgRomBytes + chrRomBytes != fileSize) {
+        if (HEADER_SIZE + prg_rom_bytes + chr_rom_bytes != fileSize) {
             throw "Inconsistent file size.";
         }
         
-        prgRom = new char[prgRomBytes];
-        file.read(prgRom, prgRomBytes);
+        prg_rom = new char[prg_rom_bytes];
+        file.read(prg_rom, prg_rom_bytes);
 
-        if (chrRomBytes) {
-            chrRom = new char[chrRomBytes];
-            file.read(chrRom, chrRomBytes);
+        if (chr_rom_bytes) {
+            chr_rom = new char[chr_rom_bytes];
+            file.read(chr_rom, chr_rom_bytes);
         }
         
-        prgRam = new char[prgRamBytes];
-        file.read(prgRam, prgRamBytes);
+        prg_ram = new char[prg_ram_bytes];
+        file.read(prg_ram, prg_ram_bytes);
         
         file.close();
     }
@@ -54,12 +54,12 @@ RomReader::RomReader(string filename) {
     }
 }
 
-char *RomReader::getPrgRom() {
-    return prgRom;
+char *RomReader::get_prg_rom() {
+    return prg_rom;
 }
 
-char *RomReader::getChrRom() {
-    return chrRom;
+char *RomReader::get_chr_rom() {
+    return chr_rom;
 }
 
 void RomReader::printDebugInfo() {
@@ -71,9 +71,9 @@ void RomReader::printDebugInfo() {
     cout << "File size is " << fileSize << " bytes." << endl << endl;
     
     cout << header[0] << header[1] << header[2] << endl;
-    cout << "Size of PRG ROM: " << prgRomBytes << " bytes" << endl;
-    cout << "Size of CHR ROM: " << chrRomBytes << " bytes" << endl;
-    cout << "Size of PRG RAM: " << prgRamBytes << " bytes" << endl << endl;
+    cout << "Size of PRG ROM: " << prg_rom_bytes << " bytes" << endl;
+    cout << "Size of CHR ROM: " << chr_rom_bytes << " bytes" << endl;
+    cout << "Size of PRG RAM: " << prg_ram_bytes << " bytes" << endl << endl;
     
     cout << "Flags 6: " << flags6 << endl;
     cout << "Flags 7: " << flags7 << endl;

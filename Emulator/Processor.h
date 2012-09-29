@@ -9,29 +9,10 @@
 #ifndef __Emulator__Processor__
 #define __Emulator__Processor__
 
-#define CARRY_BIT       0       // Set when the result of the computation is < 0 or > 255 (unsigned)
-#define CARRY_MASK      0x01
-#define ZERO_BIT        1       // Set when the result of the computation is 0
-#define ZERO_MASK       0x02
-#define INTERRUPT_BIT   2
-#define INTERRUPT_MASK  0x04
-#define DECIMAL_BIT     3       // unused in the NES version of the 6502
-#define DECIMAL_MASK    0x08
-#define BREAK_BIT       4
-#define BREAK_MASK      0x10
-#define UNUSED_BIT      5
-#define UNUSED_MASK     0x20
-#define OVERFLOW_BIT    6       // Set when there is a 2's complement overflow
-#define OVERFLOW_MASK   0x40
-#define SIGN_BIT        7       // Indicates the sign of the result (set when negative)
-#define SIGN_MASK       0x80
-
-#define CPU_RAM_SIZE    2048
-#define SRAM_SIZE       8192
-
 #include <iostream>
 #include "stdint.h"
 
+#include "defines.h"
 #include "PPU.h"
 
 class Processor {
@@ -47,9 +28,8 @@ private:
     uint8_t y;       // index register y
     
     /* MEMORY */
-    char *prgRom;
-    char *chrRom;
-    char *cpuRam;
+    char *prg_rom;
+    char *cpu_ram;
     char *sram;
     
     uint8_t read_memory(uint16_t address);
@@ -88,7 +68,7 @@ private:
     uint16_t rel_addr(uint16_t addr, uint8_t offset);
     
 public:
-    Processor(PPU *ppu, char *prgRom, char *chrRom);
+    Processor(PPU *ppu, char *prg_rom);
     void execute();
     void reset();
 };

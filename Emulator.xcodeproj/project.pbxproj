@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B22C9C916169F40004B28F1 /* Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B22C9C716169F40004B28F1 /* Processor.cpp */; };
 		3BC7BD3F161269DD006CAA3D /* Emulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC3377F161119D2002D75EE /* Emulator.cpp */; };
-		3BC7BD40161269DD006CAA3D /* Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC3376816111888002D75EE /* Processor.cpp */; };
 		3BC7BD43161269FC006CAA3D /* RomReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD41161269FC006CAA3D /* RomReader.cpp */; };
 		3BC7BD4E16134A8E006CAA3D /* PPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD4C16134A8E006CAA3D /* PPU.cpp */; };
 /* End PBXBuildFile section */
@@ -26,8 +26,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		3BC3376816111888002D75EE /* Processor.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Processor.cpp; path = ../Processor.cpp; sourceTree = "<group>"; };
-		3BC3376916111888002D75EE /* Processor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Processor.h; path = ../Processor.h; sourceTree = "<group>"; };
+		3B22C9C616169F40004B28F1 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
+		3B22C9C716169F40004B28F1 /* Processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Processor.cpp; sourceTree = "<group>"; };
+		3B22C9C816169F40004B28F1 /* Processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Processor.h; sourceTree = "<group>"; };
 		3BC3377F161119D2002D75EE /* Emulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Emulator.cpp; sourceTree = "<group>"; };
 		3BC7BD351612698E006CAA3D /* Emulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Emulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		3BC7BD41161269FC006CAA3D /* RomReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RomReader.cpp; sourceTree = "<group>"; };
@@ -74,9 +75,10 @@
 		3BC33774161119D2002D75EE /* Emulator */ = {
 			isa = PBXGroup;
 			children = (
+				3B22C9C616169F40004B28F1 /* defines.h */,
+				3B22C9C716169F40004B28F1 /* Processor.cpp */,
+				3B22C9C816169F40004B28F1 /* Processor.h */,
 				3BC3377F161119D2002D75EE /* Emulator.cpp */,
-				3BC3376816111888002D75EE /* Processor.cpp */,
-				3BC3376916111888002D75EE /* Processor.h */,
 				3BC7BD41161269FC006CAA3D /* RomReader.cpp */,
 				3BC7BD42161269FC006CAA3D /* RomReader.h */,
 				3BC7BD4C16134A8E006CAA3D /* PPU.cpp */,
@@ -144,9 +146,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				3BC7BD3F161269DD006CAA3D /* Emulator.cpp in Sources */,
-				3BC7BD40161269DD006CAA3D /* Processor.cpp in Sources */,
 				3BC7BD43161269FC006CAA3D /* RomReader.cpp in Sources */,
 				3BC7BD4E16134A8E006CAA3D /* PPU.cpp in Sources */,
+				3B22C9C916169F40004B28F1 /* Processor.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

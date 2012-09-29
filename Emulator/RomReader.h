@@ -39,19 +39,19 @@ class RomReader {
 private:
     ifstream::pos_type fileSize;
     char header[HEADER_SIZE];
-    int prgRomBytes;
-    int chrRomBytes;
-    int prgRamBytes;
+    int prg_rom_bytes;
+    int chr_rom_bytes;
+    int prg_ram_bytes;
     
-    char *prgRom;
-    char *chrRom;
-    char *prgRam;
+    char *prg_rom;
+    char *chr_rom;
+    char *prg_ram;
     
 public:
     RomReader(string filename);
     
-    char *getPrgRom();
-    char *getChrRom();
+    char *get_prg_rom();
+    char *get_chr_rom();
     
     void printDebugInfo();
 };
