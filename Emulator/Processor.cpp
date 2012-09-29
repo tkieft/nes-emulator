@@ -10,7 +10,8 @@
 
 #include "Processor.h"
 
-Processor::Processor(char *prgRom, char *chrRom) {
+Processor::Processor(PPU *ppu, char *prgRom, char *chrRom) {
+    this->ppu = ppu;
     this->prgRom = prgRom;
     this->chrRom = chrRom;
     
@@ -90,7 +91,7 @@ bool Processor::if_overflow() {
 void Processor::set_sign(uint8_t result) {
     // we look at the 7th bit to determine the sign (this happens to be the same
     // bit as the sign bit in the control register)
-    set_p_bit(OVERFLOW_BIT, result & SIGN_MASK);
+    set_p_bit(SIGN_BIT, result & SIGN_MASK);
 }
 bool Processor::if_sign() {
     return p & SIGN_MASK;
@@ -127,19 +128,58 @@ uint8_t Processor::read_memory(uint16_t address) {
         // Expansion ROM
         throw "Expansion ROM not implemented";
     } else if (address >= 0x2000) {
-        // I/O Registers
-        return 0; // TODO!!
+        // PPU I/O Registers
+        switch (address & 0x07) {           // I/O registers are mirrored every 8 bytes
+            // PPU Control 1
+            case 0x00:
+                return ppu->read_control_1();
+            case 0x01:
+                return ppu->read_control_2();
+            // PPU Status register
+            case 0x02:
+                return ppu->read_status();
+            case 0x04:
+                return ppu->read_sprite_data();
+            default:
+                throw "Unrecognized I/O read.";
+        }
     } else {
-        return cpuRam[address % 0x0800];    // CPU RAM is mirrored 4x from 0x0000 -> 0x2000
+        return cpuRam[address & 0x07FF];    // CPU RAM is mirrored 4x from 0x0000 -> 0x2000
     }
 }
+
 void Processor::store_memory(uint16_t address, uint8_t value) {
     if (address < 0x2000) {
         // CPU Ram
-        cpuRam[address % 0x0800] = value;
+        cpuRam[address & 0x07FF] = value;
+    } else if (address < 0x4000) {
+        switch (address & 0x07) {
+            case 0x00:
+                ppu->write_control_1(value);
+                break;
+            case 0x01:
+                ppu->write_control_2(value);
+                break;
+            case 0x03:
+                ppu->set_sprite_memory_address(value);
+                break;
+            case 0x04:
+                ppu->set_sprite_data(value);
+                break;
+            default:
+                throw "Unrecognized I/O write. Please implement!";
+        }
     } else if (address < 0x4020) {
-        // TODO!! I/O Registers
-    } else if (address >= 0x6000 || address < 0x8000) {
+        // Sound and other I/O registers
+        switch (address) {
+            case 0x4014:
+                ppu->write_spr_ram((char *)(value * 0x100));
+                break;
+            default:
+                throw "Unrecognized I/O write. Please implement.";
+        }
+    } else if (address >= 0x6000 && address < 0x8000) {
+        // SRAM
         sram[address - 0x6000] = value;
     }
 }
@@ -573,7 +613,7 @@ void Processor::execute() {
             break;
         
         /* SBC (Subtract with carry) */
-            temp = (uint16_t)a + ~src + 1 + (if_carry() ? 0xFF : 0);
+            temp = (uint16_t)a - src - (if_carry() ? 0 : 1);
             set_zero(temp & 0xFF);
             set_sign(temp);
             set_overflow(((a ^ temp) & 0x80) && ((a ^ src) & 0x80));

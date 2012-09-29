@@ -10,6 +10,7 @@
 		3BC7BD3F161269DD006CAA3D /* Emulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC3377F161119D2002D75EE /* Emulator.cpp */; };
 		3BC7BD40161269DD006CAA3D /* Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC3376816111888002D75EE /* Processor.cpp */; };
 		3BC7BD43161269FC006CAA3D /* RomReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD41161269FC006CAA3D /* RomReader.cpp */; };
+		3BC7BD4E16134A8E006CAA3D /* PPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD4C16134A8E006CAA3D /* PPU.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -31,6 +32,8 @@
 		3BC7BD351612698E006CAA3D /* Emulator */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = Emulator; sourceTree = BUILT_PRODUCTS_DIR; };
 		3BC7BD41161269FC006CAA3D /* RomReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RomReader.cpp; sourceTree = "<group>"; };
 		3BC7BD42161269FC006CAA3D /* RomReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RomReader.h; sourceTree = "<group>"; };
+		3BC7BD4C16134A8E006CAA3D /* PPU.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PPU.cpp; sourceTree = "<group>"; };
+		3BC7BD4D16134A8E006CAA3D /* PPU.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PPU.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,6 +79,8 @@
 				3BC3376916111888002D75EE /* Processor.h */,
 				3BC7BD41161269FC006CAA3D /* RomReader.cpp */,
 				3BC7BD42161269FC006CAA3D /* RomReader.h */,
+				3BC7BD4C16134A8E006CAA3D /* PPU.cpp */,
+				3BC7BD4D16134A8E006CAA3D /* PPU.h */,
 				3BC33775161119D2002D75EE /* Supporting Files */,
 			);
 			path = Emulator;
@@ -141,6 +146,7 @@
 				3BC7BD3F161269DD006CAA3D /* Emulator.cpp in Sources */,
 				3BC7BD40161269DD006CAA3D /* Processor.cpp in Sources */,
 				3BC7BD43161269FC006CAA3D /* RomReader.cpp in Sources */,
+				3BC7BD4E16134A8E006CAA3D /* PPU.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -233,6 +239,7 @@
 				3BC7BD3E1612698E006CAA3D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

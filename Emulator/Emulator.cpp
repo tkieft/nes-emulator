@@ -9,6 +9,7 @@
 
 #include <iostream>
 
+#include "PPU.h"
 #include "Processor.h"
 #include "RomReader.h"
 
@@ -17,11 +18,10 @@ using namespace std;
 int main(int argc, char* argv[]) {
 
     RomReader reader("/Users/tylerk/Downloads/mario.nes");
-    
-    Processor processor(reader.getPrgRom(), reader.getChrRom());
+    PPU ppu;
+    Processor processor(&ppu, reader.getPrgRom(), reader.getChrRom());
 
-    
-    while (true) {
+    for(int i = 0; i < 100; i++) {
         processor.execute();
     }
     

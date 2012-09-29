@@ -32,8 +32,12 @@
 #include <iostream>
 #include "stdint.h"
 
+#include "PPU.h"
+
 class Processor {
 private:
+    PPU *ppu;
+    
     /* REGISTERS */
     uint16_t pc;     // program counter, 16 bits
     uint8_t s;       // stack pointer
@@ -84,7 +88,7 @@ private:
     uint16_t rel_addr(uint16_t addr, uint8_t offset);
     
 public:
-    Processor(char *prgRom, char *chrRom);
+    Processor(PPU *ppu, char *prgRom, char *chrRom);
     void execute();
     void reset();
 };
