@@ -57,13 +57,15 @@ bool PPU::render_screen() {
 
 /** PPU MEMORY **/
 uint16_t PPU::calculate_effective_address(uint16_t address) {
-    if (address < 0x2000) {
-        return address;
-    } else if (address >= 0x2000 && address < 0x3000) {
-        return address & 0x27FF;
-    } else {
-        return address;
+    address &= 0x3FFF;
+    
+    if (address >= 0x2000 && address <= 0x3000) {
+        address &= 0x27FF; // controlled by vertical/horiz mirroring
+    } else if (address >= 0x3F00) {
+        address &= 0x3F1F;
     }
+    
+    return address;
 }
 
 uint8_t PPU::read_memory(uint16_t address) {
@@ -101,7 +103,7 @@ void PPU::write_control_2(uint8_t value) {
     control_2 = value;
 }
 void PPU::write_spr_ram(char* start) {
-    memcpy(spr_ram, start, 0x100);
+    memcpy(spr_ram, start, SPR_RAM_SIZE);
 }
 void PPU::set_sprite_memory_address(uint8_t value) {
     sprite_memory_address = value;
@@ -134,6 +136,7 @@ void PPU::write_vram_address(uint8_t value) {
 
 uint8_t PPU::read_vram_data() {
     if (first_read) {
+        first_read = false;
         return read_memory(vram_address);
     }
     

@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
         
         clock += 5;
         
-        if (clock > 10000) {
+        if (clock > 100000) {
             if( ppu.render_screen() )
                 processor.non_maskable_interrupt();
             

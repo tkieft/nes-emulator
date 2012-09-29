@@ -36,8 +36,6 @@ void Processor::reset() {
     p = 1 << UNUSED_BIT;
     x = 0;
     y = 0;
-    
-    last_pc_index = 0;
 }
 
 void Processor::non_maskable_interrupt() {
@@ -221,9 +219,6 @@ void Processor::execute() {
     uint16_t address;                   // address of operand
     uint8_t src;                        // operand
     uint16_t temp;                      // larger temp var for calculations
-    
-    last_pcs[last_pc_index++] = pc;
-    last_pc_index %= 20;
     
     /*** ADDRESSING MODE ***/
     switch (opcode) {
