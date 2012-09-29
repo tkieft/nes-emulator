@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'Emulator' target in the 'Emulator' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif
