@@ -13,8 +13,8 @@
 
 class PPU {
 private:
-    uint8_t vram[0x3F20];
-    uint8_t spr_ram[0x100];
+    uint8_t vram[VRAM_SIZE];
+    uint8_t spr_ram[SPR_RAM_SIZE];
     
     uint8_t control_1;
     uint8_t control_2;
@@ -25,13 +25,18 @@ private:
     uint8_t vertical_scroll;
     
     bool first_write;
+    bool first_read;
     
+    uint16_t calculate_effective_address(uint16_t address);
     uint8_t read_memory(uint16_t address);
     void store_memory(uint16_t address, uint8_t word);
     
+    void reset_vblank_flag();
+        
 public:
     PPU();
     void set_chr_rom(uint8_t * chr_rom);
+    bool render_screen();
 
     uint8_t read_status();
     
@@ -43,10 +48,15 @@ public:
     void write_spr_ram(char* start); // DMA
     
     void set_sprite_memory_address(uint8_t value);
-    void set_sprite_data(uint8_t value);
     uint8_t read_sprite_data();
+    void write_sprite_data(uint8_t value);
+        
+    void write_scroll_register(uint8_t value);
     
-    uint8_t write_scroll_register(uint8_t value);
+    void write_vram_address(uint8_t value);
+
+    uint8_t read_vram_data();
+    void write_vram_data(uint8_t value);
     
 };
 

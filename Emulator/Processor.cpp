@@ -17,6 +17,14 @@ Processor::Processor(PPU *ppu, char *prg_rom) {
     cpu_ram = new char[CPU_RAM_SIZE];
     sram = new char[SRAM_SIZE];
     
+    for (int i = 0; i < CPU_RAM_SIZE; i++) {
+        cpu_ram[i] = 0;
+    }
+    
+    for (int i = 0; i < SRAM_SIZE; i++) {
+        sram[i] = 0;
+    }
+    
     reset();
 }
 
@@ -28,6 +36,18 @@ void Processor::reset() {
     p = 1 << UNUSED_BIT;
     x = 0;
     y = 0;
+    
+    last_pc_index = 0;
+}
+
+void Processor::non_maskable_interrupt() {
+    if (if_interrupt()) {
+        stack_push(pc >> 8);
+        stack_push(pc);
+        stack_push(p);
+        
+        pc = address_at(0xFFFA);
+    }
 }
 
 void Processor::set_p_bit(uint bit, bool value) {
@@ -125,23 +145,23 @@ uint8_t Processor::read_memory(uint16_t address) {
         return sram[address - 0x6000];
     } else if (address >= 0x4020) {
         // Expansion ROM
-        throw "Expansion ROM not implemented";
+        //throw "Expansion ROM not implemented";
     } else if (address >= 0x4000) {
         // Other I/O registers
         return 0;
     } else if (address >= 0x2000) {
         // PPU I/O Registers
         switch (address & 0x07) {           // I/O registers are mirrored every 8 bytes
-            // PPU Control 1
             case 0x00:
                 return ppu->read_control_1();
             case 0x01:
                 return ppu->read_control_2();
-            // PPU Status register
             case 0x02:
                 return ppu->read_status();
             case 0x04:
                 return ppu->read_sprite_data();
+            case 0x07:
+                return ppu->read_vram_data();
             default:
                 throw "Unrecognized I/O read.";
         }
@@ -166,17 +186,25 @@ void Processor::store_memory(uint16_t address, uint8_t value) {
                 ppu->set_sprite_memory_address(value);
                 break;
             case 0x04:
-                ppu->set_sprite_data(value);
+                ppu->write_sprite_data(value);
+                break;
+            case 0x05:
+                ppu->write_scroll_register(value);
+                break;
+            case 0x06:
+                ppu->write_vram_address(value);
+                break;
+            case 0x07:
+                ppu->write_vram_data(value);
                 break;
             default:
-                break;
-                //throw "Unrecognized I/O write. Please implement!";
+                throw "Unrecognized I/O write. Please implement!";
         }
     } else if (address < 0x4020) {
         // Sound and other I/O registers
         switch (address) {
             case 0x4014:
-                ppu->write_spr_ram((char *)(value * 0x100));
+                ppu->write_spr_ram((char *)(cpu_ram + value * 0x100));
                 break;
             default:
                 break;
@@ -193,6 +221,9 @@ void Processor::execute() {
     uint16_t address;                   // address of operand
     uint8_t src;                        // operand
     uint16_t temp;                      // larger temp var for calculations
+    
+    last_pcs[last_pc_index++] = pc;
+    last_pc_index %= 20;
     
     /*** ADDRESSING MODE ***/
     switch (opcode) {
@@ -224,7 +255,7 @@ void Processor::execute() {
         // Implied
         case 0x00: case 0x18: case 0xD8: case 0x58: case 0xB8: case 0xCA: case 0x88:
         case 0xE8: case 0xC8: case 0xEA: case 0x48: case 0x08: case 0x68: case 0x28:
-        case 0x4D: case 0x60: case 0x38: case 0xF8: case 0x78: case 0xAA: case 0xA8:
+        case 0x40: case 0x60: case 0x38: case 0xF8: case 0x78: case 0xAA: case 0xA8:
         case 0xBA: case 0x8A: case 0x9A: case 0x98:
             pc += 1;
             break;
@@ -235,7 +266,7 @@ void Processor::execute() {
             break;
         // Absolute
         case 0x6D: case 0x2D: case 0x0E: case 0x2C: case 0xCD: case 0xEC: case 0xCC:
-        case 0xCE: case 0x40: case 0xEE: case 0x4C: case 0x20: case 0xAD: case 0xAE:
+        case 0xCE: case 0x4D: case 0xEE: case 0x4C: case 0x20: case 0xAD: case 0xAE:
         case 0xAC: case 0x4E: case 0x0D: case 0x2E: case 0x6E: case 0xED: case 0x8D:
         case 0x8E: case 0x8C:
             address = address_at(pc + 1);
@@ -262,13 +293,13 @@ void Processor::execute() {
         // (Indirect,pre-X-indexed)
         case 0x61: case 0x21: case 0xC1: case 0x41: case 0xA1: case 0x01: case 0xE1:
         case 0x81:
-            address = address_at(read_memory((pc + 1 + x) & 0xFF)); // Wrap-around addition
+            address = address_at((read_memory(pc + 1) + x) & 0xFF); // Wrap-around addition
             pc += 2;
             break;
         // (Indirect),Y-post-indexed
         case 0x71: case 0x31: case 0xD1: case 0x51: case 0xB1: case 0x11: case 0xF1:
         case 0x91:
-            address = address_at(pc + 1) + y;
+            address = address_at(read_memory(pc + 1)) + y;
             pc += 2;
             break;
         // Relative
@@ -294,7 +325,7 @@ void Processor::execute() {
             set_zero(temp & 0xFF); // only look at last byte
             set_sign(temp);
             // If we add two numbers of the same sign and get a different sign, there's overflow
-            set_overflow( !((a ^ src) & SIGN_MASK) && ((a ^ temp) & SIGN_MASK));
+            set_overflow(!((a ^ src) & SIGN_MASK) && ((a ^ temp) & SIGN_MASK));
 
             a = (uint8_t)temp;
             break;
@@ -302,11 +333,9 @@ void Processor::execute() {
             
         /* AND */
         case 0x29: case 0x25: case 0x35: case 0x2D: case 0x3D: case 0x39: case 0x21: case 0x31:
-            src = read_memory(address);
-            src &= a;
-            set_zero(src);
-            set_sign(src);
-            a = src;
+            a &= read_memory(address);
+            set_zero(a);
+            set_sign(a);
             break;
         
         /* ASL (Shift left one bit) */
@@ -421,8 +450,7 @@ void Processor::execute() {
         
         /* CMP (Compare memory and accumulator) */
         case 0xC9: case 0xC5: case 0xD5: case 0xCD: case 0xDD: case 0xD9: case 0xC1: case 0xD1:
-            src = read_memory(address);
-            temp = (uint16_t)a - src;
+            temp = (uint16_t)a - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if a > src, carry set
@@ -430,26 +458,23 @@ void Processor::execute() {
             
         /* CPX (Compare memory and index x) */
         case 0xE0: case 0xE4: case 0xEC:
-            src = read_memory(address);
-            temp = (uint16_t)x - src;
+            temp = (uint16_t)x - read_memory(address);
             set_sign(temp);
-            set_zero(temp & 0xFF);
+            set_zero(temp);
             set_carry(temp < 0x100); // if x > src, carry set
             break;
             
         /* CPY (Compare memory and index y) */
         case 0xC0: case 0xC4: case 0xCC:
-            src = read_memory(address);
-            temp = (uint16_t)y - src;
+            temp = (uint16_t)y - read_memory(address);
             set_sign(temp);
-            set_zero(temp & 0xFF);
+            set_zero(temp);
             set_carry(temp < 0x100); // if y > src, carry set
             break;
         
         /* DEC (Decrement memory by 1) */
         case 0xC6: case 0xD6: case 0xCE: case 0xDE:
-            src = read_memory(address);
-            src = src - 1;
+            src = read_memory(address) - 1;
             set_zero(src);
             set_sign(src);
             store_memory(address, src);
@@ -470,9 +495,8 @@ void Processor::execute() {
             break;
             
         /* EOR (XOR memory with accumulator) */
-        case 0x49: case 0x45: case 0x55: case 0x40: case 0x5D: case 0x59: case 0x41: case 0x51:
-            src = read_memory(address);
-            a ^= src;
+        case 0x49: case 0x45: case 0x55: case 0x4D: case 0x5D: case 0x59: case 0x41: case 0x51:
+            a ^= read_memory(address);
             set_sign(a);
             set_zero(a);
             break;
@@ -578,6 +602,7 @@ void Processor::execute() {
             break;
             
         /* PLP (Pull processor status from stack) */
+        case 0x28:
             p = stack_pop();
             break;
             
@@ -585,7 +610,7 @@ void Processor::execute() {
         case 0x2A: case 0x26: case 0x36: case 0x2E: case 0x3E:
             if (opcode != 0x2A) src = read_memory(address);
             
-            temp = src << 1;
+            temp = (uint16_t)src << 1;
             if (if_carry()) temp |= 0x01;
             set_carry(temp >> 8);
             src = (uint8_t)temp;
@@ -619,7 +644,7 @@ void Processor::execute() {
             break;
      
         /* RTI (Return from interrupt) */
-        case 0x4D:
+        case 0x40:
             p = stack_pop();
             // Must make this two instructions so that the compiler doesn't screw us.
             pc = stack_pop();   // Pop the lower byte first
@@ -629,7 +654,7 @@ void Processor::execute() {
         /* RTS (Return from subroutine) */
         case 0x60:
             pc = stack_pop();   // Pop the lower byte first
-            pc |= ((uint16_t)stack_pop() << 8);
+            pc |= (uint16_t)stack_pop() << 8;
             pc++; // Must add 1
             break;
         

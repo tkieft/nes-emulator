@@ -19,6 +19,9 @@ class Processor {
 private:
     PPU *ppu;
     
+    int last_pcs[20];
+    int last_pc_index;
+    
     /* REGISTERS */
     uint16_t pc;     // program counter, 16 bits
     uint8_t s;       // stack pointer
@@ -71,6 +74,7 @@ public:
     Processor(PPU *ppu, char *prg_rom);
     void execute();
     void reset();
+    void non_maskable_interrupt();
 };
 
 #endif /* defined(__Emulator__Processor__) */
