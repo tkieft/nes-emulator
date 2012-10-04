@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B279CA21619F48D00FA7A25 /* EmulatorGLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* EmulatorGLRenderer.cpp */; };
+		3B279CA41619F4BE00FA7A25 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B7670E616175374006F1357 /* OpenGL.framework */; };
 		3B7670A516174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
 		3B7670BF16174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
 		3B7670C716174EA5006F1357 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B7670C516174EA5006F1357 /* InfoPlist.strings */; };
@@ -16,7 +18,13 @@
 		3B7670D516174F17006F1357 /* TKAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B76705516174C9F006F1357 /* TKAppDelegate.m */; };
 		3B7670D716174F32006F1357 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705C16174D12006F1357 /* InfoPlist.strings */; };
 		3B7670D816174F34006F1357 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705A16174D12006F1357 /* Credits.rtf */; };
-		3B7670D916174FA6006F1357 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705E16174D12006F1357 /* MainMenu.xib */; };
+		3B7670E2161750B6006F1357 /* Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B22C9C716169F40004B28F1 /* Processor.cpp */; };
+		3B7670E3161750B6006F1357 /* Emulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC3377F161119D2002D75EE /* Emulator.cpp */; };
+		3B7670E4161750B6006F1357 /* RomReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD41161269FC006CAA3D /* RomReader.cpp */; };
+		3B7670E5161750B6006F1357 /* PPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD4C16134A8E006CAA3D /* PPU.cpp */; };
+		3B7670FA1618BD24006F1357 /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B7670F91618BD24006F1357 /* QuartzCore.framework */; };
+		3B7670FB1618BD6C006F1357 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705E16174D12006F1357 /* MainMenu.xib */; };
+		3BEE20981618D12C003B375F /* EmulatorGLView.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670EC1617551F006F1357 /* EmulatorGLView.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,7 +52,6 @@
 		3B76706616174DC6006F1357 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = DEVELOPER_DIR; };
 		3B76706816174DCB006F1357 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		3B76707216174E1F006F1357 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
-		3B76708B16174E1F006F1357 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		3B7670A316174EA5006F1357 /* Emulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B7670BD16174EA5006F1357 /* EmulatorTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EmulatorTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B7670C416174EA5006F1357 /* EmulatorTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "EmulatorTests-Info.plist"; sourceTree = "<group>"; };
@@ -53,6 +60,13 @@
 		3B7670C916174EA5006F1357 /* EmulatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmulatorTests.m; sourceTree = "<group>"; };
 		3B7670D116174ECE006F1357 /* Emulator-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Emulator-Prefix.pch"; sourceTree = "<group>"; };
 		3B7670D216174EEE006F1357 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
+		3B7670E616175374006F1357 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/OpenGL.framework; sourceTree = DEVELOPER_DIR; };
+		3B7670EB1617551F006F1357 /* EmulatorGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmulatorGLView.h; sourceTree = "<group>"; };
+		3B7670EC1617551F006F1357 /* EmulatorGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EmulatorGLView.mm; sourceTree = "<group>"; };
+		3B7670EE1618A8CD006F1357 /* glUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glUtil.h; sourceTree = "<group>"; };
+		3B7670F21618AC22006F1357 /* EmulatorGLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = EmulatorGLRenderer.h; sourceTree = "<group>"; };
+		3B7670F31618AC22006F1357 /* EmulatorGLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EmulatorGLRenderer.cpp; sourceTree = "<group>"; };
+		3B7670F91618BD24006F1357 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		3BC3377F161119D2002D75EE /* Emulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Emulator.cpp; sourceTree = "<group>"; };
 		3BC7BD41161269FC006CAA3D /* RomReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RomReader.cpp; sourceTree = "<group>"; };
 		3BC7BD42161269FC006CAA3D /* RomReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RomReader.h; sourceTree = "<group>"; };
@@ -65,7 +79,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B279CA41619F4BE00FA7A25 /* OpenGL.framework in Frameworks */,
 				3B7670A516174EA5006F1357 /* Cocoa.framework in Frameworks */,
+				3B7670FA1618BD24006F1357 /* QuartzCore.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,7 +129,6 @@
 		3BC3375F16111877002D75EE = {
 			isa = PBXGroup;
 			children = (
-				3B7670D216174EEE006F1357 /* SenTestingKit.framework */,
 				3BC33774161119D2002D75EE /* Emulator */,
 				3B7670C216174EA5006F1357 /* EmulatorTests */,
 				3BC33771161119D2002D75EE /* Frameworks */,
@@ -134,7 +149,9 @@
 			isa = PBXGroup;
 			children = (
 				3B76706416174DC0006F1357 /* Cocoa.framework */,
-				3B76708B16174E1F006F1357 /* SenTestingKit.framework */,
+				3B7670F91618BD24006F1357 /* QuartzCore.framework */,
+				3B7670E616175374006F1357 /* OpenGL.framework */,
+				3B7670D216174EEE006F1357 /* SenTestingKit.framework */,
 				3B76706A16174DE0006F1357 /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -153,6 +170,11 @@
 				3BC7BD42161269FC006CAA3D /* RomReader.h */,
 				3BC7BD4C16134A8E006CAA3D /* PPU.cpp */,
 				3BC7BD4D16134A8E006CAA3D /* PPU.h */,
+				3B7670EB1617551F006F1357 /* EmulatorGLView.h */,
+				3B7670EC1617551F006F1357 /* EmulatorGLView.mm */,
+				3B7670F21618AC22006F1357 /* EmulatorGLRenderer.h */,
+				3B7670F31618AC22006F1357 /* EmulatorGLRenderer.cpp */,
+				3B7670EE1618A8CD006F1357 /* glUtil.h */,
 				3BC33775161119D2002D75EE /* Supporting Files */,
 			);
 			path = Emulator;
@@ -178,9 +200,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3B7670CB16174EA5006F1357 /* Build configuration list for PBXNativeTarget "Emulator" */;
 			buildPhases = (
+				3B7670A116174EA5006F1357 /* Resources */,
 				3B76709F16174EA5006F1357 /* Sources */,
 				3B7670A016174EA5006F1357 /* Frameworks */,
-				3B7670A116174EA5006F1357 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -241,9 +263,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B7670FB1618BD6C006F1357 /* MainMenu.xib in Resources */,
 				3B7670D816174F34006F1357 /* Credits.rtf in Resources */,
 				3B7670D716174F32006F1357 /* InfoPlist.strings in Resources */,
-				3B7670D916174FA6006F1357 /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,6 +301,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				3B7670D416174F13006F1357 /* main.m in Sources */,
+				3B7670E2161750B6006F1357 /* Processor.cpp in Sources */,
+				3B7670E3161750B6006F1357 /* Emulator.cpp in Sources */,
+				3B7670E4161750B6006F1357 /* RomReader.cpp in Sources */,
+				3B7670E5161750B6006F1357 /* PPU.cpp in Sources */,
+				3BEE20981618D12C003B375F /* EmulatorGLView.mm in Sources */,
+				3B279CA21619F48D00FA7A25 /* EmulatorGLRenderer.cpp in Sources */,
 				3B7670D516174F17006F1357 /* TKAppDelegate.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -343,7 +371,6 @@
 		3B7670CC16174EA5006F1357 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -379,7 +406,6 @@
 		3B7670CD16174EA5006F1357 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -498,6 +524,7 @@
 				3B7670CD16174EA5006F1357 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3B7670CE16174EA5006F1357 /* Build configuration list for PBXNativeTarget "EmulatorTests" */ = {
 			isa = XCConfigurationList;
@@ -506,6 +533,7 @@
 				3B7670D016174EA5006F1357 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		3BC3376416111877002D75EE /* Build configuration list for PBXProject "Emulator" */ = {
 			isa = XCConfigurationList;

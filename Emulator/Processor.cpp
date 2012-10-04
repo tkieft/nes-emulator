@@ -163,9 +163,10 @@ uint8_t Processor::read_memory(uint16_t address) {
             default:
                 throw "Unrecognized I/O read.";
         }
-    } else {
-        return cpu_ram[address & 0x07FF];    // CPU RAM is mirrored 4x from 0x0000 -> 0x2000
     }
+    
+    // Must be in 0x0000 -> 0x2000 (CPU RAM, mirrored 4x)
+    return cpu_ram[address & 0x07FF];
 }
 
 void Processor::store_memory(uint16_t address, uint8_t value) {
