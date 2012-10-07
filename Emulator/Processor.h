@@ -31,9 +31,9 @@ private:
     uint8_t y;       // index register y
     
     /* MEMORY */
-    char *prg_rom;
-    char *cpu_ram;
-    char *sram;
+    uint8_t *prg_rom;
+    uint8_t *cpu_ram;
+    uint8_t *sram;
     
     uint8_t read_memory(uint16_t address);
     void store_memory(uint16_t address, uint8_t word);
@@ -71,7 +71,9 @@ private:
     uint16_t rel_addr(uint16_t addr, uint8_t offset);
     
 public:
-    Processor(PPU *ppu, char *prg_rom);
+    Processor(PPU *ppu);
+    ~Processor();
+    void set_prg_rom(uint8_t *prg_rom);
     void execute();
     void reset();
     void non_maskable_interrupt();

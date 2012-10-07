@@ -10,12 +10,12 @@
 
 #include "Processor.h"
 
-Processor::Processor(PPU *ppu, char *prg_rom) {
+Processor::Processor(PPU *ppu) {
     this->ppu = ppu;
-    this->prg_rom = prg_rom;
     
-    cpu_ram = new char[CPU_RAM_SIZE];
-    sram = new char[SRAM_SIZE];
+    prg_rom = NULL;
+    cpu_ram = new uint8_t[CPU_RAM_SIZE];
+    sram = new uint8_t[SRAM_SIZE];
     
     for (int i = 0; i < CPU_RAM_SIZE; i++) {
         cpu_ram[i] = 0;
@@ -24,8 +24,18 @@ Processor::Processor(PPU *ppu, char *prg_rom) {
     for (int i = 0; i < SRAM_SIZE; i++) {
         sram[i] = 0;
     }
+}
+
+Processor::~Processor() {
+    delete cpu_ram;
+    delete sram;
     
-    reset();
+    if (prg_rom != NULL)
+        delete prg_rom;
+}
+
+void Processor::set_prg_rom(uint8_t *prg_rom) {
+    this->prg_rom = prg_rom;
 }
 
 void Processor::reset() {

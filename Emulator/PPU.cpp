@@ -6,13 +6,12 @@
 //
 //
 
-#include <iomanip>
-#include <iostream>
 #include <string.h>
 
 #include "PPU.h"
 
-using namespace std;
+#include "TerminalRenderer.h"
+#include "OpenGLRenderer.h"
 
 PPU::PPU() {
     control_1 = 0;
@@ -26,33 +25,33 @@ PPU::PPU() {
     for (int i = 0; i < VRAM_SIZE; i++) {
         vram[i] = 0;
     }
-}
-void PPU::set_chr_rom(uint8_t *chr_rom) {
-    memcpy(vram, chr_rom, PATTERN_TABLE_SIZE);
+    
+    renderer = new OpenGLRenderer(this);
 }
 
-bool PPU::render_screen() {
+PPU::~PPU() {
+    delete renderer;
+}
+
+bool PPU::render() {
     if ((control_2 & SCREEN_ENABLE_MASK) == SCREEN_ENABLE) {
-        
-        // 30 rows, 32 cols
-        for (int i = 0; i < 30; i++) {
-            for (int j = 0; j < 32; j++) {
-                uint8_t character = read_memory(0x2000 + i * 32 + j);
-                if (character != 0x24)
-                    cout << setw(2) << setfill('0') << hex << (int)character << " ";
-                else
-                    cout << "   ";
-            }
-            
-            cout << endl;
-        }
-        
-        cout << endl << endl << endl;
+        renderer->render();
     }
     
     status |= PPU_STATUS_VBLANK_MASK;
     
     return control_1 & VBLANK_INTERRUPT_ENABLE_MASK;
+}
+
+void PPU::set_chr_rom(uint8_t *chr_rom) {
+    memcpy(vram, chr_rom, PATTERN_TABLE_SIZE);
+}
+
+void PPU::resize(GLuint width, GLuint height) {
+	glViewport(0, 0, width, height);
+	
+	//m_viewWidth = width;
+	//m_viewHeight = height;
 }
 
 /** PPU MEMORY **/

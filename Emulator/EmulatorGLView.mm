@@ -7,7 +7,7 @@
 //
 
 #import "EmulatorGLView.h"
-#include "EmulatorGLRenderer.h"
+#include "Emulator.h"
 
 @interface EmulatorGLView (PrivateMethods)
 - (void) initGL;
@@ -17,7 +17,7 @@
 
 @implementation EmulatorGLView
 
-EmulatorGLRenderer* m_renderer;
+Emulator* emulator;
 int rand_int = 1;
 
 - (void) awakeFromNib
@@ -46,6 +46,8 @@ int rand_int = 1;
     [self setPixelFormat:pf];
     
     [self setOpenGLContext:context];
+    
+    
 }
 
 - (CVReturn) getFrameForTime:(const CVTimeStamp*)outputTime
@@ -54,7 +56,7 @@ int rand_int = 1;
 	return kCVReturnSuccess;
 }
 
-// This is the renderer output callback function
+// This is the renderer output callback function. It will get called every 60 seconds.
 static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTimeStamp* now, const CVTimeStamp* outputTime, CVOptionFlags flagsIn, CVOptionFlags* flagsOut, void* displayLinkContext)
 {
     // This function is called from a secondary thread so we create an autorelease pool for ARC
@@ -98,8 +100,9 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	GLint swapInt = 1;
 	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 	
-	// Init our renderer.  Use 0 for the defaultFBO which is appropriate for MacOS (but not iOS)
-	m_renderer = new EmulatorGLRenderer(0);
+    // Initialize the emulator
+    emulator = new Emulator();
+    emulator->load_rom("/Users/tylerk/Downloads/mario.nes");
 }
 
 - (void) reshape
@@ -112,8 +115,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 	
 	NSRect rect = [self bounds];
-	
-	m_renderer->resize(rect.size.width, rect.size.height);
+	emulator->resize(rect.size.width, rect.size.height);
 	
 	CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 }
@@ -127,7 +129,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	// Add a mutex around to avoid the threads accessing the context simultaneously	when resizing
 	CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
     
-    m_renderer->render();
+    emulator->emulate_frame();
 	
 	CGLFlushDrawable((CGLContextObj)[[self openGLContext] CGLContextObj]);
 	CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);

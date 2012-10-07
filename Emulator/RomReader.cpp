@@ -39,6 +39,7 @@ RomReader::RomReader(string filename) {
         prg_rom = new char[prg_rom_bytes];
         file.read(prg_rom, prg_rom_bytes);
 
+        chr_rom = NULL;
         if (chr_rom_bytes) {
             chr_rom = new char[chr_rom_bytes];
             file.read(chr_rom, chr_rom_bytes);
@@ -52,6 +53,17 @@ RomReader::RomReader(string filename) {
     else {
         throw "Could not open file for reading.";
     }
+}
+
+RomReader::~RomReader() {
+    // TODO: The RomReader should own this and be able to delete it.
+    //delete prg_rom;
+
+    if (chr_rom != NULL)
+        delete chr_rom;
+    
+    // What is this even for?
+    delete prg_ram;
 }
 
 char *RomReader::get_prg_rom() {

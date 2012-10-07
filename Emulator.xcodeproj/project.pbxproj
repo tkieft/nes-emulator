@@ -7,15 +7,17 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		3B279CA21619F48D00FA7A25 /* EmulatorGLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* EmulatorGLRenderer.cpp */; };
+		3B279CA21619F48D00FA7A25 /* OpenGLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* OpenGLRenderer.cpp */; };
 		3B279CA41619F4BE00FA7A25 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B7670E616175374006F1357 /* OpenGL.framework */; };
+		3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */; };
+		3B3BD44A16210E7600FC5048 /* TerminalRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */; };
 		3B7670A516174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
 		3B7670BF16174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
 		3B7670C716174EA5006F1357 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B7670C516174EA5006F1357 /* InfoPlist.strings */; };
 		3B7670CA16174EA5006F1357 /* EmulatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670C916174EA5006F1357 /* EmulatorTests.m */; };
 		3B7670D316174EEE006F1357 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B7670D216174EEE006F1357 /* SenTestingKit.framework */; };
 		3B7670D416174F13006F1357 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B76706116174D44006F1357 /* main.m */; };
-		3B7670D516174F17006F1357 /* TKAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B76705516174C9F006F1357 /* TKAppDelegate.m */; };
+		3B7670D516174F17006F1357 /* TKAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3B76705516174C9F006F1357 /* TKAppDelegate.mm */; };
 		3B7670D716174F32006F1357 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705C16174D12006F1357 /* InfoPlist.strings */; };
 		3B7670D816174F34006F1357 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705A16174D12006F1357 /* Credits.rtf */; };
 		3B7670E2161750B6006F1357 /* Processor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B22C9C716169F40004B28F1 /* Processor.cpp */; };
@@ -41,8 +43,13 @@
 		3B22C9C616169F40004B28F1 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		3B22C9C716169F40004B28F1 /* Processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Processor.cpp; sourceTree = "<group>"; };
 		3B22C9C816169F40004B28F1 /* Processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Processor.h; sourceTree = "<group>"; };
+		3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_palette.cpp; sourceTree = "<group>"; };
+		3B3BD447162101BC00FC5048 /* Emulator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Emulator.h; sourceTree = "<group>"; };
+		3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TerminalRenderer.cpp; sourceTree = "<group>"; };
+		3B3BD44916210E7600FC5048 /* TerminalRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TerminalRenderer.h; sourceTree = "<group>"; };
+		3B3BD44C16210EBF00FC5048 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		3B76705416174C9F006F1357 /* TKAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKAppDelegate.h; sourceTree = "<group>"; };
-		3B76705516174C9F006F1357 /* TKAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TKAppDelegate.m; sourceTree = "<group>"; };
+		3B76705516174C9F006F1357 /* TKAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TKAppDelegate.mm; sourceTree = "<group>"; };
 		3B76705B16174D12006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = Credits.rtf; sourceTree = "<group>"; };
 		3B76705D16174D12006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
 		3B76705F16174D12006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = MainMenu.xib; sourceTree = "<group>"; };
@@ -64,8 +71,8 @@
 		3B7670EB1617551F006F1357 /* EmulatorGLView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EmulatorGLView.h; sourceTree = "<group>"; };
 		3B7670EC1617551F006F1357 /* EmulatorGLView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = EmulatorGLView.mm; sourceTree = "<group>"; };
 		3B7670EE1618A8CD006F1357 /* glUtil.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = glUtil.h; sourceTree = "<group>"; };
-		3B7670F21618AC22006F1357 /* EmulatorGLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = EmulatorGLRenderer.h; sourceTree = "<group>"; };
-		3B7670F31618AC22006F1357 /* EmulatorGLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EmulatorGLRenderer.cpp; sourceTree = "<group>"; };
+		3B7670F21618AC22006F1357 /* OpenGLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = OpenGLRenderer.h; sourceTree = "<group>"; };
+		3B7670F31618AC22006F1357 /* OpenGLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGLRenderer.cpp; sourceTree = "<group>"; };
 		3B7670F91618BD24006F1357 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/QuartzCore.framework; sourceTree = DEVELOPER_DIR; };
 		3BC3377F161119D2002D75EE /* Emulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Emulator.cpp; sourceTree = "<group>"; };
 		3BC7BD41161269FC006CAA3D /* RomReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RomReader.cpp; sourceTree = "<group>"; };
@@ -97,6 +104,33 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3B3BD44E1621101C00FC5048 /* Renderers */ = {
+			isa = PBXGroup;
+			children = (
+				3B7670F31618AC22006F1357 /* OpenGLRenderer.cpp */,
+				3B7670F21618AC22006F1357 /* OpenGLRenderer.h */,
+				3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */,
+				3B3BD44916210E7600FC5048 /* TerminalRenderer.h */,
+				3B3BD44C16210EBF00FC5048 /* Renderer.h */,
+			);
+			name = Renderers;
+			sourceTree = "<group>";
+		};
+		3B3BD44F1621103500FC5048 /* Core Classes */ = {
+			isa = PBXGroup;
+			children = (
+				3BC3377F161119D2002D75EE /* Emulator.cpp */,
+				3B3BD447162101BC00FC5048 /* Emulator.h */,
+				3B22C9C716169F40004B28F1 /* Processor.cpp */,
+				3B22C9C816169F40004B28F1 /* Processor.h */,
+				3BC7BD41161269FC006CAA3D /* RomReader.cpp */,
+				3BC7BD42161269FC006CAA3D /* RomReader.h */,
+				3BC7BD4C16134A8E006CAA3D /* PPU.cpp */,
+				3BC7BD4D16134A8E006CAA3D /* PPU.h */,
+			);
+			name = "Core Classes";
+			sourceTree = "<group>";
+		};
 		3B76706A16174DE0006F1357 /* Other Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -160,21 +194,15 @@
 		3BC33774161119D2002D75EE /* Emulator */ = {
 			isa = PBXGroup;
 			children = (
+				3B3BD44F1621103500FC5048 /* Core Classes */,
+				3B3BD44E1621101C00FC5048 /* Renderers */,
 				3B76705416174C9F006F1357 /* TKAppDelegate.h */,
-				3B76705516174C9F006F1357 /* TKAppDelegate.m */,
-				3B22C9C616169F40004B28F1 /* defines.h */,
-				3B22C9C716169F40004B28F1 /* Processor.cpp */,
-				3B22C9C816169F40004B28F1 /* Processor.h */,
-				3BC3377F161119D2002D75EE /* Emulator.cpp */,
-				3BC7BD41161269FC006CAA3D /* RomReader.cpp */,
-				3BC7BD42161269FC006CAA3D /* RomReader.h */,
-				3BC7BD4C16134A8E006CAA3D /* PPU.cpp */,
-				3BC7BD4D16134A8E006CAA3D /* PPU.h */,
+				3B76705516174C9F006F1357 /* TKAppDelegate.mm */,
 				3B7670EB1617551F006F1357 /* EmulatorGLView.h */,
 				3B7670EC1617551F006F1357 /* EmulatorGLView.mm */,
-				3B7670F21618AC22006F1357 /* EmulatorGLRenderer.h */,
-				3B7670F31618AC22006F1357 /* EmulatorGLRenderer.cpp */,
+				3B22C9C616169F40004B28F1 /* defines.h */,
 				3B7670EE1618A8CD006F1357 /* glUtil.h */,
+				3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */,
 				3BC33775161119D2002D75EE /* Supporting Files */,
 			);
 			path = Emulator;
@@ -306,8 +334,10 @@
 				3B7670E4161750B6006F1357 /* RomReader.cpp in Sources */,
 				3B7670E5161750B6006F1357 /* PPU.cpp in Sources */,
 				3BEE20981618D12C003B375F /* EmulatorGLView.mm in Sources */,
-				3B279CA21619F48D00FA7A25 /* EmulatorGLRenderer.cpp in Sources */,
-				3B7670D516174F17006F1357 /* TKAppDelegate.m in Sources */,
+				3B279CA21619F48D00FA7A25 /* OpenGLRenderer.cpp in Sources */,
+				3B7670D516174F17006F1357 /* TKAppDelegate.mm in Sources */,
+				3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */,
+				3B3BD44A16210E7600FC5048 /* TerminalRenderer.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

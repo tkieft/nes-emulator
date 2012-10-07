@@ -10,9 +10,16 @@
 #define __Emulator__PPU__
 
 #include "defines.h"
+#include "glUtil.h"
+#include "Renderer.h"
 
 class PPU {
+    friend class TerminalRenderer;
+    friend class OpenGLRenderer;
+    
 private:
+    Renderer *renderer;
+    
     uint8_t vram[VRAM_SIZE];
     uint8_t spr_ram[SPR_RAM_SIZE];
     
@@ -35,8 +42,12 @@ private:
         
 public:
     PPU();
-    void set_chr_rom(uint8_t * chr_rom);
-    bool render_screen();
+    ~PPU();
+    
+    bool render();
+    void resize(GLuint width, GLuint height);
+    
+    void set_chr_rom(uint8_t *chr_rom);
 
     uint8_t read_status();
     

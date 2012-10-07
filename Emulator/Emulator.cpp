@@ -7,36 +7,39 @@
  *
  */
 
-#include <iostream>
-
-#include "PPU.h"
-#include "Processor.h"
+#include "Emulator.h"
 #include "RomReader.h"
 
-using namespace std;
+Emulator::Emulator() {
+    ppu = new PPU;
+    processor = new Processor(ppu);
+}
 
-/*
-int main(int argc, char* argv[]) {
+Emulator::~Emulator() {
+    delete ppu;
+    delete processor;
+}
+
+void Emulator::load_rom(std::string filename) {
+    RomReader reader(filename);
+    ppu->set_chr_rom((uint8_t *)reader.get_chr_rom());
+    processor->set_prg_rom((uint8_t *)reader.get_prg_rom());
+    processor->reset();
+}
+
+void Emulator::emulate_frame() {
     int clock = 0;
-
-    RomReader reader("/Users/tylerk/Downloads/mario.nes");
-    PPU ppu;
-    ppu.set_chr_rom((uint8_t *)reader.get_chr_rom());
-    Processor processor(&ppu, reader.get_prg_rom());
-
-    while (true) {
-        processor.execute();
-        
+    
+    while (clock < 29830) {
+        processor->execute();
         clock += 5;
-        
-        if (clock > 100000) {
-            if( ppu.render_screen() )
-                processor.non_maskable_interrupt();
-            
-            clock = 0;
-        }
     }
     
-    return 0;
+    if (ppu->render()) {
+        processor->non_maskable_interrupt();
+    }
 }
-*/
+
+void Emulator::resize(GLuint width, GLuint height) {
+	ppu->resize(width, height);
+}

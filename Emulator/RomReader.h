@@ -49,6 +49,7 @@ private:
     
 public:
     RomReader(string filename);
+    ~RomReader();
     
     char *get_prg_rom();
     char *get_chr_rom();
