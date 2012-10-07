@@ -30,8 +30,9 @@ Processor::~Processor() {
     delete cpu_ram;
     delete sram;
     
-    if (prg_rom != NULL)
+    if (prg_rom != NULL) {
         delete prg_rom;
+    }
 }
 
 void Processor::set_prg_rom(uint8_t *prg_rom) {

@@ -48,6 +48,7 @@
 		3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TerminalRenderer.cpp; sourceTree = "<group>"; };
 		3B3BD44916210E7600FC5048 /* TerminalRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TerminalRenderer.h; sourceTree = "<group>"; };
 		3B3BD44C16210EBF00FC5048 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
+		3B3BD450162123EA00FC5048 /* nes_palette.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = nes_palette.h; sourceTree = "<group>"; };
 		3B76705416174C9F006F1357 /* TKAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKAppDelegate.h; sourceTree = "<group>"; };
 		3B76705516174C9F006F1357 /* TKAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TKAppDelegate.mm; sourceTree = "<group>"; };
 		3B76705B16174D12006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = Credits.rtf; sourceTree = "<group>"; };
@@ -203,6 +204,7 @@
 				3B22C9C616169F40004B28F1 /* defines.h */,
 				3B7670EE1618A8CD006F1357 /* glUtil.h */,
 				3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */,
+				3B3BD450162123EA00FC5048 /* nes_palette.h */,
 				3BC33775161119D2002D75EE /* Supporting Files */,
 			);
 			path = Emulator;

@@ -36,7 +36,3 @@ void TerminalRenderer::render() {
 
     cout << endl << endl << endl;
 }
-
-void TerminalRenderer::resize(GLuint width, GLuint height) {
-    // nop
-}

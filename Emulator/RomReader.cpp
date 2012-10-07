@@ -59,8 +59,9 @@ RomReader::~RomReader() {
     // TODO: The RomReader should own this and be able to delete it.
     //delete prg_rom;
 
-    if (chr_rom != NULL)
+    if (chr_rom != NULL) {
         delete chr_rom;
+    }
     
     // What is this even for?
     delete prg_ram;

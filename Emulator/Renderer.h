@@ -16,6 +16,7 @@ public:
     virtual ~Renderer() {}
     virtual void render() = 0;
     virtual void resize(GLuint width, GLuint height) = 0;
+    virtual void update_patterns() = 0;
 };
 
 #endif /* defined(__Emulator__Renderer__) */

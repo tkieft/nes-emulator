@@ -17,7 +17,7 @@
 
 @implementation EmulatorGLView
 
-Emulator* emulator;
+Emulator* emulator = NULL;
 int rand_int = 1;
 
 - (void) awakeFromNib
@@ -101,8 +101,13 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	[[self openGLContext] setValues:&swapInt forParameter:NSOpenGLCPSwapInterval];
 	
     // Initialize the emulator
+    
+    CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
+    
     emulator = new Emulator();
     emulator->load_rom("/Users/tylerk/Downloads/mario.nes");
+    
+    CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 }
 
 - (void) reshape

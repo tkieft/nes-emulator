@@ -22,6 +22,8 @@ PPU::PPU() {
     first_write = true;
     first_read = true;
     
+    patterns_dirty = false;
+    
     for (int i = 0; i < VRAM_SIZE; i++) {
         vram[i] = 0;
     }
@@ -34,24 +36,31 @@ PPU::~PPU() {
 }
 
 bool PPU::render() {
+    // If the screen is enabled, draw
     if ((control_2 & SCREEN_ENABLE_MASK) == SCREEN_ENABLE) {
+        
+        if (patterns_dirty) {
+            patterns_dirty = false;
+            renderer->update_patterns();
+        }
+        
         renderer->render();
     }
-    
+
+    // Set the VBlank flag in the status register
     status |= PPU_STATUS_VBLANK_MASK;
     
+    // If VBlank interrupts are enabled, return true which will generate an interrupt
     return control_1 & VBLANK_INTERRUPT_ENABLE_MASK;
 }
 
 void PPU::set_chr_rom(uint8_t *chr_rom) {
     memcpy(vram, chr_rom, PATTERN_TABLE_SIZE);
+    patterns_dirty = true;
 }
 
 void PPU::resize(GLuint width, GLuint height) {
-	glViewport(0, 0, width, height);
-	
-	//m_viewWidth = width;
-	//m_viewHeight = height;
+    renderer->resize(width, height);
 }
 
 /** PPU MEMORY **/
@@ -62,6 +71,10 @@ uint16_t PPU::calculate_effective_address(uint16_t address) {
         address &= 0x27FF; // controlled by vertical/horiz mirroring
     } else if (address >= 0x3F00) {
         address &= 0x3F1F;
+        
+        if ((address & 0x03) == 0) {
+            address = 0x3FC0;
+        }
     }
     
     return address;
@@ -72,7 +85,14 @@ uint8_t PPU::read_memory(uint16_t address) {
 }
 
 void PPU::store_memory(uint16_t address, uint8_t word) {
-    vram[calculate_effective_address(address)] = word;
+    uint16_t effective_address = calculate_effective_address(address);
+    
+    if (effective_address >= 0x3F00 && effective_address < 0x3F20) {
+        // write to palette, patterns are dirty
+        patterns_dirty = true;
+    }
+    
+    vram[effective_address] = word;
 }
 
 /** VBLANK **/
