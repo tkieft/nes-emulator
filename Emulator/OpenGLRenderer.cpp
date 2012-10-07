@@ -137,7 +137,10 @@ void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int
         uint8_t lowerByte = ppu->read_memory(patternStart + 7 - patternByte);
         uint8_t higherByte = ppu->read_memory(patternStart + 7 - patternByte + 8);
         
+        /* Left to right is high to low */
         for (int patternBit = 7; patternBit >= 0; patternBit--) {
+            // Generate the 4-bit palette entry key. The high bits are the attr. table bits,
+            // and the low bits come from the pattern table.
             uint8_t palette_entry = (attr_bits << 2) |
                                     ((lowerByte & (1 << patternBit)) >> patternBit) |
             (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
@@ -145,7 +148,7 @@ void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int
             
 
             // TODO: Sprite & BG palettes
-            color_t color = NES_PALETTE[ppu->read_memory(0x3F00 + palette_entry)];
+            color_t color = NES_PALETTE[ppu->read_memory(PALETTE_TABLE_START + palette_entry)];
 
             int dataStart = patternByte * 8 * 4 + (7 - patternBit) * 4;
             data[dataStart    ] = color.r;

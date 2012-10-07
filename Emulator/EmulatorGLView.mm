@@ -105,7 +105,7 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
     CGLLockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
     
     emulator = new Emulator();
-    emulator->load_rom("/Users/tylerk/Downloads/mario.nes");
+    emulator->load_rom("/Users/tylerk/Downloads/Super Mario Bros. (W) [!].nes");
     
     CGLUnlockContext((CGLContextObj)[[self openGLContext] CGLContextObj]);
 }
