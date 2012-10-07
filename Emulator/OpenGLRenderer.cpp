@@ -29,14 +29,17 @@ void OpenGLRenderer::render() {
 	// Draw black to the framebuffer
     glClear(GL_COLOR_BUFFER_BIT);
     
+    uint8_t control_1 = ppu->read_control_1();
+    uint8_t control_2 = ppu->read_control_2();
+    
     ///////////////////////////
     // RENDER THE BACKGROUND //
     ///////////////////////////
-    if ((ppu->read_control_2() & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
+    if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
         for (int row = 0; row < 30; row++) {
             for (int col = 0; col < 32; col++) {
                 int character = ppu->read_memory(0x2000 + row * 32 + col);
-                if ((ppu->read_control_1() & BACKGROUND_PATTERN_TABLE_ADDRESS) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
+                if ((control_1 & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
                     character += 256;
                 }
                 
@@ -72,6 +75,34 @@ void OpenGLRenderer::render() {
     // RENDER THE SPRITES //
     ////////////////////////
     if ((ppu->read_control_2() & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
+        if ((control_2 & SPRITE_SIZE_MASK) == SPRITE_SIZE_8x16) {
+            throw "Unimplemented sprite size 8x16!";
+        }
+        
+        // Lowest number sprites are highest priority to draw
+        for (int i = 63; i >= 0; i--) {
+            int ypos            = ppu->spr_ram[i * 4] + 1;
+            int pattern_num     = ppu->spr_ram[i * 4 + 1];
+            uint8_t color_attr  = ppu->spr_ram[i * 4 + 2];
+            uint8_t xpos        = ppu->spr_ram[i * 4 + 3];
+            
+            if ((control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000) {
+                pattern_num += 256;
+            }
+            
+            int upper_color_bits = color_attr & 0x03;
+            
+            // TODO: Flipping, display sprite behind background
+
+            // Should we display the sprite? TODO: Is this right? Are there also cases where the
+            // background is transparent and the sprite is drawn over it?
+            if ((color_attr & 0x20) == 0x00) {
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[upper_color_bits * cPATTERNS + pattern_num]);
+            
+                // OpenGL coords are centered at the bottom left
+                glBlitFramebuffer(0, 0, 8, 8, xpos, ypos - 8, xpos + 8, ypos, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+            }
+        }
     }
     
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
@@ -145,6 +176,17 @@ void OpenGLRenderer::update_patterns() {
 void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int attr_bits) {
     int patternStart = i * cPATTERN_SIZE;
     
+    uint8_t control_1 = ppu->read_control_1();
+    
+    /* Is this a sprite or background? */
+    int palette_table_offset = 0;
+    if ((i < 256 &&
+         (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_0000) ||
+        (i >= 256 &&
+         (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000)) {
+            palette_table_offset = 16;
+    }
+    
     for (int patternByte = 0; patternByte < 8; patternByte++) {
         // OpenGL coords start from the bottom left
         uint8_t lowerByte = ppu->read_memory(patternStart + 7 - patternByte);
@@ -160,8 +202,7 @@ void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int
                                ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
             
 
-            // TODO: Sprite & BG palettes
-            color_t color = NES_PALETTE[ppu->read_memory(PALETTE_TABLE_START + palette_entry)];
+            color_t color = NES_PALETTE[ppu->read_memory(PALETTE_TABLE_START + palette_table_offset + palette_entry)];
 
             int dataStart = patternByte * 8 * 4 + (7 - patternBit) * 4;
             data[dataStart    ] = color.r;

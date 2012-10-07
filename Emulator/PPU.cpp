@@ -69,7 +69,7 @@ uint16_t PPU::calculate_effective_address(uint16_t address) {
     address &= 0x3FFF;
     
     if (address >= 0x2000 && address <= 0x3000) {
-        address &= 0x27FF; // controlled by vertical/horiz mirroring
+        address &= 0x27FF; // TODO: vertical/horiz mirroring
     } else if (address >= 0x3F00) {
         address &= 0x3F1F;
         
