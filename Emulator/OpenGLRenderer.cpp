@@ -29,36 +29,49 @@ void OpenGLRenderer::render() {
 	// Draw black to the framebuffer
     glClear(GL_COLOR_BUFFER_BIT);
     
-    for (int row = 0; row < 30; row++) {
-        for (int col = 0; col < 32; col++) {
+    ///////////////////////////
+    // RENDER THE BACKGROUND //
+    ///////////////////////////
+    if ((ppu->read_control_2() & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
+        for (int row = 0; row < 30; row++) {
+            for (int col = 0; col < 32; col++) {
+                int character = ppu->read_memory(0x2000 + row * 32 + col);
+                if ((ppu->read_control_1() & BACKGROUND_PATTERN_TABLE_ADDRESS) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
+                    character += 256;
+                }
+                
+                // FRIGGIN ATTRIBUTE TABLE! TODO: Optimize this.
+                int attr_byte_address = (row / 4) * 8 + (col / 4);
+                int attr_byte = ppu->read_memory(0x23C0 + attr_byte_address);
+                
+                int rowNum = (row & 0x02) >> 1;
+                int colNum = (col & 0x02) >> 1;
+                
+                if (rowNum == 1 && colNum == 1) {
+                    attr_byte &= (0x03 << 6);
+                    attr_byte >>= 6;
+                } else if (rowNum == 1 && colNum == 0) {
+                    attr_byte &= (0x03 << 4);
+                    attr_byte >>= 4;
+                } else if (rowNum == 0 && colNum == 1) {
+                    attr_byte &= (0x03 << 2);
+                    attr_byte >>= 2;
+                } else {
+                    attr_byte &= 0x03;
+                }
+                            
+                glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[attr_byte * cPATTERNS + character]);
 
-            uint8_t character = ppu->read_memory(0x2000 + row * 32 + col);
-            
-            // FRIGGIN ATTRIBUTE TABLE! TODO: Optimize this.
-            int attr_byte_address = (row / 4) * 8 + (col / 4);
-            int attr_byte = ppu->read_memory(0x23C0 + attr_byte_address);
-            
-            int rowNum = (row & 0x02) >> 1;
-            int colNum = (col & 0x02) >> 1;
-            
-            if (rowNum == 1 && colNum == 1) {
-                attr_byte &= (0x03 << 6);
-                attr_byte >>= 6;
-            } else if (rowNum == 1 && colNum == 0) {
-                attr_byte &= (0x03 << 4);
-                attr_byte >>= 4;
-            } else if (rowNum == 0 && colNum == 1) {
-                attr_byte &= (0x03 << 2);
-                attr_byte >>= 2;
-            } else {
-                attr_byte &= 0x03;
+                // OpenGL coords are centered at the bottom left, so we must invert row.
+                glBlitFramebuffer(0, 0, 8, 8, col * 8, (29 - row) * 8, (col + 1) * 8, (29 - row + 1) * 8,  GL_COLOR_BUFFER_BIT, GL_LINEAR);
             }
-                        
-            glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[attr_byte * cPATTERNS + character + 256]); // TODO: differentiate between sprite & screen bgs
-
-            // OpenGL coords are centered at the bottom left, so we must invert row.
-            glBlitFramebuffer(0, 0, 8, 8, col * 8, (29 - row) * 8, (col + 1) * 8, (29 - row + 1) * 8,  GL_COLOR_BUFFER_BIT, GL_LINEAR);
         }
+    }
+    
+    ////////////////////////
+    // RENDER THE SPRITES //
+    ////////////////////////
+    if ((ppu->read_control_2() & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
     }
     
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);

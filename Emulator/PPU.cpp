@@ -37,7 +37,8 @@ PPU::~PPU() {
 
 bool PPU::render() {
     // If the screen is enabled, draw
-    if ((control_2 & SCREEN_ENABLE_MASK) == SCREEN_ENABLE) {
+    if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
+        (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
         
         if (patterns_dirty) {
             patterns_dirty = false;
