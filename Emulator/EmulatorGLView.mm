@@ -150,5 +150,34 @@ static CVReturn MyDisplayLinkCallback(CVDisplayLinkRef displayLink, const CVTime
 	CVDisplayLinkRelease(displayLink);
 }
 
+// -----------------------------------
+// First Responder Methods
+// -----------------------------------
 
+- (BOOL)acceptsFirstResponder
+{
+    return YES;
+}
+
+- (void)keyDown:(NSEvent *)event {
+    BOOL handled = NO;
+    
+    // get the pressed key
+    handled = emulator->handle_key_down([event keyCode]);
+    
+    if (!handled) {
+        [super keyDown:event];
+    }
+}
+
+- (void)keyUp:(NSEvent *)event {
+    BOOL handled = NO;
+    
+    // get the unpressed key
+    handled = emulator->handle_key_up([event keyCode]);
+    
+    if (!handled) {
+        [super keyUp:event];
+    }
+}
 @end

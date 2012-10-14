@@ -9,15 +9,18 @@
 
 #include "Emulator.h"
 #include "RomReader.h"
+#include "ControllerPad.h"
 
 Emulator::Emulator() {
-    ppu = new PPU;
-    processor = new Processor(ppu);
+    ppu = new PPU();
+    controller_pad = new ControllerPad();
+    processor = new Processor(ppu, controller_pad);
 }
 
 Emulator::~Emulator() {
     delete ppu;
     delete processor;
+    delete controller_pad;
 }
 
 void Emulator::load_rom(std::string filename) {
@@ -42,4 +45,12 @@ void Emulator::emulate_frame() {
 
 void Emulator::resize(GLuint width, GLuint height) {
 	ppu->resize(width, height);
+}
+
+bool Emulator::handle_key_down(unsigned short key_code) {
+    return controller_pad->record_key_down(key_code);
+}
+
+bool Emulator::handle_key_up(unsigned short key_code) {
+    return controller_pad->record_key_up(key_code);
 }

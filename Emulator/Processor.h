@@ -14,10 +14,12 @@
 
 #include "defines.h"
 #include "PPU.h"
+#include "ControllerPad.h"
 
 class Processor {
 private:
     PPU *ppu;
+    ControllerPad *controller_pad;
     
     int last_pcs[20];
     int last_pc_index;
@@ -71,7 +73,7 @@ private:
     uint16_t rel_addr(uint16_t addr, uint8_t offset);
     
 public:
-    Processor(PPU *ppu);
+    Processor(PPU *ppu, ControllerPad *controller_pad);
     ~Processor();
     void set_prg_rom(uint8_t *prg_rom);
     void execute();

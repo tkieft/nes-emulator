@@ -81,7 +81,7 @@ void OpenGLRenderer::render() {
         
         // Lowest number sprites are highest priority to draw
         for (int i = 63; i >= 0; i--) {
-            int ypos            = ppu->spr_ram[i * 4] + 1;
+            int ypos            = ppu->spr_ram[i * 4];
             int pattern_num     = ppu->spr_ram[i * 4 + 1];
             uint8_t color_attr  = ppu->spr_ram[i * 4 + 2];
             uint8_t xpos        = ppu->spr_ram[i * 4 + 3];
@@ -92,18 +92,28 @@ void OpenGLRenderer::render() {
             
             int upper_color_bits = color_attr & 0x03;
             
-            // TODO: Flipping, display sprite behind background
-
+            bool flip_horizontal = color_attr & 0x40;
+            bool flip_vertical = color_attr & 0x80;
+            
+            // OpenGL coords are centered at the bottom left
+            // TODO: Why are these coord numbers so screwy??
+            int xsrc = flip_horizontal ? xpos + 8           : xpos;
+            int ysrc = flip_vertical   ? 255 - (ypos + 16)  : 255 - (ypos + 24);
+            int xdst = flip_horizontal ? xpos               : xpos + 8;
+            int ydst = flip_vertical   ? 255 - (ypos + 24)  : 255 - (ypos + 16);
+            
             // Should we display the sprite? TODO: Is this right? Are there also cases where the
             // background is transparent and the sprite is drawn over it?
             if ((color_attr & 0x20) == 0x00) {
                 glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[upper_color_bits * cPATTERNS + pattern_num]);
-            
-                // OpenGL coords are centered at the bottom left
-                glBlitFramebuffer(0, 0, 8, 8, xpos, ypos - 8, xpos + 8, ypos, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+
+                glBlitFramebuffer(0, 0, 8, 8, xsrc, ysrc, xdst, ydst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
             }
         }
     }
+    
+    // TODO!!!!!!
+    ppu->set_sprite_0_flag();
     
     glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
@@ -134,10 +144,16 @@ OpenGLRenderer::OpenGLRenderer(PPU *ppu) {
     ////////////////////////////////////////////////
     // Set up OpenGL state that will never change //
     ////////////////////////////////////////////////
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     // Always use this clear color
-    glClearColor(0, 0, 0, 0);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
+    
+    // No depth testing
+    glDisable(GL_DEPTH_TEST);
 
     /////////////////////////////////////
     // Set up OpenGL Rendering Objects //
@@ -152,7 +168,7 @@ OpenGLRenderer::OpenGLRenderer(PPU *ppu) {
 
 void OpenGLRenderer::update_patterns() {
     std::cout << "Updating patterns..." << std::endl;
-    
+
     // Patterns are 8px by 8px, each pixel has RGBA color components
     GLubyte data[8 * 8 * 4];
     
@@ -164,6 +180,7 @@ void OpenGLRenderer::update_patterns() {
             generate_texture_data_for_pattern(i, data, attr_bits);
 
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            
             glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, patterns[attr_bits * cPATTERNS + i], 0);
         }
     }
@@ -175,17 +192,17 @@ void OpenGLRenderer::update_patterns() {
 
 void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int attr_bits) {
     int patternStart = i * cPATTERN_SIZE;
-    
+
     uint8_t control_1 = ppu->read_control_1();
+    bool is_sprite = ((i < 256 &&
+                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_0000) ||
+                      (i >= 256 &&
+                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000));
+    
+    uint8_t transparency_color_offset = ppu->read_memory(PALETTE_TABLE_START);
     
     /* Is this a sprite or background? */
-    int palette_table_offset = 0;
-    if ((i < 256 &&
-         (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_0000) ||
-        (i >= 256 &&
-         (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000)) {
-            palette_table_offset = 16;
-    }
+    int palette_table_offset = is_sprite ? 16 : 0;
     
     for (int patternByte = 0; patternByte < 8; patternByte++) {
         // OpenGL coords start from the bottom left
@@ -202,13 +219,14 @@ void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int
                                ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
             
 
-            color_t color = NES_PALETTE[ppu->read_memory(PALETTE_TABLE_START + palette_table_offset + palette_entry)];
+            uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + palette_table_offset + palette_entry);
+            color_t color = NES_PALETTE[color_offset];
 
             int dataStart = patternByte * 8 * 4 + (7 - patternBit) * 4;
             data[dataStart    ] = color.r;
             data[dataStart + 1] = color.g;
             data[dataStart + 2] = color.b;
-            data[dataStart + 3] = 255; // Alpha always = 1
+            data[dataStart + 3] = (is_sprite && color_offset == transparency_color_offset) ? 0 : 255;
         }
     }
 }

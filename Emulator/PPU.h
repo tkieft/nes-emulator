@@ -41,6 +41,9 @@ private:
     void store_memory(uint16_t address, uint8_t word);
     
     void reset_vblank_flag();
+    
+    void reset_sprite_0_flag();
+    void set_sprite_0_flag();
         
 public:
     PPU();

@@ -36,6 +36,8 @@ PPU::~PPU() {
 }
 
 bool PPU::render() {
+    reset_sprite_0_flag();
+    
     // If the screen is enabled, draw
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
         (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
@@ -101,6 +103,14 @@ void PPU::reset_vblank_flag() {
     status &= ~PPU_STATUS_VBLANK_MASK;
 }
 
+/** SPRITE HIT **/
+void PPU::reset_sprite_0_flag() {
+    status &= ~PPU_STATUS_SPRITE_0_HIT_MASK;
+}
+
+void PPU::set_sprite_0_flag() {
+    status |= PPU_STATUS_SPRITE_0_HIT_MASK;
+}
 
 /** REGISTER READS AND WRITES */
 

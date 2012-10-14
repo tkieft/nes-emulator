@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B15A8781621EF2600A79745 /* ControllerPad.cpp */; };
 		3B279CA21619F48D00FA7A25 /* OpenGLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* OpenGLRenderer.cpp */; };
 		3B279CA41619F4BE00FA7A25 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B7670E616175374006F1357 /* OpenGL.framework */; };
 		3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */; };
@@ -40,6 +41,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		3B15A8781621EF2600A79745 /* ControllerPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerPad.cpp; sourceTree = "<group>"; };
+		3B15A8791621EF2600A79745 /* ControllerPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerPad.h; sourceTree = "<group>"; };
 		3B22C9C616169F40004B28F1 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
 		3B22C9C716169F40004B28F1 /* Processor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Processor.cpp; sourceTree = "<group>"; };
 		3B22C9C816169F40004B28F1 /* Processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Processor.h; sourceTree = "<group>"; };
@@ -128,6 +131,8 @@
 				3BC7BD42161269FC006CAA3D /* RomReader.h */,
 				3BC7BD4C16134A8E006CAA3D /* PPU.cpp */,
 				3BC7BD4D16134A8E006CAA3D /* PPU.h */,
+				3B15A8781621EF2600A79745 /* ControllerPad.cpp */,
+				3B15A8791621EF2600A79745 /* ControllerPad.h */,
 			);
 			name = "Core Classes";
 			sourceTree = "<group>";
@@ -340,6 +345,7 @@
 				3B7670D516174F17006F1357 /* TKAppDelegate.mm in Sources */,
 				3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */,
 				3B3BD44A16210E7600FC5048 /* TerminalRenderer.cpp in Sources */,
+				3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

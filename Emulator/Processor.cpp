@@ -10,8 +10,9 @@
 
 #include "Processor.h"
 
-Processor::Processor(PPU *ppu) {
+Processor::Processor(PPU *ppu, ControllerPad *controller_pad) {
     this->ppu = ppu;
+    this->controller_pad = controller_pad;
     
     prg_rom = NULL;
     cpu_ram = new uint8_t[CPU_RAM_SIZE];
@@ -156,8 +157,15 @@ uint8_t Processor::read_memory(uint16_t address) {
         // Expansion ROM
         //throw "Expansion ROM not implemented";
     } else if (address >= 0x4000) {
-        // Other I/O registers
-        return 0;
+        switch (address) {
+            case 0x4016:
+                return controller_pad->read_controller_1_state();
+            case 0x4017:
+                return controller_pad->read_controller_2_state();
+            default:
+                // Other I/O registers
+                return 0;
+        }
     } else if (address >= 0x2000) {
         // PPU I/O Registers
         switch (address & 0x07) {           // I/O registers are mirrored every 8 bytes
@@ -215,6 +223,12 @@ void Processor::store_memory(uint16_t address, uint8_t value) {
         switch (address) {
             case 0x4014:
                 ppu->write_spr_ram((char *)(cpu_ram + value * 0x100));
+                break;
+            case 0x4016:
+                controller_pad->write_value(value);
+                break;
+            case 0x4017:
+                throw "Halp!";
                 break;
             default:
                 break;
