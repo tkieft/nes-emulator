@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B15A8781621EF2600A79745 /* ControllerPad.cpp */; };
-		3B279CA21619F48D00FA7A25 /* OpenGLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* OpenGLRenderer.cpp */; };
+		3B279CA21619F48D00FA7A25 /* SDLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* SDLRenderer.cpp */; };
 		3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */; };
 		3B3BD44A16210E7600FC5048 /* TerminalRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */; };
 		3B7670A516174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
@@ -69,8 +69,8 @@
 		3B7670C916174EA5006F1357 /* EmulatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmulatorTests.m; sourceTree = "<group>"; };
 		3B7670D116174ECE006F1357 /* Emulator-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Emulator-Prefix.pch"; sourceTree = "<group>"; };
 		3B7670D216174EEE006F1357 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
-		3B7670F21618AC22006F1357 /* OpenGLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = OpenGLRenderer.h; sourceTree = "<group>"; };
-		3B7670F31618AC22006F1357 /* OpenGLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OpenGLRenderer.cpp; sourceTree = "<group>"; };
+		3B7670F21618AC22006F1357 /* SDLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = SDLRenderer.h; sourceTree = "<group>"; };
+		3B7670F31618AC22006F1357 /* SDLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLRenderer.cpp; sourceTree = "<group>"; };
 		3BA95A58162B7FFC00B585CC /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDLMain.h; sourceTree = "<group>"; };
 		3BA95A59162B7FFC00B585CC /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLMain.m; sourceTree = "<group>"; };
 		3BA95A5B162B802800B585CC /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = /Library/Frameworks/SDL.framework; sourceTree = "<absolute>"; };
@@ -107,8 +107,8 @@
 		3B3BD44E1621101C00FC5048 /* Renderers */ = {
 			isa = PBXGroup;
 			children = (
-				3B7670F31618AC22006F1357 /* OpenGLRenderer.cpp */,
-				3B7670F21618AC22006F1357 /* OpenGLRenderer.h */,
+				3B7670F31618AC22006F1357 /* SDLRenderer.cpp */,
+				3B7670F21618AC22006F1357 /* SDLRenderer.h */,
 				3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */,
 				3B3BD44916210E7600FC5048 /* TerminalRenderer.h */,
 				3B3BD44C16210EBF00FC5048 /* Renderer.h */,
@@ -333,7 +333,7 @@
 				3B7670E3161750B6006F1357 /* Emulator.cpp in Sources */,
 				3B7670E4161750B6006F1357 /* RomReader.cpp in Sources */,
 				3B7670E5161750B6006F1357 /* PPU.cpp in Sources */,
-				3B279CA21619F48D00FA7A25 /* OpenGLRenderer.cpp in Sources */,
+				3B279CA21619F48D00FA7A25 /* SDLRenderer.cpp in Sources */,
 				3B7670D516174F17006F1357 /* TKAppDelegate.mm in Sources */,
 				3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */,
 				3B3BD44A16210E7600FC5048 /* TerminalRenderer.cpp in Sources */,

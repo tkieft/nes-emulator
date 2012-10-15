@@ -6,8 +6,10 @@
 //
 //
 
-#ifndef Open_GL_Renderer_h
-#define Open_GL_Renderer_h
+#ifndef SDL_Renderer_h
+#define SDL_Renderer_h
+
+#include "SDL/SDL.h"
 
 #include "Renderer.h"
 #include "PPU.h"
@@ -19,13 +21,14 @@ static const int cPATTERNS = 512;
 // 16 bytes per pattern
 static const int cPATTERN_SIZE = 16;
 
-class OpenGLRenderer : public Renderer {
+class SDLRenderer : public Renderer {
 private:
+    SDL_Surface *screen;
     PPU *ppu;
 
 public:
-    OpenGLRenderer(PPU *ppu);
-    virtual ~OpenGLRenderer();
+    SDLRenderer(PPU *ppu);
+    virtual ~SDLRenderer();
     virtual void resize(int width, int height);
     virtual void render();
     virtual void update_patterns();

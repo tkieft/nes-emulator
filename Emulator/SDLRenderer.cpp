@@ -1,33 +1,29 @@
 //
-//  OpenGLRenderer.cpp
+//  SDLRenderer.cpp
 //  Emulator
 //
 //  Created by Tyler Kieft on 9/30/12.
 //
 //
 
-#include "OpenGLRenderer.h"
+#include "SDLRenderer.h"
 
 #include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 
-#define GetGLError()									\
-{														\
-    GLenum err = glGetError();                          \
-    while (err != GL_NO_ERROR) {                        \
-        printf("GLError %s set in File:%s Line:%d\n",   \
-                GetGLErrorString(err),                  \
-                __FILE__,                               \
-                __LINE__);                              \
-        err = glGetError();                             \
-    }                                                   \
-}
-
-
-void OpenGLRenderer::render() {
-	// Draw black to the framebuffer
-    //glClear(GL_COLOR_BUFFER_BIT);
+void SDLRenderer::render() {
+    
+    
+    int boardSize = 100 * 100;
+	const int rectX = 0, rectY = 0;
+    const int XLOC = 0, YLOC = 0;
+    SDL_Color WALL_COLOR = {0xFF, 0xFF, 0xFF};
+    SDL_Color FLOOR_COLOR = {0x30, 0x30, 0x30};
+	SDL_Rect middleBoard = { static_cast<Sint16>(0 + boardSize / 2 - rectX / 2 - 3), static_cast<Sint16>(0 + boardSize / 2 - rectY / 2 - 3), rectX + 6, rectY + 6 };
+	SDL_FillRect( screen, &middleBoard, SDL_MapRGB( screen->format, WALL_COLOR.r, WALL_COLOR.g, WALL_COLOR.b ) );
+    SDL_Rect middleBoard2 = { static_cast<Sint16>(XLOC + boardSize / 2 - rectX / 2), static_cast<Sint16>(YLOC + boardSize / 2 - rectY / 2), rectX, rectY };
+	SDL_FillRect( screen, &middleBoard2, SDL_MapRGB( screen->format, FLOOR_COLOR.r, FLOOR_COLOR.g, FLOOR_COLOR.b ) );
     
     uint8_t control_1 = ppu->read_control_1();
     uint8_t control_2 = ppu->read_control_2();
@@ -115,58 +111,42 @@ void OpenGLRenderer::render() {
     // TODO!!!!!!
     ppu->set_sprite_0_flag();
     
-    //glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    SDL_Flip(screen);
 }
 
-void OpenGLRenderer::resize(int width, int height) {
+void SDLRenderer::resize(int width, int height) {
 //	glViewport(0, 0, width, height);
 //	
 //	m_viewWidth = width;
 //	m_viewHeight = height;
 }
 
-OpenGLRenderer::OpenGLRenderer(PPU *ppu) {
-    //printf("%s %s\n", glGetString(GL_RENDERER), glGetString(GL_VERSION));
-    
-    ////////////////////////////////////////////////////
-    // Build all of our and setup initial state here  //
-    // Don't wait until our real time run loop begins //
-    ////////////////////////////////////////////////////
-    
-    // This is always 0 in MacOS (but not iOS)
-//    m_defaultFBOName = 0;
-//    
-//    m_viewWidth = 100;
-//    m_viewHeight = 100;
-    
+SDLRenderer::SDLRenderer(PPU *ppu) {
     this->ppu = ppu;
     
-    ////////////////////////////////////////////////
-    // Set up OpenGL state that will never change //
-    ////////////////////////////////////////////////
+    // initialize SDL
+    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER ) < 0)
+    {
+        std::cout << "Unable to initialize SDL: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
     
-//    glEnable(GL_BLEND);
-//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//
-    // Always use this clear color
-//    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-//    glClear(GL_COLOR_BUFFER_BIT);
-//    
-    // No depth testing
-    //glDisable(GL_DEPTH_TEST);
-
-    /////////////////////////////////////
-    // Set up OpenGL Rendering Objects //
-    /////////////////////////////////////
+    // create the screen surface
+    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );// | SDL_FULLSCREEN );
     
-    //glGenTextures(cPATTERNS * 4, patterns);
-    //glGenFramebuffers(cPATTERNS * 4, pattern_fbos);
+    if (!screen)
+    {
+        std::cout << "Unable to set 640x480 video: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
     
-    // Check for errors to make sure all of our setup went ok
-    //GetGLError();
+    const std::string window_title = "Emulator";
+    
+    // set the title bar text
+    SDL_WM_SetCaption( window_title.c_str(), window_title.c_str() );
 }
 
-void OpenGLRenderer::update_patterns() {
+void SDLRenderer::update_patterns() {
     std::cout << "Updating patterns..." << std::endl;
 
     // Patterns are 8px by 8px, each pixel has RGBA color components
@@ -190,7 +170,7 @@ void OpenGLRenderer::update_patterns() {
     //glViewport(0, 0, m_viewWidth, m_viewHeight);
 }
 
-//void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int attr_bits) {
+//void SDLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int attr_bits) {
 //    int patternStart = i * cPATTERN_SIZE;
 //
 //    uint8_t control_1 = ppu->read_control_1();
@@ -231,5 +211,6 @@ void OpenGLRenderer::update_patterns() {
 //    }
 //}
 
-OpenGLRenderer::~OpenGLRenderer() {
+SDLRenderer::~SDLRenderer() {
+    SDL_Quit();
 }

@@ -14,7 +14,7 @@
 
 class PPU {
     friend class TerminalRenderer;
-    friend class OpenGLRenderer;
+    friend class SDLRenderer;
     
 private:
     Renderer *renderer;

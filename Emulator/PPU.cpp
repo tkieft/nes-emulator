@@ -11,7 +11,7 @@
 #include "PPU.h"
 
 #include "TerminalRenderer.h"
-#include "OpenGLRenderer.h"
+#include "SDLRenderer.h"
 
 PPU::PPU() {
     control_1 = 0;
@@ -28,7 +28,7 @@ PPU::PPU() {
         vram[i] = 0;
     }
     
-    renderer = new OpenGLRenderer(this);
+    renderer = new SDLRenderer(this);
 }
 
 PPU::~PPU() {

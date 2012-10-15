@@ -11,6 +11,11 @@
 
 #include <stdint.h>
 
+#define FPS 60
+#define SCREEN_WIDTH 256
+#define SCREEN_HEIGHT 240
+#define SCREEN_BPP 32
+
 #define VRAM_SIZE 0x4000
 #define PATTERN_TABLE_SIZE 0x2000
 #define SPR_RAM_SIZE 0x100
