@@ -26,7 +26,7 @@ public:
     ~Emulator();
     void load_rom(std::string filename);
     void emulate_frame();
-    void resize(GLuint width, GLuint height);
+    void resize(int width, int height);
     
     bool handle_key_up(unsigned short key_code);
     bool handle_key_down(unsigned short key_code);

@@ -10,7 +10,6 @@
 #define __Emulator__PPU__
 
 #include "defines.h"
-#include "glUtil.h"
 #include "Renderer.h"
 
 class PPU {
@@ -50,7 +49,7 @@ public:
     ~PPU();
     
     bool render();
-    void resize(GLuint width, GLuint height);
+    void resize(int width, int height);
     void set_chr_rom(uint8_t *chr_rom);
 
     uint8_t read_status();

@@ -62,7 +62,7 @@ void PPU::set_chr_rom(uint8_t *chr_rom) {
     patterns_dirty = true;
 }
 
-void PPU::resize(GLuint width, GLuint height) {
+void PPU::resize(int width, int height) {
     renderer->resize(width, height);
 }
 

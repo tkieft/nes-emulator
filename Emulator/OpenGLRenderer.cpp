@@ -27,7 +27,7 @@
 
 void OpenGLRenderer::render() {
 	// Draw black to the framebuffer
-    glClear(GL_COLOR_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT);
     
     uint8_t control_1 = ppu->read_control_1();
     uint8_t control_2 = ppu->read_control_2();
@@ -63,10 +63,10 @@ void OpenGLRenderer::render() {
                     attr_byte &= 0x03;
                 }
                             
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[attr_byte * cPATTERNS + character]);
+                //glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[attr_byte * cPATTERNS + character]);
 
                 // OpenGL coords are centered at the bottom left, so we must invert row.
-                glBlitFramebuffer(0, 0, 8, 8, col * 8, (29 - row) * 8, (col + 1) * 8, (29 - row + 1) * 8,  GL_COLOR_BUFFER_BIT, GL_LINEAR);
+                //glBlitFramebuffer(0, 0, 8, 8, col * 8, (29 - row) * 8, (col + 1) * 8, (29 - row + 1) * 8,  GL_COLOR_BUFFER_BIT, GL_LINEAR);
             }
         }
     }
@@ -105,9 +105,9 @@ void OpenGLRenderer::render() {
             // Should we display the sprite? TODO: Is this right? Are there also cases where the
             // background is transparent and the sprite is drawn over it?
             if ((color_attr & 0x20) == 0x00) {
-                glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[upper_color_bits * cPATTERNS + pattern_num]);
+                //glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[upper_color_bits * cPATTERNS + pattern_num]);
 
-                glBlitFramebuffer(0, 0, 8, 8, xsrc, ysrc, xdst, ydst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+                //glBlitFramebuffer(0, 0, 8, 8, xsrc, ysrc, xdst, ydst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
             }
         }
     }
@@ -115,18 +115,18 @@ void OpenGLRenderer::render() {
     // TODO!!!!!!
     ppu->set_sprite_0_flag();
     
-    glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
+    //glBindFramebuffer(GL_READ_FRAMEBUFFER, 0);
 }
 
-void OpenGLRenderer::resize(GLuint width, GLuint height) {
-	glViewport(0, 0, width, height);
-	
-	m_viewWidth = width;
-	m_viewHeight = height;
+void OpenGLRenderer::resize(int width, int height) {
+//	glViewport(0, 0, width, height);
+//	
+//	m_viewWidth = width;
+//	m_viewHeight = height;
 }
 
 OpenGLRenderer::OpenGLRenderer(PPU *ppu) {
-    printf("%s %s\n", glGetString(GL_RENDERER), glGetString(GL_VERSION));
+    //printf("%s %s\n", glGetString(GL_RENDERER), glGetString(GL_VERSION));
     
     ////////////////////////////////////////////////////
     // Build all of our and setup initial state here  //
@@ -134,10 +134,10 @@ OpenGLRenderer::OpenGLRenderer(PPU *ppu) {
     ////////////////////////////////////////////////////
     
     // This is always 0 in MacOS (but not iOS)
-    m_defaultFBOName = 0;
-    
-    m_viewWidth = 100;
-    m_viewHeight = 100;
+//    m_defaultFBOName = 0;
+//    
+//    m_viewWidth = 100;
+//    m_viewHeight = 100;
     
     this->ppu = ppu;
     
@@ -145,91 +145,91 @@ OpenGLRenderer::OpenGLRenderer(PPU *ppu) {
     // Set up OpenGL state that will never change //
     ////////////////////////////////////////////////
     
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+//    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//
     // Always use this clear color
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-    
+//    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+//    glClear(GL_COLOR_BUFFER_BIT);
+//    
     // No depth testing
-    glDisable(GL_DEPTH_TEST);
+    //glDisable(GL_DEPTH_TEST);
 
     /////////////////////////////////////
     // Set up OpenGL Rendering Objects //
     /////////////////////////////////////
     
-    glGenTextures(cPATTERNS * 4, patterns);
-    glGenFramebuffers(cPATTERNS * 4, pattern_fbos);
+    //glGenTextures(cPATTERNS * 4, patterns);
+    //glGenFramebuffers(cPATTERNS * 4, pattern_fbos);
     
     // Check for errors to make sure all of our setup went ok
-    GetGLError();
+    //GetGLError();
 }
 
 void OpenGLRenderer::update_patterns() {
     std::cout << "Updating patterns..." << std::endl;
 
     // Patterns are 8px by 8px, each pixel has RGBA color components
-    GLubyte data[8 * 8 * 4];
+    //GLubyte data[8 * 8 * 4];
     
     for (int attr_bits = 0; attr_bits < 4; attr_bits++) {
         for (int i = 0; i < cPATTERNS; i++) {
-            glBindTexture(GL_TEXTURE_2D, patterns[attr_bits * cPATTERNS + i]);
-            glBindFramebuffer(GL_FRAMEBUFFER, pattern_fbos[attr_bits * cPATTERNS + i]);
+            //glBindTexture(GL_TEXTURE_2D, patterns[attr_bits * cPATTERNS + i]);
+            //glBindFramebuffer(GL_FRAMEBUFFER, pattern_fbos[attr_bits * cPATTERNS + i]);
             
-            generate_texture_data_for_pattern(i, data, attr_bits);
+            //generate_texture_data_for_pattern(i, data, attr_bits);
 
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+            //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
             
-            glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, patterns[attr_bits * cPATTERNS + i], 0);
+            //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, patterns[attr_bits * cPATTERNS + i], 0);
         }
     }
     
     // Go back to the default framebuffer
-    glBindFramebuffer(GL_FRAMEBUFFER, m_defaultFBOName);
-    glViewport(0, 0, m_viewWidth, m_viewHeight);
+    //glBindFramebuffer(GL_FRAMEBUFFER, m_defaultFBOName);
+    //glViewport(0, 0, m_viewWidth, m_viewHeight);
 }
 
-void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int attr_bits) {
-    int patternStart = i * cPATTERN_SIZE;
-
-    uint8_t control_1 = ppu->read_control_1();
-    bool is_sprite = ((i < 256 &&
-                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_0000) ||
-                      (i >= 256 &&
-                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000));
-    
-    uint8_t transparency_color_offset = ppu->read_memory(PALETTE_TABLE_START);
-    
-    /* Is this a sprite or background? */
-    int palette_table_offset = is_sprite ? 16 : 0;
-    
-    for (int patternByte = 0; patternByte < 8; patternByte++) {
-        // OpenGL coords start from the bottom left
-        uint8_t lowerByte = ppu->read_memory(patternStart + 7 - patternByte);
-        uint8_t higherByte = ppu->read_memory(patternStart + 7 - patternByte + 8);
-        
-        /* Left to right is high to low */
-        for (int patternBit = 7; patternBit >= 0; patternBit--) {
-            // Generate the 4-bit palette entry key. The high bits are the attr. table bits,
-            // and the low bits come from the pattern table.
-            uint8_t palette_entry = (attr_bits << 2) |
-                                    ((lowerByte & (1 << patternBit)) >> patternBit) |
-            (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
-                               ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
-            
-
-            uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + palette_table_offset + palette_entry);
-            color_t color = NES_PALETTE[color_offset];
-
-            int dataStart = patternByte * 8 * 4 + (7 - patternBit) * 4;
-            data[dataStart    ] = color.r;
-            data[dataStart + 1] = color.g;
-            data[dataStart + 2] = color.b;
-            data[dataStart + 3] = (is_sprite && color_offset == transparency_color_offset) ? 0 : 255;
-        }
-    }
-}
+//void OpenGLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int attr_bits) {
+//    int patternStart = i * cPATTERN_SIZE;
+//
+//    uint8_t control_1 = ppu->read_control_1();
+//    bool is_sprite = ((i < 256 &&
+//                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_0000) ||
+//                      (i >= 256 &&
+//                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000));
+//    
+//    uint8_t transparency_color_offset = ppu->read_memory(PALETTE_TABLE_START);
+//    
+//    /* Is this a sprite or background? */
+//    int palette_table_offset = is_sprite ? 16 : 0;
+//    
+//    for (int patternByte = 0; patternByte < 8; patternByte++) {
+//        // OpenGL coords start from the bottom left
+//        uint8_t lowerByte = ppu->read_memory(patternStart + 7 - patternByte);
+//        uint8_t higherByte = ppu->read_memory(patternStart + 7 - patternByte + 8);
+//        
+//        /* Left to right is high to low */
+//        for (int patternBit = 7; patternBit >= 0; patternBit--) {
+//            // Generate the 4-bit palette entry key. The high bits are the attr. table bits,
+//            // and the low bits come from the pattern table.
+//            uint8_t palette_entry = (attr_bits << 2) |
+//                                    ((lowerByte & (1 << patternBit)) >> patternBit) |
+//            (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
+//                               ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
+//            
+//
+//            uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + palette_table_offset + palette_entry);
+//            color_t color = NES_PALETTE[color_offset];
+//
+//            int dataStart = patternByte * 8 * 4 + (7 - patternBit) * 4;
+//            data[dataStart    ] = color.r;
+//            data[dataStart + 1] = color.g;
+//            data[dataStart + 2] = color.b;
+//            data[dataStart + 3] = (is_sprite && color_offset == transparency_color_offset) ? 0 : 255;
+//        }
+//    }
+//}
 
 OpenGLRenderer::~OpenGLRenderer() {
 }

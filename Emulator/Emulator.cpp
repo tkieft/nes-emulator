@@ -43,7 +43,7 @@ void Emulator::emulate_frame() {
     }
 }
 
-void Emulator::resize(GLuint width, GLuint height) {
+void Emulator::resize(int width, int height) {
 	ppu->resize(width, height);
 }
 

@@ -19,7 +19,7 @@ public:
     TerminalRenderer(PPU *ppu);
     virtual ~TerminalRenderer();
     virtual void render();
-    virtual void resize(GLuint width, GLuint height) { }
+    virtual void resize(int width, int height) { }
     virtual void update_patterns() { }
 };
 
