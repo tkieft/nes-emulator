@@ -1,13 +1,13 @@
 //
-//  Header.h
+//  defines.h
 //  Emulator
 //
 //  Created by Tyler Kieft on 9/26/12.
 //
 //
 
-#ifndef Emulator_Header_h
-#define Emulator_Header_h
+#ifndef Emulator_defines_h
+#define Emulator_defines_h
 
 #include <stdint.h>
 
@@ -78,9 +78,14 @@
 #define SPRITES_ENABLE 0x10
 
 /*** PPU STATUS ***/
+#define PPU_STATUS_MORE_THAN_8_SPRITES_HIT_MASK 0x20
 #define PPU_STATUS_SPRITE_0_HIT_MASK 0x40
 #define PPU_STATUS_VBLANK_MASK 0x80
 
 #define PPU_STATUS_SPRITE_0_HIT     0x40
 #define PPU_STATUS_SPRITE_0_RESET   0x00
-#endif
+
+#define PPU_STATUS_MORE_THAN_8_SPRITES_HIT 0x20
+#define PPU_STATUS_MORE_THAN_8_SPRITES_RESET 0x00
+
+#endif // Emulator_defines_h

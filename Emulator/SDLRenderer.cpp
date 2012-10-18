@@ -33,36 +33,33 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int pattern_num, int attr_high_
     return ppu->read_memory(PALETTE_TABLE_START + (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry);
 }
 
-void SDLRenderer::render() {
-    if (SDL_MUSTLOCK(screen)) {
-        SDL_LockSurface(screen);
-    }
-    
+void SDLRenderer::draw_scanline(int scanline) {
     uint8_t control_1 = ppu->read_control_1();
     uint8_t control_2 = ppu->read_control_2();
     
+    ppu->reset_more_than_8_sprites_flag();
+    
+    int tile_row = scanline / 8;
+
     ///////////////////////////
     // RENDER THE BACKGROUND //
     ///////////////////////////
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
-        for (int row = 0; row < 30; row++) {
-            for (int col = 0; col < 32; col++) {
-                int pattern_num = ppu->read_memory(0x2000 + row * 32 + col);
-                if ((control_1 & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
-                    pattern_num += 256;
-                }
-                
-                // FRIGGIN ATTRIBUTE TABLE! Figure out the 2 high bits of the palette offset using the attribute table.
-                int attr_byte_address = (row / 4) * 8 + (col / 4);
-                int attr_byte = ppu->read_memory(0x23C0 + attr_byte_address);
-                int bits_offset = ((row & 0x02) << 1) | (col & 0x02);
-                attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
-                
-                for (int y = 0; y < 8; y++) {
-                    for (int x = 0; x < 8; x++) {
-                        drawPixel(screen, col * 8 + x, row * 8 + y, NES_PALETTE[color_index_for_pattern_bit(pattern_num, attr_byte, x, y, false)]);
-                    }
-                }
+        for (int tile_column = 0; tile_column < SCREEN_WIDTH / 8; tile_column++) {
+            
+            int pattern_num = ppu->read_memory(0x2000 + tile_row * 32 + tile_column);
+            if ((control_1 & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
+                pattern_num += 256;
+            }
+            
+            // Calculate the 2 high bits of the palette offset using the attribute table.
+            int attr_byte_address = (tile_row / 4) * 8 + (tile_column / 4);
+            int attr_byte = ppu->read_memory(0x23C0 + attr_byte_address);
+            int bits_offset = ((tile_row & 0x02) << 1) | (tile_column & 0x02);
+            attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
+            
+            for (int x = 0; x < 8; x++) {
+                drawPixel(screen, tile_column * 8 + x, scanline, NES_PALETTE[color_index_for_pattern_bit(pattern_num, attr_byte, x, scanline % 8, false)]);
             }
         }
     }
@@ -76,10 +73,24 @@ void SDLRenderer::render() {
         }
         
         uint8_t transparency_color_index = ppu->read_memory(PALETTE_TABLE_START);
+        int sprites_drawn = 0;
         
         // Lowest number sprites are highest priority to draw
         for (int i = 63; i >= 0; i--) {
-            int ypos            = ppu->spr_ram[i * 4] + 1; // TODO: Is this correct??
+            int ypos            = ppu->spr_ram[i * 4] + 1; // TODO: Is this correct to have the +1?
+            
+            if (!(ypos <= scanline && ypos + 7 >= scanline)) {
+                // Does this sprite intersect with this scanline?
+                continue;
+            }
+            
+            sprites_drawn += 1; // Should this go in the if condition below? (color_attr & 0x20)
+            
+            if (sprites_drawn == 9) {
+                ppu->set_more_than_8_sprites_flag();
+                break;
+            }
+            
             int pattern_num     = ppu->spr_ram[i * 4 + 1];
             uint8_t color_attr  = ppu->spr_ram[i * 4 + 2];
             uint8_t xpos        = ppu->spr_ram[i * 4 + 3];
@@ -89,30 +100,38 @@ void SDLRenderer::render() {
             }
             
             int upper_color_bits = color_attr & 0x03;
-            
             bool flip_horizontal = color_attr & 0x40;
             bool flip_vertical = color_attr & 0x80;
             
             // Should we display the sprite? TODO: Is this right? Are there also cases where the
             // background is transparent and the sprite is drawn over it?
             if ((color_attr & 0x20) == 0x00) {
-                for (int y = 0; y < 8; y++) {
-                    for (int x = 0; x < 8; x++) {
-                        uint8_t color_index = color_index_for_pattern_bit(
-                            pattern_num,
-                            upper_color_bits,
-                            (flip_horizontal ? 7 - x : x),
-                            (flip_vertical ? 7 - y : y),
-                            true
-                        );
-
-                        if (xpos + x < SCREEN_WIDTH && ypos + y < SCREEN_HEIGHT && color_index != transparency_color_index) {
-                            drawPixel(screen, xpos + x, ypos + y, NES_PALETTE[color_index]);
-                        }
+                int y = scanline - ypos;
+                for (int x = 0; x < 8; x++) {
+                    uint8_t color_index = color_index_for_pattern_bit(
+                                                                      pattern_num,
+                                                                      upper_color_bits,
+                                                                      (flip_horizontal ? 7 - x : x),
+                                                                      (flip_vertical ? 7 - y : y),
+                                                                      true
+                                                                      );
+                    
+                    if (color_index != transparency_color_index) {
+                        drawPixel(screen, xpos + x, scanline, NES_PALETTE[color_index]);
                     }
                 }
             }
         }
+    }
+}
+
+void SDLRenderer::render() {
+    if (SDL_MUSTLOCK(screen)) {
+        SDL_LockSurface(screen);
+    }
+
+    for (int row = 0; row < SCREEN_HEIGHT; row++) {
+        draw_scanline(row);
     }
     
     // TODO!!!!!!

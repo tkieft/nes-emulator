@@ -41,6 +41,9 @@ private:
     
     void reset_sprite_0_flag();
     void set_sprite_0_flag();
+    
+    void reset_more_than_8_sprites_flag();
+    void set_more_than_8_sprites_flag();
         
 public:
     PPU();

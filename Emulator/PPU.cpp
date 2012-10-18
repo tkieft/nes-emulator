@@ -97,6 +97,15 @@ void PPU::set_sprite_0_flag() {
     status |= PPU_STATUS_SPRITE_0_HIT_MASK;
 }
 
+/** MORE THAN 8 SPRITES ON A SCANLINE **/
+void PPU::reset_more_than_8_sprites_flag() {
+    status &= ~PPU_STATUS_MORE_THAN_8_SPRITES_HIT_MASK;
+}
+
+void PPU::set_more_than_8_sprites_flag() {
+    status |= PPU_STATUS_MORE_THAN_8_SPRITES_HIT_MASK;
+}
+
 /** REGISTER READS AND WRITES */
 
 uint8_t PPU::read_status() {
