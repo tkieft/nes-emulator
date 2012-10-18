@@ -33,8 +33,6 @@ private:
     bool first_write;
     bool first_read;
     
-    bool patterns_dirty;
-    
     uint16_t calculate_effective_address(uint16_t address);
     uint8_t read_memory(uint16_t address);
     void store_memory(uint16_t address, uint8_t word);

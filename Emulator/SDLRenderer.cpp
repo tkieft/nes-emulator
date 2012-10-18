@@ -12,18 +12,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+void drawPixel(SDL_Surface *surface, int x, int y, color_t color) {
+    Uint32 *p = (Uint32 *)surface->pixels + y * surface->pitch / 4 + x;
+    *p = SDL_MapRGB(surface->format, color.r, color.g, color.b);
+}
+
 void SDLRenderer::render() {
-    
-    
-    int boardSize = 100 * 100;
-	const int rectX = 0, rectY = 0;
-    const int XLOC = 0, YLOC = 0;
-    SDL_Color WALL_COLOR = {0xFF, 0xFF, 0xFF};
-    SDL_Color FLOOR_COLOR = {0x30, 0x30, 0x30};
-	SDL_Rect middleBoard = { static_cast<Sint16>(0 + boardSize / 2 - rectX / 2 - 3), static_cast<Sint16>(0 + boardSize / 2 - rectY / 2 - 3), rectX + 6, rectY + 6 };
-	SDL_FillRect( screen, &middleBoard, SDL_MapRGB( screen->format, WALL_COLOR.r, WALL_COLOR.g, WALL_COLOR.b ) );
-    SDL_Rect middleBoard2 = { static_cast<Sint16>(XLOC + boardSize / 2 - rectX / 2), static_cast<Sint16>(YLOC + boardSize / 2 - rectY / 2), rectX, rectY };
-	SDL_FillRect( screen, &middleBoard2, SDL_MapRGB( screen->format, FLOOR_COLOR.r, FLOOR_COLOR.g, FLOOR_COLOR.b ) );
+    if (SDL_MUSTLOCK(screen)) {
+        SDL_LockSurface(screen);
+    }
     
     uint8_t control_1 = ppu->read_control_1();
     uint8_t control_2 = ppu->read_control_2();
@@ -39,30 +36,32 @@ void SDLRenderer::render() {
                     character += 256;
                 }
                 
-                // FRIGGIN ATTRIBUTE TABLE! TODO: Optimize this.
+                // FRIGGIN ATTRIBUTE TABLE! Figure out the 2 high bits of the palette offset using the attribute table.
                 int attr_byte_address = (row / 4) * 8 + (col / 4);
                 int attr_byte = ppu->read_memory(0x23C0 + attr_byte_address);
+                int bits_offset = ((row & 0x02) << 1) | (col & 0x02);
+                attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
                 
-                int rowNum = (row & 0x02) >> 1;
-                int colNum = (col & 0x02) >> 1;
+                int patternStart = character * cPATTERN_SIZE;
                 
-                if (rowNum == 1 && colNum == 1) {
-                    attr_byte &= (0x03 << 6);
-                    attr_byte >>= 6;
-                } else if (rowNum == 1 && colNum == 0) {
-                    attr_byte &= (0x03 << 4);
-                    attr_byte >>= 4;
-                } else if (rowNum == 0 && colNum == 1) {
-                    attr_byte &= (0x03 << 2);
-                    attr_byte >>= 2;
-                } else {
-                    attr_byte &= 0x03;
-                }
-                            
-                //glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[attr_byte * cPATTERNS + character]);
+                for (int y = 0; y < 8; y++) {
+                    uint8_t lowerByte = ppu->read_memory(patternStart + y);
+                    uint8_t higherByte = ppu->read_memory(patternStart + y + 8);
+                    
+                    for (int x = 0; x < 8; x++) {
+                        int patternBit = 7 - x; // x is ascending left to right; that's H -> L in bit order
+                        
+                        uint8_t palette_entry = (attr_byte << 2) |
+                        ((lowerByte & (1 << patternBit)) >> patternBit) |
+                        (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
+                         ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
+                        
+                        uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + palette_entry);
+                        color_t color = NES_PALETTE[color_offset];
 
-                // OpenGL coords are centered at the bottom left, so we must invert row.
-                //glBlitFramebuffer(0, 0, 8, 8, col * 8, (29 - row) * 8, (col + 1) * 8, (29 - row + 1) * 8,  GL_COLOR_BUFFER_BIT, GL_LINEAR);
+                        drawPixel(screen, col * 8 + x, row * 8 + y, color);
+                    }
+                }
             }
         }
     }
@@ -70,14 +69,16 @@ void SDLRenderer::render() {
     ////////////////////////
     // RENDER THE SPRITES //
     ////////////////////////
-    if ((ppu->read_control_2() & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
+    if ((control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
         if ((control_2 & SPRITE_SIZE_MASK) == SPRITE_SIZE_8x16) {
             throw "Unimplemented sprite size 8x16!";
         }
         
+        uint8_t transparency_color_offset = ppu->read_memory(PALETTE_TABLE_START);
+        
         // Lowest number sprites are highest priority to draw
         for (int i = 63; i >= 0; i--) {
-            int ypos            = ppu->spr_ram[i * 4];
+            int ypos            = ppu->spr_ram[i * 4] + 1; // TODO: Is this correct??
             int pattern_num     = ppu->spr_ram[i * 4 + 1];
             uint8_t color_attr  = ppu->spr_ram[i * 4 + 2];
             uint8_t xpos        = ppu->spr_ram[i * 4 + 3];
@@ -91,19 +92,33 @@ void SDLRenderer::render() {
             bool flip_horizontal = color_attr & 0x40;
             bool flip_vertical = color_attr & 0x80;
             
-            // OpenGL coords are centered at the bottom left
-            // TODO: Why are these coord numbers so screwy??
-            int xsrc = flip_horizontal ? xpos + 8           : xpos;
-            int ysrc = flip_vertical   ? 255 - (ypos + 16)  : 255 - (ypos + 24);
-            int xdst = flip_horizontal ? xpos               : xpos + 8;
-            int ydst = flip_vertical   ? 255 - (ypos + 24)  : 255 - (ypos + 16);
+            int patternStart = pattern_num * cPATTERN_SIZE;
             
             // Should we display the sprite? TODO: Is this right? Are there also cases where the
             // background is transparent and the sprite is drawn over it?
             if ((color_attr & 0x20) == 0x00) {
-                //glBindFramebuffer(GL_READ_FRAMEBUFFER, pattern_fbos[upper_color_bits * cPATTERNS + pattern_num]);
-
-                //glBlitFramebuffer(0, 0, 8, 8, xsrc, ysrc, xdst, ydst, GL_COLOR_BUFFER_BIT, GL_LINEAR);
+                for (int y = 0; y < 8; y++) {
+                    int pattern_byte = flip_vertical ? 7 - y : y;
+                    
+                    uint8_t lowerByte = ppu->read_memory(patternStart + pattern_byte);
+                    uint8_t higherByte = ppu->read_memory(patternStart + pattern_byte + 8);
+                    
+                    for (int x = 0; x < 8; x++) {
+                        int patternBit = flip_horizontal ? x : 7 - x; // x is ascending left to right; that's H -> L in bit order
+                        
+                        uint8_t palette_entry = (upper_color_bits << 2) |
+                        ((lowerByte & (1 << patternBit)) >> patternBit) |
+                        (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
+                         ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
+                        
+                        uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + PALETTE_TABLE_SPRITE_OFFSET + palette_entry);
+                        color_t color = NES_PALETTE[color_offset];
+                        
+                        if (xpos + x < SCREEN_WIDTH && ypos + y < SCREEN_HEIGHT && color_offset != transparency_color_offset) {
+                            drawPixel(screen, xpos + x, ypos + y, color);
+                        }
+                    }
+                }
             }
         }
     }
@@ -112,6 +127,10 @@ void SDLRenderer::render() {
     ppu->set_sprite_0_flag();
     
     SDL_Flip(screen);
+    
+    if (SDL_MUSTLOCK(screen)) {
+        SDL_UnlockSurface(screen);
+    }
 }
 
 void SDLRenderer::resize(int width, int height) {
@@ -136,7 +155,7 @@ SDLRenderer::SDLRenderer(PPU *ppu) {
     
     if (!screen)
     {
-        std::cout << "Unable to set 640x480 video: " << SDL_GetError() << std::endl;
+        std::cout << "Unable to set 256x240 video: " << SDL_GetError() << std::endl;
         exit(1);
     }
     
@@ -145,71 +164,6 @@ SDLRenderer::SDLRenderer(PPU *ppu) {
     // set the title bar text
     SDL_WM_SetCaption( window_title.c_str(), window_title.c_str() );
 }
-
-void SDLRenderer::update_patterns() {
-    std::cout << "Updating patterns..." << std::endl;
-
-    // Patterns are 8px by 8px, each pixel has RGBA color components
-    //GLubyte data[8 * 8 * 4];
-    
-    for (int attr_bits = 0; attr_bits < 4; attr_bits++) {
-        for (int i = 0; i < cPATTERNS; i++) {
-            //glBindTexture(GL_TEXTURE_2D, patterns[attr_bits * cPATTERNS + i]);
-            //glBindFramebuffer(GL_FRAMEBUFFER, pattern_fbos[attr_bits * cPATTERNS + i]);
-            
-            //generate_texture_data_for_pattern(i, data, attr_bits);
-
-            //glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 8, 8, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
-            
-            //glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, patterns[attr_bits * cPATTERNS + i], 0);
-        }
-    }
-    
-    // Go back to the default framebuffer
-    //glBindFramebuffer(GL_FRAMEBUFFER, m_defaultFBOName);
-    //glViewport(0, 0, m_viewWidth, m_viewHeight);
-}
-
-//void SDLRenderer::generate_texture_data_for_pattern(int i, GLubyte *data, int attr_bits) {
-//    int patternStart = i * cPATTERN_SIZE;
-//
-//    uint8_t control_1 = ppu->read_control_1();
-//    bool is_sprite = ((i < 256 &&
-//                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_0000) ||
-//                      (i >= 256 &&
-//                       (control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000));
-//    
-//    uint8_t transparency_color_offset = ppu->read_memory(PALETTE_TABLE_START);
-//    
-//    /* Is this a sprite or background? */
-//    int palette_table_offset = is_sprite ? 16 : 0;
-//    
-//    for (int patternByte = 0; patternByte < 8; patternByte++) {
-//        // OpenGL coords start from the bottom left
-//        uint8_t lowerByte = ppu->read_memory(patternStart + 7 - patternByte);
-//        uint8_t higherByte = ppu->read_memory(patternStart + 7 - patternByte + 8);
-//        
-//        /* Left to right is high to low */
-//        for (int patternBit = 7; patternBit >= 0; patternBit--) {
-//            // Generate the 4-bit palette entry key. The high bits are the attr. table bits,
-//            // and the low bits come from the pattern table.
-//            uint8_t palette_entry = (attr_bits << 2) |
-//                                    ((lowerByte & (1 << patternBit)) >> patternBit) |
-//            (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
-//                               ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
-//            
-//
-//            uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + palette_table_offset + palette_entry);
-//            color_t color = NES_PALETTE[color_offset];
-//
-//            int dataStart = patternByte * 8 * 4 + (7 - patternBit) * 4;
-//            data[dataStart    ] = color.r;
-//            data[dataStart + 1] = color.g;
-//            data[dataStart + 2] = color.b;
-//            data[dataStart + 3] = (is_sprite && color_offset == transparency_color_offset) ? 0 : 255;
-//        }
-//    }
-//}
 
 SDLRenderer::~SDLRenderer() {
     SDL_Quit();

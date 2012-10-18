@@ -20,7 +20,6 @@ public:
     virtual ~TerminalRenderer();
     virtual void render();
     virtual void resize(int width, int height) { }
-    virtual void update_patterns() { }
 };
 
 #endif /* defined(__Emulator__TerminalRenderer__) */

@@ -31,7 +31,6 @@ public:
     virtual ~SDLRenderer();
     virtual void resize(int width, int height);
     virtual void render();
-    virtual void update_patterns();
 };
 
 #endif

@@ -18,7 +18,7 @@ extern "C"
 
 int main(int argc, char *argv[]) {
     Emulator emulator;
-    emulator.load_rom("/Users/tylerk/Downloads/Super Mario Bros. (W) [!].nes");
+    emulator.load_rom("/Users/tkieft/Downloads/Super Mario Bros. (JU) [!].nes");
     
     // initialize the engine
     const SDL_version* version = SDL_Linked_Version();

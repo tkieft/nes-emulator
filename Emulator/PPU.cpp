@@ -22,8 +22,6 @@ PPU::PPU() {
     first_write = true;
     first_read = true;
     
-    patterns_dirty = false;
-    
     for (int i = 0; i < VRAM_SIZE; i++) {
         vram[i] = 0;
     }
@@ -42,11 +40,6 @@ bool PPU::render() {
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
         (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
         
-        if (patterns_dirty) {
-            patterns_dirty = false;
-            renderer->update_patterns();
-        }
-        
         renderer->render();
     }
 
@@ -59,7 +52,6 @@ bool PPU::render() {
 
 void PPU::set_chr_rom(uint8_t *chr_rom) {
     memcpy(vram, chr_rom, PATTERN_TABLE_SIZE);
-    patterns_dirty = true;
 }
 
 void PPU::resize(int width, int height) {
@@ -88,14 +80,7 @@ uint8_t PPU::read_memory(uint16_t address) {
 }
 
 void PPU::store_memory(uint16_t address, uint8_t word) {
-    uint16_t effective_address = calculate_effective_address(address);
-    
-    if (effective_address >= 0x3F00 && effective_address < 0x3F20) {
-        // write to palette, patterns are dirty
-        patterns_dirty = true;
-    }
-    
-    vram[effective_address] = word;
+    vram[calculate_effective_address(address)] = word;
 }
 
 /** VBLANK **/
