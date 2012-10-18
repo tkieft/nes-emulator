@@ -47,10 +47,10 @@ void Emulator::resize(int width, int height) {
 	ppu->resize(width, height);
 }
 
-bool Emulator::handle_key_down(unsigned short key_code) {
-    return controller_pad->record_key_down(key_code);
+bool Emulator::handle_key_down(SDLKey sym) {
+    return controller_pad->record_key_down(sym);
 }
 
-bool Emulator::handle_key_up(unsigned short key_code) {
-    return controller_pad->record_key_up(key_code);
+bool Emulator::handle_key_up(SDLKey sym) {
+    return controller_pad->record_key_up(sym);
 }

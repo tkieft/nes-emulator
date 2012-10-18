@@ -57,22 +57,22 @@ void ControllerPad::write_value(uint8_t value) {
     previous_value = value;
 }
 
-bool ControllerPad::record_key_down(unsigned short key_code) {
-    return record_key_private(key_code, true);
+bool ControllerPad::record_key_down(SDLKey sym) {
+    return record_key_private(sym, true);
 }
 
-bool ControllerPad::record_key_up(unsigned short key_code) {
-    return record_key_private(key_code, false);
+bool ControllerPad::record_key_up(SDLKey sym) {
+    return record_key_private(sym, false);
 }
 
 bool ControllerPad::record_key_private(unsigned short key_code, bool value) {
     switch (key_code) {
 
-        case 48: // tab
+        case SDLK_TAB:
             controller_1_select = value;
             return true;
 
-        case 36: // return
+        case SDLK_RETURN:
             controller_1_start = value;
             return true;
     }

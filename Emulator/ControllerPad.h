@@ -10,6 +10,7 @@
 #define __Emulator__ControllerPad__
 
 #include <iostream>
+#include <SDL/SDL_keysym.h>
 
 class ControllerPad {
 private:
@@ -29,8 +30,8 @@ private:
     
 public:
     ControllerPad();
-    bool record_key_down(unsigned short key_code);
-    bool record_key_up(unsigned short key_code);
+    bool record_key_down(SDLKey sym);
+    bool record_key_up(SDLKey sym);
     
     uint8_t read_controller_1_state();
     uint8_t read_controller_2_state();

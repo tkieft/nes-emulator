@@ -10,6 +10,7 @@
 #define Emulator_Emulator_h
 
 #include <string>
+#include <SDL/SDL_keysym.h>
 
 #include "PPU.h"
 #include "Processor.h"
@@ -28,8 +29,8 @@ public:
     void emulate_frame();
     void resize(int width, int height);
     
-    bool handle_key_up(unsigned short key_code);
-    bool handle_key_down(unsigned short key_code);
+    bool handle_key_up(SDLKey sym);
+    bool handle_key_down(SDLKey sym);
 };
 
 #endif

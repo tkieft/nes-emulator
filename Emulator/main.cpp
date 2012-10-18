@@ -28,15 +28,20 @@ int main(int argc, char *argv[]) {
               << (int) version->patch << std::endl;
     
     // main loop
-    while( true )
+    while (true)
     {
         int ticks = SDL_GetTicks();
 
         SDL_Event event;
-        while( SDL_PollEvent( &event ) )
+        while (SDL_PollEvent(&event))
         {
-            if( event.type == SDL_QUIT )
+            if (event.type == SDL_QUIT) {
                 return 0;
+            } else if (event.type == SDL_KEYDOWN) {
+                emulator.handle_key_down(event.key.keysym.sym);
+            } else if (event.type == SDL_KEYUP) {
+                emulator.handle_key_up(event.key.keysym.sym);
+            }
         }
 
         
