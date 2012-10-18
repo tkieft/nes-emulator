@@ -25,6 +25,8 @@ class SDLRenderer : public Renderer {
 private:
     SDL_Surface *screen;
     PPU *ppu;
+    
+    uint8_t color_index_for_pattern_bit(int pattern_num, int attr_high_bits, int x, int y, bool sprite);
 
 public:
     SDLRenderer(PPU *ppu);

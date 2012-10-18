@@ -17,6 +17,22 @@ void drawPixel(SDL_Surface *surface, int x, int y, color_t color) {
     *p = SDL_MapRGB(surface->format, color.r, color.g, color.b);
 }
 
+uint8_t SDLRenderer::color_index_for_pattern_bit(int pattern_num, int attr_high_bits, int x, int y, bool sprite) {
+    int patternStart = pattern_num * cPATTERN_SIZE;
+    
+    uint8_t lowerByte = ppu->read_memory(patternStart + y);
+    uint8_t higherByte = ppu->read_memory(patternStart + y + 8);
+    
+    int patternBit = 7 - x; // x is ascending left to right; that's H -> L in bit order
+    
+    uint8_t palette_entry = (attr_high_bits << 2) |
+    ((lowerByte & (1 << patternBit)) >> patternBit) |
+    (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
+     ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
+    
+    return ppu->read_memory(PALETTE_TABLE_START + (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry);
+}
+
 void SDLRenderer::render() {
     if (SDL_MUSTLOCK(screen)) {
         SDL_LockSurface(screen);
@@ -31,9 +47,9 @@ void SDLRenderer::render() {
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
         for (int row = 0; row < 30; row++) {
             for (int col = 0; col < 32; col++) {
-                int character = ppu->read_memory(0x2000 + row * 32 + col);
+                int pattern_num = ppu->read_memory(0x2000 + row * 32 + col);
                 if ((control_1 & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
-                    character += 256;
+                    pattern_num += 256;
                 }
                 
                 // FRIGGIN ATTRIBUTE TABLE! Figure out the 2 high bits of the palette offset using the attribute table.
@@ -42,24 +58,9 @@ void SDLRenderer::render() {
                 int bits_offset = ((row & 0x02) << 1) | (col & 0x02);
                 attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
                 
-                int patternStart = character * cPATTERN_SIZE;
-                
                 for (int y = 0; y < 8; y++) {
-                    uint8_t lowerByte = ppu->read_memory(patternStart + y);
-                    uint8_t higherByte = ppu->read_memory(patternStart + y + 8);
-                    
                     for (int x = 0; x < 8; x++) {
-                        int patternBit = 7 - x; // x is ascending left to right; that's H -> L in bit order
-                        
-                        uint8_t palette_entry = (attr_byte << 2) |
-                        ((lowerByte & (1 << patternBit)) >> patternBit) |
-                        (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
-                         ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
-                        
-                        uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + palette_entry);
-                        color_t color = NES_PALETTE[color_offset];
-
-                        drawPixel(screen, col * 8 + x, row * 8 + y, color);
+                        drawPixel(screen, col * 8 + x, row * 8 + y, NES_PALETTE[color_index_for_pattern_bit(pattern_num, attr_byte, x, y, false)]);
                     }
                 }
             }
@@ -74,7 +75,7 @@ void SDLRenderer::render() {
             throw "Unimplemented sprite size 8x16!";
         }
         
-        uint8_t transparency_color_offset = ppu->read_memory(PALETTE_TABLE_START);
+        uint8_t transparency_color_index = ppu->read_memory(PALETTE_TABLE_START);
         
         // Lowest number sprites are highest priority to draw
         for (int i = 63; i >= 0; i--) {
@@ -92,30 +93,21 @@ void SDLRenderer::render() {
             bool flip_horizontal = color_attr & 0x40;
             bool flip_vertical = color_attr & 0x80;
             
-            int patternStart = pattern_num * cPATTERN_SIZE;
-            
             // Should we display the sprite? TODO: Is this right? Are there also cases where the
             // background is transparent and the sprite is drawn over it?
             if ((color_attr & 0x20) == 0x00) {
                 for (int y = 0; y < 8; y++) {
-                    int pattern_byte = flip_vertical ? 7 - y : y;
-                    
-                    uint8_t lowerByte = ppu->read_memory(patternStart + pattern_byte);
-                    uint8_t higherByte = ppu->read_memory(patternStart + pattern_byte + 8);
-                    
                     for (int x = 0; x < 8; x++) {
-                        int patternBit = flip_horizontal ? x : 7 - x; // x is ascending left to right; that's H -> L in bit order
-                        
-                        uint8_t palette_entry = (upper_color_bits << 2) |
-                        ((lowerByte & (1 << patternBit)) >> patternBit) |
-                        (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
-                         ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
-                        
-                        uint8_t color_offset = ppu->read_memory(PALETTE_TABLE_START + PALETTE_TABLE_SPRITE_OFFSET + palette_entry);
-                        color_t color = NES_PALETTE[color_offset];
-                        
-                        if (xpos + x < SCREEN_WIDTH && ypos + y < SCREEN_HEIGHT && color_offset != transparency_color_offset) {
-                            drawPixel(screen, xpos + x, ypos + y, color);
+                        uint8_t color_index = color_index_for_pattern_bit(
+                            pattern_num,
+                            upper_color_bits,
+                            (flip_horizontal ? 7 - x : x),
+                            (flip_vertical ? 7 - y : y),
+                            true
+                        );
+
+                        if (xpos + x < SCREEN_WIDTH && ypos + y < SCREEN_HEIGHT && color_index != transparency_color_index) {
+                            drawPixel(screen, xpos + x, ypos + y, NES_PALETTE[color_index]);
                         }
                     }
                 }
