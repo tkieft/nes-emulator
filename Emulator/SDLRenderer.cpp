@@ -85,14 +85,14 @@ void SDLRenderer::draw_scanline(int scanline) {
         
         // Lowest number sprites are highest priority to draw
         for (int i = 63; i >= 0; i--) {
-            int ypos            = ppu->spr_ram[i * 4] + 1; // TODO: Is this correct to have the +1?
+            int ypos            = ppu->spr_ram[i * 4] + 1;
             
             if (!(ypos <= scanline && ypos + 7 >= scanline)) {
                 // Does this sprite intersect with this scanline?
                 continue;
             }
             
-            sprites_drawn += 1; // Should this go in the if condition below? (color_attr & 0x20)
+            sprites_drawn += 1;
             
             if (sprites_drawn == 9) {
                 ppu->set_more_than_8_sprites_flag();
