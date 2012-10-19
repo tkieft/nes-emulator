@@ -17,6 +17,11 @@ void drawPixel(SDL_Surface *surface, int x, int y, color_t color) {
     *p = SDL_MapRGB(surface->format, color.r, color.g, color.b);
 }
 
+Uint32 getPixel(SDL_Surface *surface, int x, int y) {
+    Uint32 *p = (Uint32 *)surface->pixels + y * surface->pitch / 4 + x;
+    return *p;
+}
+
 uint8_t SDLRenderer::color_index_for_pattern_bit(int pattern_num, int attr_high_bits, int x, int y, bool sprite) {
     int patternStart = pattern_num * cPATTERN_SIZE;
     
@@ -73,6 +78,9 @@ void SDLRenderer::draw_scanline(int scanline) {
         }
         
         uint8_t transparency_color_index = ppu->read_memory(PALETTE_TABLE_START);
+        color_t transparency_color = NES_PALETTE[transparency_color_index];
+        Uint32 transparency_color_sdl = SDL_MapRGB(screen->format, transparency_color.r, transparency_color.b, transparency_color.g);
+
         int sprites_drawn = 0;
         
         // Lowest number sprites are highest priority to draw
@@ -103,20 +111,21 @@ void SDLRenderer::draw_scanline(int scanline) {
             bool flip_horizontal = color_attr & 0x40;
             bool flip_vertical = color_attr & 0x80;
             
-            // Should we display the sprite? TODO: Is this right? Are there also cases where the
-            // background is transparent and the sprite is drawn over it?
-            if ((color_attr & 0x20) == 0x00) {
-                int y = scanline - ypos;
-                for (int x = 0; x < 8; x++) {
-                    uint8_t color_index = color_index_for_pattern_bit(
-                                                                      pattern_num,
-                                                                      upper_color_bits,
-                                                                      (flip_horizontal ? 7 - x : x),
-                                                                      (flip_vertical ? 7 - y : y),
-                                                                      true
-                                                                      );
+            int y = scanline - ypos;
+            for (int x = 0; x < 8; x++) {
+                uint8_t color_index =
+                    color_index_for_pattern_bit(pattern_num, upper_color_bits, (flip_horizontal ? 7 - x : x), (flip_vertical ? 7 - y : y), true);
+                
+                if (color_index != transparency_color_index) {
+                    Uint32 current_pixel = getPixel(screen, xpos + x, scanline);
                     
-                    if (color_index != transparency_color_index) {
+                    // Sprite 0 hit flag - TODO: Is this correct??
+                    if (i == 0  && current_pixel != transparency_color_sdl) {
+                        ppu->set_sprite_0_flag();
+                    }
+                    
+                    // if color_attr & 0x20 == 0x20, sprite is drawn behind background (but not transparent color)
+                    if ((color_attr & 0x20) == 0x00 || current_pixel == transparency_color_sdl) {
                         drawPixel(screen, xpos + x, scanline, NES_PALETTE[color_index]);
                     }
                 }
@@ -133,9 +142,6 @@ void SDLRenderer::render() {
     for (int row = 0; row < SCREEN_HEIGHT; row++) {
         draw_scanline(row);
     }
-    
-    // TODO!!!!!!
-    ppu->set_sprite_0_flag();
     
     SDL_Flip(screen);
     
