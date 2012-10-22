@@ -448,10 +448,18 @@ void Processor::execute() {
             pc = address_at(0xFFFE);
             break;
         
-        /* BVC (Branch on V clear) (V = 0)*/
+        /* BVC (Branch on V clear) (V = 0) */
         case 0x50:
             src = read_memory(address);
             if (!if_overflow()) {
+                pc = rel_addr(pc, src);
+            }
+            break;
+            
+        /* BVS (Branch on V set) (V = 1) */
+        case 0x70:
+            src = read_memory(address);
+            if (if_overflow()) {
                 pc = rel_addr(pc, src);
             }
             break;
@@ -769,8 +777,8 @@ void Processor::execute() {
         
         default:
             std::cerr << "[Execution] "
-                      << "Unrecognized opcode: " << std::hex << opcode
-                      << "at PC: " << std::hex << pc;
+                      << "Unrecognized opcode: " << std::hex << (int)opcode
+                      << " at PC: " << std::hex << pc << std::endl;
     }
 }
 
