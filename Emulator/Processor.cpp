@@ -639,7 +639,7 @@ void Processor::execute() {
             
         /* PLP (Pull processor status from stack) */
         case 0x28:
-            p = stack_pop();
+            p = stack_pop() | UNUSED_MASK;
             break;
             
         /* ROL (Rotate one bit left) (memory or accumulator) */
