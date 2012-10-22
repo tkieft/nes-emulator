@@ -619,7 +619,7 @@ void Processor::execute() {
         
         /* PHP (Push processor status on stack) */
         case 0x08:
-            stack_push(p);
+            stack_push(p | BREAK_MASK); // PHP sets the break flag
             break;
             
         /* PLA (Pull accumulator from stack) */
