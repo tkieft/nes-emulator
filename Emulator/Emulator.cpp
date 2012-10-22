@@ -31,20 +31,26 @@ void Emulator::load_rom(std::string filename) {
 }
 
 void Emulator::emulate_frame() {
-    int clock = 0;
-    
-    while (clock < 29830) {
-        processor->execute();
-        clock += 5;
+    // The PPU renders 262 scanlines. The CPU does ~113 clock cycles per scanline.
+    //
+    // TODO: Make this more accurate?
+    //
+    // VINT: Pre-render 20 blank scanlines
+    // 1 Dummy scanline
+    // 240 Picture scanlines
+    // 1 Dummy scanline -> VINT set afterwards
+    for (int scanline = 0; scanline <= 261; scanline++) {
+        int clock = 0;
+        
+        while (clock < 113) {
+            processor->execute();
+            clock += 5; // TODO: Holy shit accurate clock cycles.
+        }
+        
+        if (ppu->render_scanline(scanline)) {
+            processor->non_maskable_interrupt();
+        }
     }
-    
-    if (ppu->render()) {
-        processor->non_maskable_interrupt();
-    }
-}
-
-void Emulator::resize(int width, int height) {
-	ppu->resize(width, height);
 }
 
 bool Emulator::handle_key_down(SDLKey sym) {

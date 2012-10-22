@@ -27,7 +27,6 @@ public:
     ~Emulator();
     void load_rom(std::string filename);
     void emulate_frame();
-    void resize(int width, int height);
     
     bool handle_key_up(SDLKey sym);
     bool handle_key_down(SDLKey sym);

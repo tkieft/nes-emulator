@@ -10,9 +10,6 @@
 
 #include "PPU.h"
 
-#include "TerminalRenderer.h"
-#include "SDLRenderer.h"
-
 PPU::PPU() {
     control_1 = 0;
     control_2 = 0;
@@ -33,29 +30,32 @@ PPU::~PPU() {
     delete renderer;
 }
 
-bool PPU::render() {
-    reset_sprite_0_flag();
+bool PPU::render_scanline(int scanline) {
+    if (scanline == 0) {
+        reset_sprite_0_flag();
+    }
     
     // If the screen is enabled, draw
-    if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
-        (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
+    if (scanline >= 21 && scanline <= 260 &&
+        ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
+        (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE)) {
         
-        renderer->render();
+        renderer->render_scanline(scanline - 21);
     }
 
-    // Set the VBlank flag in the status register
-    status |= PPU_STATUS_VBLANK_MASK;
+    if (scanline == 261) {
+        // Set the VBlank flag in the status register
+        status |= PPU_STATUS_VBLANK_MASK;
+        
+        // If VBlank interrupts are enabled, return true which will generate an interrupt
+        return control_1 & VBLANK_INTERRUPT_ENABLE_MASK;
+    }
     
-    // If VBlank interrupts are enabled, return true which will generate an interrupt
-    return control_1 & VBLANK_INTERRUPT_ENABLE_MASK;
+    return false;
 }
 
 void PPU::set_chr_rom(uint8_t *chr_rom) {
     memcpy(vram, chr_rom, PATTERN_TABLE_SIZE);
-}
-
-void PPU::resize(int width, int height) {
-    renderer->resize(width, height);
 }
 
 /** PPU MEMORY **/
@@ -68,7 +68,7 @@ uint16_t PPU::calculate_effective_address(uint16_t address) {
         address &= 0x3F1F;
         
         if ((address & 0x03) == 0) {
-            address = 0x3FC0;
+            address = 0x3F00;
         }
     }
     

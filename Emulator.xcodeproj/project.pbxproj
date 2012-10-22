@@ -10,7 +10,6 @@
 		3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B15A8781621EF2600A79745 /* ControllerPad.cpp */; };
 		3B279CA21619F48D00FA7A25 /* SDLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* SDLRenderer.cpp */; };
 		3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */; };
-		3B3BD44A16210E7600FC5048 /* TerminalRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */; };
 		3B7670A516174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
 		3B7670BF16174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
 		3B7670C716174EA5006F1357 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B7670C516174EA5006F1357 /* InfoPlist.strings */; };
@@ -47,9 +46,6 @@
 		3B22C9C816169F40004B28F1 /* Processor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Processor.h; sourceTree = "<group>"; };
 		3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = nes_palette.cpp; sourceTree = "<group>"; };
 		3B3BD447162101BC00FC5048 /* Emulator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Emulator.h; sourceTree = "<group>"; };
-		3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TerminalRenderer.cpp; sourceTree = "<group>"; };
-		3B3BD44916210E7600FC5048 /* TerminalRenderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TerminalRenderer.h; sourceTree = "<group>"; };
-		3B3BD44C16210EBF00FC5048 /* Renderer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Renderer.h; sourceTree = "<group>"; };
 		3B3BD450162123EA00FC5048 /* nes_palette.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = nes_palette.h; sourceTree = "<group>"; };
 		3B76705416174C9F006F1357 /* TKAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TKAppDelegate.h; sourceTree = "<group>"; };
 		3B76705516174C9F006F1357 /* TKAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TKAppDelegate.mm; sourceTree = "<group>"; };
@@ -109,9 +105,6 @@
 			children = (
 				3B7670F31618AC22006F1357 /* SDLRenderer.cpp */,
 				3B7670F21618AC22006F1357 /* SDLRenderer.h */,
-				3B3BD44816210E7600FC5048 /* TerminalRenderer.cpp */,
-				3B3BD44916210E7600FC5048 /* TerminalRenderer.h */,
-				3B3BD44C16210EBF00FC5048 /* Renderer.h */,
 			);
 			name = Renderers;
 			sourceTree = "<group>";
@@ -336,7 +329,6 @@
 				3B279CA21619F48D00FA7A25 /* SDLRenderer.cpp in Sources */,
 				3B7670D516174F17006F1357 /* TKAppDelegate.mm in Sources */,
 				3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */,
-				3B3BD44A16210E7600FC5048 /* TerminalRenderer.cpp in Sources */,
 				3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */,
 				3BA95A5A162B7FFC00B585CC /* SDLMain.m in Sources */,
 				3BA95A62162B87C200B585CC /* main.cpp in Sources */,

@@ -7,6 +7,7 @@
 //
 
 #include "SDLRenderer.h"
+#include "PPU.h"
 
 #include <iostream>
 #include <stdio.h>
@@ -38,7 +39,16 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int pattern_num, int attr_high_
     return ppu->read_memory(PALETTE_TABLE_START + (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry);
 }
 
-void SDLRenderer::draw_scanline(int scanline) {
+/**
+ * Render one scanline to the framebuffer.
+ *
+ * @param scanline An integer between 0 and 239, inclusive
+ */
+void SDLRenderer::render_scanline(int scanline) {
+    if (SDL_MUSTLOCK(screen)) {
+        SDL_LockSurface(screen);
+    }
+
     uint8_t control_1 = ppu->read_control_1();
     uint8_t control_2 = ppu->read_control_2();
     
@@ -132,29 +142,14 @@ void SDLRenderer::draw_scanline(int scanline) {
             }
         }
     }
-}
-
-void SDLRenderer::render() {
-    if (SDL_MUSTLOCK(screen)) {
-        SDL_LockSurface(screen);
-    }
-
-    for (int row = 0; row < SCREEN_HEIGHT; row++) {
-        draw_scanline(row);
-    }
-    
-    SDL_Flip(screen);
     
     if (SDL_MUSTLOCK(screen)) {
         SDL_UnlockSurface(screen);
     }
-}
-
-void SDLRenderer::resize(int width, int height) {
-//	glViewport(0, 0, width, height);
-//	
-//	m_viewWidth = width;
-//	m_viewHeight = height;
+    
+    if (scanline == 239) {
+        SDL_Flip(screen);
+    }
 }
 
 SDLRenderer::SDLRenderer(PPU *ppu) {

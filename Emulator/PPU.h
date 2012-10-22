@@ -10,14 +10,13 @@
 #define __Emulator__PPU__
 
 #include "defines.h"
-#include "Renderer.h"
+#include "SDLRenderer.h"
 
 class PPU {
-    friend class TerminalRenderer;
     friend class SDLRenderer;
     
 private:
-    Renderer *renderer;
+    SDLRenderer *renderer;
     
     uint8_t vram[VRAM_SIZE];
     uint8_t spr_ram[SPR_RAM_SIZE];
@@ -49,8 +48,7 @@ public:
     PPU();
     ~PPU();
     
-    bool render();
-    void resize(int width, int height);
+    bool render_scanline(int scanline);
     void set_chr_rom(uint8_t *chr_rom);
 
     uint8_t read_status();
