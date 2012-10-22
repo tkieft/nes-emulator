@@ -306,11 +306,18 @@ void Processor::execute() {
             address = address_at(pc + 1) + y;
             pc += 3;
             break;
-        // Indirect
-        case 0x6C:
-            address = address_at(address_at(pc + 1));
+        // Indirect (JMP)
+        case 0x6C: {
+            uint16_t indirect_jump_address = address_at(pc + 1);
+            if ((indirect_jump_address & 0xFF) == 0xFF) {
+                // Wrap-around JMP bug
+                address = ((uint16_t)read_memory(indirect_jump_address & 0xFF00) << 8) + read_memory(indirect_jump_address);
+            } else {
+                address = address_at(indirect_jump_address);
+            }
             pc += 3;
             break;
+        }
         // (Indirect,pre-X-indexed)
         case 0x61: case 0x21: case 0xC1: case 0x41: case 0xA1: case 0x01: case 0xE1:
         case 0x81:
