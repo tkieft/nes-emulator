@@ -40,7 +40,7 @@ uint8_t ControllerPad::read_controller_1_state() {
         case 8:
             return controller_1_right   ? 0x01 : 0x00;
         default:
-            throw "WTF?";
+            return 0x01; // Authentic controllers return 0x01 on subsequent reads?
     }
 }
 
