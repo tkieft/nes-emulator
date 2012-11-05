@@ -70,7 +70,8 @@ void SDLRenderer::render_scanline(int scanline) {
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
         for (int tile_column = 0; tile_column < SCREEN_WIDTH / 8; tile_column++) {
             
-            int pattern_num = ppu->read_memory(0x2000 + tile_row * 32 + tile_column);
+            uint16_t name_table_base_address = 0x2000 + 0x400 * (control_1 & NAME_TABLE_BASE_ADDRESS_MASK);
+            int pattern_num = ppu->read_memory(name_table_base_address + tile_row * 32 + tile_column);
             if ((control_1 & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
                 pattern_num += 256;
             }
