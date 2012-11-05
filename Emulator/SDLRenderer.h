@@ -27,6 +27,7 @@ private:
     PPU *ppu;
     
     uint8_t color_index_for_pattern_bit(int pattern_num, int attr_high_bits, int x, int y, bool sprite);
+    void print_pattern(int pattern_num);
     
 public:
     SDLRenderer(PPU *ppu);

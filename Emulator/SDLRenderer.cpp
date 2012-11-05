@@ -24,19 +24,27 @@ Uint32 getPixel(SDL_Surface *surface, int x, int y) {
 }
 
 uint8_t SDLRenderer::color_index_for_pattern_bit(int pattern_num, int attr_high_bits, int x, int y, bool sprite) {
-    int patternStart = pattern_num * cPATTERN_SIZE;
+    int pattern_start = pattern_num * cPATTERN_SIZE;
     
-    uint8_t lowerByte = ppu->read_memory(patternStart + y);
-    uint8_t higherByte = ppu->read_memory(patternStart + y + 8);
+    uint8_t lower_byte = ppu->read_memory(pattern_start + y);
+    uint8_t higher_byte = ppu->read_memory(pattern_start + y + 8);
     
-    int patternBit = 7 - x; // x is ascending left to right; that's H -> L in bit order
+    int pattern_bit = 7 - x; // x is ascending left to right; that's H -> L in bit order
     
     uint8_t palette_entry = (attr_high_bits << 2) |
-    ((lowerByte & (1 << patternBit)) >> patternBit) |
-    (patternBit == 0 ? ((higherByte & (1 << patternBit)) << 1) :
-     ((higherByte & (1 << patternBit)) >> (patternBit - 1)));
+    ((lower_byte & (1 << pattern_bit)) >> pattern_bit) |
+    (pattern_bit == 0 ? ((higher_byte & (1 << pattern_bit)) << 1) :
+     ((higher_byte & (1 << pattern_bit)) >> (pattern_bit - 1)));
     
     return ppu->read_memory(PALETTE_TABLE_START + (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry);
+}
+
+void SDLRenderer::print_pattern(int pattern_num) {
+    int pattern_start = pattern_num * cPATTERN_SIZE;
+    
+    for (int y = 0; y < 8; y++) {
+        std::cout << std::hex << (int) ppu->read_memory(pattern_start + y) + ppu->read_memory(pattern_start + y + 8) << std::endl;
+    }
 }
 
 /**
