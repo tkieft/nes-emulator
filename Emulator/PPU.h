@@ -28,9 +28,9 @@ private:
     uint16_t vram_address;
     uint8_t horizontal_scroll;
     uint8_t vertical_scroll;
+    uint8_t read_buffer;
     
     bool first_write;
-    bool first_read;
     
     uint16_t calculate_effective_address(uint16_t address);
     uint8_t read_memory(uint16_t address);

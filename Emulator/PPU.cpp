@@ -17,7 +17,6 @@ PPU::PPU() {
     
     // set toggle
     first_write = true;
-    first_read = true;
     
     for (int i = 0; i < VRAM_SIZE; i++) {
         vram[i] = 0;
@@ -153,18 +152,22 @@ void PPU::write_vram_address(uint8_t value) {
     } else {
         vram_address |= value;
     }
-    
-    first_read = true;
+
     first_write = !first_write;
 }
 
 uint8_t PPU::read_vram_data() {
-    if (first_read) {
-        first_read = false;
-        return read_memory(vram_address);
+    uint8_t result;
+    
+    if (vram_address >= PALETTE_TABLE_START) {
+        result = read_memory(vram_address);
+    } else {
+        result = read_buffer;
+        read_buffer = read_memory(vram_address);
     }
     
-    return read_memory(vram_address++);
+    vram_address += ((control_1 & VERTICAL_WRITE_MASK) == VERTICAL_WRITE_ON ? 32 : 1);
+    return result;
 }
 
 void PPU::write_vram_data(uint8_t value) {

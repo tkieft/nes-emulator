@@ -18,7 +18,7 @@ extern "C"
 
 int main(int argc, char *argv[]) {
     Emulator emulator;
-    //emulator.load_rom("/Users/tkieft/Downloads/Super Mario Bros. (JU) [!].nes");
+    //emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/Super Mario Bros. (JU) [!].nes");
     emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/NEStress/NEStress.nes");
     
     // initialize the engine
