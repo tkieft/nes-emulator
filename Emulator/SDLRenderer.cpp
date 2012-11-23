@@ -10,6 +10,7 @@
 #include "PPU.h"
 
 #include <iostream>
+#include <iomanip>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -23,11 +24,9 @@ Uint32 getPixel(SDL_Surface *surface, int x, int y) {
     return *p;
 }
 
-uint8_t SDLRenderer::color_index_for_pattern_bit(int pattern_num, int attr_high_bits, int x, int y, bool sprite) {
-    int pattern_start = pattern_num * cPATTERN_SIZE;
-    
-    uint8_t lower_byte = ppu->read_memory(pattern_start + y);
-    uint8_t higher_byte = ppu->read_memory(pattern_start + y + 8);
+uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, int attr_high_bits, bool sprite) {
+    uint8_t lower_byte = ppu->read_memory(pattern_start);
+    uint8_t higher_byte = ppu->read_memory(pattern_start + 8);
     
     int pattern_bit = 7 - x; // x is ascending left to right; that's H -> L in bit order
     
@@ -63,18 +62,16 @@ void SDLRenderer::render_scanline(int scanline) {
     ppu->reset_more_than_8_sprites_flag();
     
     int tile_row = scanline / 8;
+    
+    // TODO: Render Sprites & Background at the same time
 
     ///////////////////////////
     // RENDER THE BACKGROUND //
     ///////////////////////////
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
         for (int tile_column = 0; tile_column < SCREEN_WIDTH / 8; tile_column++) {
-            
-            uint16_t name_table_base_address = 0x2000 + 0x400 * (control_1 & NAME_TABLE_BASE_ADDRESS_MASK);
-            int pattern_num = ppu->read_memory(name_table_base_address + tile_row * 32 + tile_column);
-            if ((control_1 & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) == BACKGROUND_PATTERN_TABLE_ADDRESS_1000) {
-                pattern_num += 256;
-            }
+            //std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)ppu->read_memory(ppu->nametable_address()) << " ";
+            //std::cout << std::setw(4) << std::setfill('0') << std::hex << (int)ppu->nametable_address() << " ";
             
             // Calculate the 2 high bits of the palette offset using the attribute table.
             int attr_byte_address = (tile_row / 4) * 8 + (tile_column / 4);
@@ -83,8 +80,10 @@ void SDLRenderer::render_scanline(int scanline) {
             attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
             
             for (int x = 0; x < 8; x++) {
-                drawPixel(screen, tile_column * 8 + x, scanline, NES_PALETTE[color_index_for_pattern_bit(pattern_num, attr_byte, x, scanline % 8, false)]);
+                drawPixel(screen, tile_column * 8 + x, scanline, NES_PALETTE[color_index_for_pattern_bit(x, ppu->patterntable_address(), attr_byte, false)]);
             }
+            
+            ppu->increment_horizontal_scroll_counter();
         }
     }
     
@@ -132,8 +131,9 @@ void SDLRenderer::render_scanline(int scanline) {
             
             int y = scanline - ypos;
             for (int x = 0; x < 8; x++) {
+                uint16_t pattern_start = pattern_num * cPATTERN_SIZE + (flip_vertical ? 7 - y : y);
                 uint8_t color_index =
-                    color_index_for_pattern_bit(pattern_num, upper_color_bits, (flip_horizontal ? 7 - x : x), (flip_vertical ? 7 - y : y), true);
+                    color_index_for_pattern_bit((flip_horizontal ? 7 - x : x), pattern_start, upper_color_bits, true);
                 
                 if (color_index != transparency_color_index) {
                     Uint32 current_pixel = getPixel(screen, xpos + x, scanline);
@@ -159,6 +159,10 @@ void SDLRenderer::render_scanline(int scanline) {
     if (scanline == 239) {
         SDL_Flip(screen);
     }
+    
+    std::cout << std::endl;
+    
+    ppu->increment_vertical_scroll_counter();
 }
 
 SDLRenderer::SDLRenderer(PPU *ppu) {

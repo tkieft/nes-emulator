@@ -18,8 +18,8 @@ extern "C"
 
 int main(int argc, char *argv[]) {
     Emulator emulator;
-    //emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/Super Mario Bros. (JU) [!].nes");
-    emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/NEStress/NEStress.nes");
+    emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/Super Mario Bros. (JU) [!].nes");
+    //emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/NEStress/NEStress.nes");
     
     // initialize the engine
     const SDL_version* version = SDL_Linked_Version();

@@ -34,12 +34,18 @@ bool PPU::render_scanline(int scanline) {
         reset_sprite_0_flag();
     }
     
-    // If the screen is enabled, draw
-    if (scanline >= 21 && scanline <= 260 &&
-        ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
-        (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE)) {
-        
+    if (scanline == 20 && is_screen_enabled()) {
+        // This should happen at clock cycle 256!
+        update_scroll_counters_from_registers();
+    }
+    
+    // These are the actual drawing scanlines
+    if (scanline >= 21 && scanline <= 260 && is_screen_enabled()) {
         renderer->render_scanline(scanline - 21);
+        
+        // H & HT counters are updated at the end of hblank
+        cntH = regH;
+        cntHT = regHT;
     }
 
     if (scanline == 261) {
@@ -118,7 +124,12 @@ uint8_t PPU::read_control_1() {
 }
 void PPU::write_control_1(uint8_t value) {
     control_1 = value;
+    
+    regH = (value & NAME_TABLE_X_SCROLL_MASK) >> NAME_TABLE_X_SCROLL_BIT;
+    regV = (value & NAME_TABLE_Y_SCROLL_MASK) >> NAME_TABLE_Y_SCROLL_BIT;
+    regS = (value & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) >> BACKGROUND_PATTERN_TABLE_ADDRESS_BIT;
 }
+
 uint8_t PPU::read_control_2() {
     return control_2;
 }
@@ -139,38 +150,149 @@ uint8_t PPU::read_sprite_data() {
 }
 void PPU::write_scroll_register(uint8_t value) {
     if (first_write) {
-        vertical_scroll = value;
+        regFH = value & 0x07;
+        regHT = (value & 0xF8) >> 3;
     } else {
-        horizontal_scroll = value;
+        regFV = value & 0x07;
+        regVT = (value & 0xF8) >> 3;
     }
     
     first_write = !first_write;
 }
 void PPU::write_vram_address(uint8_t value) {
     if (first_write) {
-        vram_address = (uint16_t)value << 8;
+        regVT = (regVT & 0x07) | ((value & 0x03) << 3);
+        regH = (value & 0x04) >> 2;
+        regV = (value & 0x08) >> 3;
+        regFV = (value & 0x30) >> 4;
     } else {
-        vram_address |= value;
+        regHT = (value & 0x1F);
+        regVT = (regVT & 0x18) | ((value & 0xE0) >> 5);
+        
+        update_scroll_counters_from_registers();
     }
-
+    
     first_write = !first_write;
 }
 
 uint8_t PPU::read_vram_data() {
     uint8_t result;
     
-    if (vram_address >= PALETTE_TABLE_START) {
-        result = read_memory(vram_address);
+    if (vram_address() >= PALETTE_TABLE_START) {
+        result = read_memory(vram_address());
     } else {
         result = read_buffer;
-        read_buffer = read_memory(vram_address);
+        read_buffer = read_memory(vram_address());
     }
     
-    vram_address += ((control_1 & VERTICAL_WRITE_MASK) == VERTICAL_WRITE_ON ? 32 : 1);
+    increment_scroll_counters();
     return result;
 }
 
 void PPU::write_vram_data(uint8_t value) {
-    store_memory(vram_address, value);
-    vram_address += ((control_1 & VERTICAL_WRITE_MASK) == VERTICAL_WRITE_ON ? 32 : 1);
+    store_memory(vram_address(), value);
+    increment_scroll_counters();
+}
+
+uint16_t PPU::vram_address() {
+    uint16_t address = (uint16_t)cntHT;
+    address |= ((uint16_t)cntVT) << 5;
+    address |= ((uint16_t)cntH)  << 10;
+    address |= ((uint16_t)cntV)  << 11;
+    address |= ((uint16_t)cntFV & 0x03) << 12;
+    return address;
+}
+
+uint16_t PPU::nametable_address() {
+    uint16_t address = 0x2000;
+    address |=  (uint16_t)cntHT;
+    address |= ((uint16_t)cntVT) << 5;
+    address |= ((uint16_t)cntH)  << 10;
+    address |= ((uint16_t)cntV)  << 11;
+    return address;
+}
+
+uint16_t PPU::attributetable_address() {
+    uint16_t address = 0x23C0;
+    address |= ((uint16_t)cntH)  << 10;
+    address |= ((uint16_t)cntV)  << 11;
+    return address;
+}
+
+uint16_t PPU::patterntable_address() {
+    uint8_t pattern_index = read_memory(nametable_address());
+    
+    uint16_t address = (uint16_t)regS << 12;
+    address |= (uint16_t)pattern_index << 4;
+    address |= cntFV;
+    return address;
+}
+
+// For use during R/W of $2007
+void PPU::increment_scroll_counters() {
+    bool vertical_write = ((control_1 & VERTICAL_WRITE_MASK) == VERTICAL_WRITE_ON);
+
+    if (!vertical_write) {
+        cntHT++;
+        if (cntHT == 0x20) {
+            cntHT = 0;
+            cntVT++;
+        }
+    } else {
+        cntVT++;
+    }
+    
+    if (cntVT == 0x20) {
+        cntVT = 0;
+    
+        if (++cntH == 0x02) {
+            cntH = 0;
+            
+            if (++cntV == 0x02) {
+                cntV = 0;
+                
+                if (++cntFV == 0x08) {
+                    cntFV = 0;
+                }
+            }
+        }
+    }
+}
+
+// For use during rendering
+void PPU::increment_horizontal_scroll_counter() {
+    if (++cntHT == 0x20) {
+        cntHT = 0;
+        
+        if (++cntH == 0x02) {
+            cntH = 0;
+        }
+    }
+}
+
+void PPU::increment_vertical_scroll_counter() {
+    if (++cntFV == 0x08) {
+        cntFV = 0;
+        
+        if (++cntVT == 30) { // Is this correct??
+            cntVT = 0;
+            
+            if (++cntV == 0x02) {
+                cntV = 0;
+            }
+        }
+    }
+}
+
+void PPU::update_scroll_counters_from_registers() {
+    cntFV = regFV;
+    cntV = regV;
+    cntH = regH;
+    cntVT = regVT;
+    cntHT = regHT;
+}
+
+bool PPU::is_screen_enabled() {
+    return (control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
+           (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE;
 }
