@@ -75,6 +75,30 @@ bool ControllerPad::record_key_private(unsigned short key_code, bool value) {
         case SDLK_RETURN:
             controller_1_start = value;
             return true;
+            
+        case SDLK_LEFT:
+            controller_1_left = value;
+            return true;
+        
+        case SDLK_RIGHT:
+            controller_1_right = value;
+            return true;
+            
+        case SDLK_UP:
+            controller_1_up = value;
+            return true;
+        
+        case SDLK_DOWN:
+            controller_1_down = value;
+            return true;
+        
+        case SDLK_z:
+            controller_1_a = value;
+            return true;
+        
+        case SDLK_x:
+            controller_1_b = value;
+            return true;
     }
     
     return false;
