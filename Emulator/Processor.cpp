@@ -227,9 +227,6 @@ void Processor::store_memory(uint16_t address, uint8_t value) {
             case 0x4016:
                 controller_pad->write_value(value);
                 break;
-            case 0x4017:
-                throw "Halp!";
-                break;
             default:
                 break;
                 //throw "Unrecognized I/O write. Please implement.";
