@@ -25,7 +25,11 @@ Emulator::~Emulator() {
 
 void Emulator::load_rom(std::string filename) {
     RomReader reader(filename);
-    ppu->set_chr_rom((uint8_t *)reader.get_chr_rom());
+
+    if (reader.get_chr_rom() != NULL) {
+        ppu->set_chr_rom((uint8_t *)reader.get_chr_rom());
+    }
+    
     processor->set_prg_rom((uint8_t *)reader.get_prg_rom());
     processor->reset();
 }
