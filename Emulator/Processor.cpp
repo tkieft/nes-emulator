@@ -54,7 +54,7 @@ void Processor::non_maskable_interrupt() {
     if (if_interrupt()) {
         stack_push(pc >> 8);
         stack_push(pc);
-        stack_push(p);
+        stack_push(p & ~BREAK_MASK);  // NMI pushes 0 for break bit
         
         pc = address_at(0xFFFA);
     }
@@ -275,7 +275,7 @@ void Processor::execute() {
         case 0xE8: case 0xC8: case 0xEA: case 0x48: case 0x08: case 0x68: case 0x28:
         case 0x40: case 0x60: case 0x38: case 0xF8: case 0x78: case 0xAA: case 0xA8:
         case 0xBA: case 0x8A: case 0x9A: case 0x98:
-            pc += 1;
+            pc += (opcode == 0x00 ? 2 : 1); // BRK is two-byte opcode
             break;
         // Accumulator:
         case 0x0A: case 0x4A: case 0x2A: case 0x6A:
@@ -440,7 +440,7 @@ void Processor::execute() {
             stack_push(pc >> 8);
             stack_push(pc);
             set_break(1);
-            stack_push(p);
+            stack_push(p | BREAK_MASK);
             set_interrupt(1); // disable interrupts
             pc = address_at(0xFFFE);
             break;
