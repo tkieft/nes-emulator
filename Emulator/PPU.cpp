@@ -215,6 +215,21 @@ uint16_t PPU::nametable_address() {
     return address;
 }
 
+/** 
+ * Use the attribute table to determine which palette to use. The
+ * byte in the name table determines the actual color to use in the palette.
+ * Returns the two high order bits of the palette entry.
+ */
+uint8_t PPU::palette_select_bits() {
+    int attr_byte = read_memory(attributetable_address());
+    
+    // Figure out which two bits to take
+    int bits_offset = ((cntVT & 0x02) << 1) | (cntHT & 0x02);
+    
+    // Mask and shift
+    return (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
+}
+
 uint16_t PPU::attributetable_address() {
     uint16_t address = 0x23C0;
     address |= ((uint16_t)cntHT & 0x1C) >> 2;

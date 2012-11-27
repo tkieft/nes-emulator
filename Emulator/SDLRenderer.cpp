@@ -24,13 +24,13 @@ Uint32 getPixel(SDL_Surface *surface, int x, int y) {
     return *p;
 }
 
-uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, int attr_high_bits, bool sprite) {
+uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, int palette_select, bool sprite) {
     uint8_t lower_byte = ppu->read_memory(pattern_start);
     uint8_t higher_byte = ppu->read_memory(pattern_start + 8);
     
     int pattern_bit = 7 - x; // x is ascending left to right; that's H -> L in bit order
     
-    uint8_t palette_entry = (attr_high_bits << 2) |
+    uint8_t palette_entry = (palette_select << 2) |
     ((lower_byte & (1 << pattern_bit)) >> pattern_bit) |
     (pattern_bit == 0 ? ((higher_byte & (1 << pattern_bit)) << 1) :
      ((higher_byte & (1 << pattern_bit)) >> (pattern_bit - 1)));
@@ -67,8 +67,6 @@ void SDLRenderer::render_scanline(int scanline) {
     
     ppu->reset_more_than_8_sprites_flag();
     
-    int tile_row = scanline / 8;
-    
     // TODO: Render Sprites & Background at the same time
 
     ///////////////////////////
@@ -79,14 +77,21 @@ void SDLRenderer::render_scanline(int scanline) {
         int tile_column = (x + ppu->regFH) / 8;
         
         while (x < SCREEN_WIDTH) {
-            // Calculate the 2 high bits of the palette offset using the attribute table.
-            int attr_byte = ppu->read_memory(ppu->attributetable_address());
-            int bits_offset = ((tile_row & 0x02) << 1) | (tile_column & 0x02);
-            attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
+            drawPixel(
+                screen,
+                x,
+                scanline,
+                NES_PALETTE[
+                    color_index_for_pattern_bit(
+                        (x + ppu->regFH) % 8, // bit offset within that tile
+                        ppu->patterntable_address(),
+                        ppu->palette_select_bits(),
+                        false
+                    )
+                ]
+            );
             
-            drawPixel(screen, x, scanline, NES_PALETTE[color_index_for_pattern_bit((x + ppu->regFH) % 8, ppu->patterntable_address(), attr_byte, false)]);
-            
-            // roll over to the next tile
+            // roll over to the next tile?
             if ((++x + ppu->regFH) % 8 == 0) {
                 ppu->increment_horizontal_scroll_counter();
                 tile_column++;
@@ -110,7 +115,7 @@ void SDLRenderer::render_scanline(int scanline) {
         
         // Lowest number sprites are highest priority to draw
         for (int i = 63; i >= 0; i--) {
-            int ypos            = ppu->spr_ram[i * 4] + 1;
+            int ypos = ppu->spr_ram[i * 4] + 1;
             
             if (!(ypos <= scanline && ypos + 7 >= scanline)) {
                 // Does this sprite intersect with this scanline?

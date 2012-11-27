@@ -63,6 +63,8 @@ private:
     uint16_t attributetable_address();
     uint16_t patterntable_address();
     
+    uint8_t palette_select_bits();
+    
     void increment_scroll_counters();
     void increment_horizontal_scroll_counter();
     void increment_vertical_scroll_counter();
