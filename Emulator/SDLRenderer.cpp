@@ -75,18 +75,15 @@ void SDLRenderer::render_scanline(int scanline) {
     // RENDER THE BACKGROUND //
     ///////////////////////////
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
-        for (int tile_column = 0; tile_column < SCREEN_WIDTH / 8; tile_column++) {
-            //std::cout << std::setw(2) << std::setfill('0') << std::hex << (int)ppu->read_memory(ppu->nametable_address()) << " ";
-            //std::cout << std::setw(4) << std::setfill('0') << std::hex << (int)ppu->nametable_address() << " ";
-            
+        for (int tile_column = 0; tile_column < SCREEN_WIDTH / 8 + 1; tile_column++) {
             // Calculate the 2 high bits of the palette offset using the attribute table.
-            int attr_byte_address = (tile_row / 4) * 8 + (tile_column / 4);
-            int attr_byte = ppu->read_memory(0x23C0 + attr_byte_address);
+            int attr_byte = ppu->read_memory(ppu->attributetable_address());
             int bits_offset = ((tile_row & 0x02) << 1) | (tile_column & 0x02);
             attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
             
-            for (int x = 0; x < 8; x++) {
-                drawPixel(screen, tile_column * 8 + x, scanline, NES_PALETTE[color_index_for_pattern_bit(x, ppu->patterntable_address(), attr_byte, false)]);
+            // Fine horizontal scroll offset is taken into account here
+            for (int x = (tile_column == 0 ? ppu->regFH : 0); x < (tile_column == SCREEN_WIDTH / 8 ? ppu->regFH : 8); x++) {
+                drawPixel(screen, tile_column * 8 + x - ppu->regFH, scanline, NES_PALETTE[color_index_for_pattern_bit(x, ppu->patterntable_address(), attr_byte, false)]);
             }
             
             ppu->increment_horizontal_scroll_counter();
@@ -165,8 +162,6 @@ void SDLRenderer::render_scanline(int scanline) {
     if (scanline == 239) {
         SDL_Flip(screen);
     }
-    
-    std::cout << std::endl;
     
     ppu->increment_vertical_scroll_counter();
 }
