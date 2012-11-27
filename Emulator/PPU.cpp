@@ -6,6 +6,7 @@
 //
 //
 
+#include <iostream>
 #include <string.h>
 
 #include "PPU.h"
@@ -71,11 +72,11 @@ uint16_t PPU::calculate_effective_address(uint16_t address) {
         address &= 0x27FF; // TODO: vertical/horiz mirroring
     } else if (address >= 0x3000 && address < 0x3F00) {
         address -= 0x1000;
-    } else if (address >= 0x3F00) {
+    } else if (address >= 0x3F00 && address < 0x4000) {
         address &= 0x3F1F;
         
         if ((address & 0x03) == 0) {
-            address = 0x3F00;
+            address &= 0x3F0F;
         }
     }
     
@@ -207,17 +208,19 @@ uint16_t PPU::vram_address() {
 
 uint16_t PPU::nametable_address() {
     uint16_t address = 0x2000;
-    address |=  (uint16_t)cntHT;
-    address |= ((uint16_t)cntVT) << 5;
-    address |= ((uint16_t)cntH)  << 10;
-    address |= ((uint16_t)cntV)  << 11;
+    address |= (uint16_t)cntHT;
+    address |= (uint16_t)cntVT << 5;
+    address |= (uint16_t)cntH  << 10;
+    address |= (uint16_t)cntV  << 11;
     return address;
 }
 
 uint16_t PPU::attributetable_address() {
     uint16_t address = 0x23C0;
-    address |= ((uint16_t)cntH)  << 10;
-    address |= ((uint16_t)cntV)  << 11;
+    address |= ((uint16_t)cntHT & 0x1C) >> 2;
+    address |= ((uint16_t)cntVT & 0x1C) << 1;
+    address |= (uint16_t)cntH  << 10;
+    address |= (uint16_t)cntV  << 11;
     return address;
 }
 

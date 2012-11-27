@@ -35,7 +35,13 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, 
     (pattern_bit == 0 ? ((higher_byte & (1 << pattern_bit)) << 1) :
      ((higher_byte & (1 << pattern_bit)) >> (pattern_bit - 1)));
     
-    return ppu->read_memory(PALETTE_TABLE_START + (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry);
+    uint16_t palette_address = PALETTE_TABLE_START;
+    
+    if ((palette_entry & 0x03) != 0) {
+        palette_address += (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry;
+    }
+    
+    return ppu->read_memory(palette_address);
 }
 
 void SDLRenderer::print_pattern(int pattern_num) {
