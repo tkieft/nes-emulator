@@ -75,18 +75,22 @@ void SDLRenderer::render_scanline(int scanline) {
     // RENDER THE BACKGROUND //
     ///////////////////////////
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
-        for (int tile_column = 0; tile_column < SCREEN_WIDTH / 8 + 1; tile_column++) {
+        int x = 0;
+        int tile_column = (x + ppu->regFH) / 8;
+        
+        while (x < SCREEN_WIDTH) {
             // Calculate the 2 high bits of the palette offset using the attribute table.
             int attr_byte = ppu->read_memory(ppu->attributetable_address());
             int bits_offset = ((tile_row & 0x02) << 1) | (tile_column & 0x02);
             attr_byte = (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
             
-            // Fine horizontal scroll offset is taken into account here
-            for (int x = (tile_column == 0 ? ppu->regFH : 0); x < (tile_column == SCREEN_WIDTH / 8 ? ppu->regFH : 8); x++) {
-                drawPixel(screen, tile_column * 8 + x - ppu->regFH, scanline, NES_PALETTE[color_index_for_pattern_bit(x, ppu->patterntable_address(), attr_byte, false)]);
-            }
+            drawPixel(screen, x, scanline, NES_PALETTE[color_index_for_pattern_bit((x + ppu->regFH) % 8, ppu->patterntable_address(), attr_byte, false)]);
             
-            ppu->increment_horizontal_scroll_counter();
+            // roll over to the next tile
+            if ((++x + ppu->regFH) % 8 == 0) {
+                ppu->increment_horizontal_scroll_counter();
+                tile_column++;
+            }
         }
     }
     
