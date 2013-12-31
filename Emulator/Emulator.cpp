@@ -48,7 +48,7 @@ void Emulator::emulate_frame() {
         
         while (clock < 113) {
             processor->execute();
-            clock += 5; // TODO: Holy shit accurate clock cycles.
+            clock += 3; // TODO: Holy shit accurate clock cycles.
         }
         
         if (ppu->render_scanline(scanline)) {
