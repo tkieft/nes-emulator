@@ -14,7 +14,6 @@
 		3B7670BF16174EA5006F1357 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B76706416174DC0006F1357 /* Cocoa.framework */; };
 		3B7670C716174EA5006F1357 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B7670C516174EA5006F1357 /* InfoPlist.strings */; };
 		3B7670CA16174EA5006F1357 /* EmulatorTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670C916174EA5006F1357 /* EmulatorTests.m */; };
-		3B7670D316174EEE006F1357 /* SenTestingKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B7670D216174EEE006F1357 /* SenTestingKit.framework */; };
 		3B7670D516174F17006F1357 /* TKAppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3B76705516174C9F006F1357 /* TKAppDelegate.mm */; };
 		3B7670D716174F32006F1357 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705C16174D12006F1357 /* InfoPlist.strings */; };
 		3B7670D816174F34006F1357 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = 3B76705A16174D12006F1357 /* Credits.rtf */; };
@@ -58,13 +57,12 @@
 		3B76706816174DCB006F1357 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
 		3B76707216174E1F006F1357 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
 		3B7670A316174EA5006F1357 /* Emulator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Emulator.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		3B7670BD16174EA5006F1357 /* EmulatorTests.octest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EmulatorTests.octest; sourceTree = BUILT_PRODUCTS_DIR; };
+		3B7670BD16174EA5006F1357 /* EmulatorTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = EmulatorTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3B7670C416174EA5006F1357 /* EmulatorTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "EmulatorTests-Info.plist"; sourceTree = "<group>"; };
 		3B7670C616174EA5006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3B7670C816174EA5006F1357 /* EmulatorTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EmulatorTests.h; sourceTree = "<group>"; };
 		3B7670C916174EA5006F1357 /* EmulatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmulatorTests.m; sourceTree = "<group>"; };
 		3B7670D116174ECE006F1357 /* Emulator-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Emulator-Prefix.pch"; sourceTree = "<group>"; };
-		3B7670D216174EEE006F1357 /* SenTestingKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SenTestingKit.framework; path = Library/Frameworks/SenTestingKit.framework; sourceTree = DEVELOPER_DIR; };
 		3B7670F21618AC22006F1357 /* SDLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = SDLRenderer.h; sourceTree = "<group>"; };
 		3B7670F31618AC22006F1357 /* SDLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLRenderer.cpp; sourceTree = "<group>"; };
 		3BA95A58162B7FFC00B585CC /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDLMain.h; sourceTree = "<group>"; };
@@ -92,7 +90,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				3B7670D316174EEE006F1357 /* SenTestingKit.framework in Frameworks */,
 				3B7670BF16174EA5006F1357 /* Cocoa.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -169,7 +166,7 @@
 			isa = PBXGroup;
 			children = (
 				3B7670A316174EA5006F1357 /* Emulator.app */,
-				3B7670BD16174EA5006F1357 /* EmulatorTests.octest */,
+				3B7670BD16174EA5006F1357 /* EmulatorTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -179,7 +176,6 @@
 			children = (
 				3BA95A5B162B802800B585CC /* SDL.framework */,
 				3B76706416174DC0006F1357 /* Cocoa.framework */,
-				3B7670D216174EEE006F1357 /* SenTestingKit.framework */,
 				3B76706A16174DE0006F1357 /* Other Frameworks */,
 			);
 			name = Frameworks;
@@ -251,8 +247,8 @@
 			);
 			name = EmulatorTests;
 			productName = EmulatorTests;
-			productReference = 3B7670BD16174EA5006F1357 /* EmulatorTests.octest */;
-			productType = "com.apple.product-type.bundle";
+			productReference = 3B7670BD16174EA5006F1357 /* EmulatorTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
 		};
 /* End PBXNativeTarget section */
 
@@ -260,7 +256,8 @@
 		3BC3376116111877002D75EE /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0450;
+				LastTestingUpgradeCheck = 0610;
+				LastUpgradeCheck = 0610;
 			};
 			buildConfigurationList = 3BC3376416111877002D75EE /* Build configuration list for PBXProject "Emulator" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -395,7 +392,6 @@
 		3B7670CC16174EA5006F1357 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -435,7 +431,6 @@
 		3B7670CD16174EA5006F1357 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
 				CLANG_ENABLE_OBJC_ARC = YES;
@@ -469,7 +464,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Emulator.app/Contents/MacOS/Emulator";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -478,7 +472,10 @@
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = NO;
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
@@ -500,7 +497,6 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Debug;
 		};
@@ -508,7 +504,6 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/Emulator.app/Contents/MacOS/Emulator";
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -518,7 +513,10 @@
 				COMBINE_HIDPI_IMAGES = YES;
 				COPY_PHASE_STRIP = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS = (
+					"\"$(DEVELOPER_LIBRARY_DIR)/Frameworks\"",
+					"$(inherited)",
+				);
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -532,13 +530,13 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = macosx;
 				TEST_HOST = "$(BUNDLE_LOADER)";
-				WRAPPER_EXTENSION = octest;
 			};
 			name = Release;
 		};
 		3BC3376616111877002D75EE /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ONLY_ACTIVE_ARCH = YES;
 			};
 			name = Debug;
 		};
