@@ -64,22 +64,16 @@ static NSString *getApplicationName(void)
 @end
 #endif
 
-@interface NSApplication (SDLApplication)
-@end
+/* The main class of the application, the application's delegate */
+@implementation SDLMain
 
-@implementation NSApplication (SDLApplication)
-/* Invoked from the Quit menu item */
-- (void)terminate:(id)sender
+- (void)applicationWillTerminate:(NSNotification *)notification
 {
     /* Post a SDL_QUIT event */
     SDL_Event event;
     event.type = SDL_QUIT;
     SDL_PushEvent(&event);
 }
-@end
-
-/* The main class of the application, the application's delegate */
-@implementation SDLMain
 
 /* Set the working directory to the .app's parent directory */
 - (void) setupWorkingDirectory:(BOOL)shouldChdir
@@ -191,30 +185,33 @@ static void CustomApplicationMain (int argc, char **argv)
     SDLMain				*sdlMain;
 
     /* Ensure the application object is initialised */
-    [NSApplication sharedApplication];
+    NSApplication *application = [NSApplication sharedApplication];
     
 #ifdef SDL_USE_CPS
     {
         CPSProcessSerNum PSN;
         /* Tell the dock about us */
-        if (!CPSGetCurrentProcess(&PSN))
-            if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103))
-                if (!CPSSetFrontProcess(&PSN))
-                    [NSApplication sharedApplication];
+        if (!CPSGetCurrentProcess(&PSN)) {
+            if (!CPSEnableForegroundOperation(&PSN,0x03,0x3C,0x2C,0x1103)) {
+                if (!CPSSetFrontProcess(&PSN)) {
+                    application = [NSApplication sharedApplication];
+                }
+            }
+        }
     }
 #endif /* SDL_USE_CPS */
 
     /* Set up the menubar */
-    [NSApp setMainMenu:[[NSMenu alloc] init]];
+    [application setMainMenu:[[NSMenu alloc] init]];
     setApplicationMenu();
     setupWindowMenu();
 
     /* Create SDLMain and make it the app delegate */
     sdlMain = [[SDLMain alloc] init];
-    [NSApp setDelegate:sdlMain];
+    [application setDelegate:sdlMain];
     
     /* Start the main event loop */
-    [NSApp run];
+    [application run];
 }
 
 #endif
