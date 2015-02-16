@@ -10,9 +10,9 @@
 
 RomReader::RomReader(string filename) {
     
-    ifstream file (filename, ios::in|ios::binary|ios::ate);
-    if (file.is_open())
-    {
+    ifstream file(filename, ios::in|ios::binary|ios::ate);
+
+    if (file.is_open()) {
         fileSize = file.tellg();
         file.seekg (0, ios::beg);
         file.read(header, HEADER_SIZE);
@@ -25,15 +25,19 @@ RomReader::RomReader(string filename) {
         prg_rom_bytes = header[PRG_ROM_BYTE] * PRG_ROM_PAGE_SIZE;
         chr_rom_bytes = header[CHR_ROM_BYTE] * CHR_ROM_PAGE_SIZE;
         prg_ram_bytes = header[PRG_RAM_BYTE] * PRG_RAM_PAGE_SIZE;
-        if (!prg_ram_bytes) prg_ram_bytes = PRG_RAM_PAGE_SIZE;
+
+        if (!prg_ram_bytes) {
+            // This can be 0 in an old value of the .NES file format; assume 1 page if so
+            prg_ram_bytes = PRG_RAM_PAGE_SIZE;
+        }
         
         // Error checking
         if (!prg_rom_bytes) {
-            throw "Program ROM bytes = 0.";
+            throw "Program ROM bytes = 0";
         }
         
         if (HEADER_SIZE + prg_rom_bytes + chr_rom_bytes != fileSize) {
-            throw "Inconsistent file size.";
+            throw "Inconsistent file size";
         }
         
         prg_rom = new char[prg_rom_bytes];
@@ -49,8 +53,7 @@ RomReader::RomReader(string filename) {
         file.read(prg_ram, prg_ram_bytes);
         
         file.close();
-    }
-    else {
+    } else {
         throw "Could not open file for reading.";
     }
 }
@@ -111,7 +114,7 @@ void RomReader::printDebugInfo() {
         cout << "512 byte trainer at $7000-$71FF" << endl;
     }
     
-    int mapper = (header[6] & MAPPER_MASK) >> 4 + header[7] & MAPPER_MASK;
+    int mapper = ((header[6] & MAPPER_MASK) >> 4) | (header[7] & MAPPER_MASK);
     if (mapper) {
         cout << "Memory Mapper: " << mapper << endl;
     }
