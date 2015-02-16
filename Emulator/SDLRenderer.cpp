@@ -178,13 +178,6 @@ void SDLRenderer::render_scanline(int scanline) {
 SDLRenderer::SDLRenderer(PPU *ppu) {
     this->ppu = ppu;
     
-    // initialize SDL
-    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER ) < 0)
-    {
-        std::cout << "Unable to initialize SDL: " << SDL_GetError() << std::endl;
-        exit(1);
-    }
-    
     // create the screen surface
     screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );// | SDL_FULLSCREEN );
     
@@ -201,5 +194,4 @@ SDLRenderer::SDLRenderer(PPU *ppu) {
 }
 
 SDLRenderer::~SDLRenderer() {
-    SDL_Quit();
 }

@@ -17,17 +17,24 @@ extern "C"
 #endif
 
 int main(int argc, char *argv[]) {
+    // initialize SDL
+    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0)
+    {
+        std::cout << "Unable to initialize SDL: " << SDL_GetError() << std::endl;
+        exit(1);
+    }
+
+    const SDL_version* version = SDL_Linked_Version();
+    std::cout << "Emulator - Tyler Kieft - SDL Version "
+    << (int) version->major << "."
+    << (int) version->minor << "."
+    << (int) version->patch << std::endl;
+
+    // initialize the engine
     Emulator emulator;
     emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/Super Mario Bros. (JU) [!].nes");
     //emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/NEStress/NEStress.nes");
-    
-    // initialize the engine
-    const SDL_version* version = SDL_Linked_Version();
-    std::cout << "Emulator - Tyler Kieft - SDL Version "
-              << (int) version->major << "."
-              << (int) version->minor << "."
-              << (int) version->patch << std::endl;
-    
+
     // main loop
     while (true)
     {
@@ -50,6 +57,8 @@ int main(int argc, char *argv[]) {
         while( SDL_GetTicks() - ticks < 1000 / FPS ) {
         }
     }
+
+    SDL_Quit();
     
     return 0;
 }
