@@ -25,10 +25,11 @@ int main(int argc, char *argv[]) {
     }
 
     const SDL_version* version = SDL_Linked_Version();
-    std::cout << "Emulator - Tyler Kieft - SDL Version "
-    << (int) version->major << "."
-    << (int) version->minor << "."
-    << (int) version->patch << std::endl;
+    std::cout
+        << "Emulator - Tyler Kieft - SDL Version "
+        << (int) version->major << "."
+        << (int) version->minor << "."
+        << (int) version->patch << std::endl;
 
     // initialize the engine
     Emulator emulator;

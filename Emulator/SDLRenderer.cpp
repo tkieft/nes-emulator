@@ -30,13 +30,15 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, 
     
     int pattern_bit = 7 - x; // x is ascending left to right; that's H -> L in bit order
     
-    uint8_t palette_entry = (palette_select << 2) |
-    ((lower_byte & (1 << pattern_bit)) >> pattern_bit) |
-    (pattern_bit == 0 ? ((higher_byte & (1 << pattern_bit)) << 1) :
-     ((higher_byte & (1 << pattern_bit)) >> (pattern_bit - 1)));
-    
+    uint8_t palette_entry =
+        (palette_select << 2) |
+        ((lower_byte & (1 << pattern_bit)) >> pattern_bit) |
+        (pattern_bit == 0 ?
+         ((higher_byte & (1 << pattern_bit)) << 1) :
+         ((higher_byte & (1 << pattern_bit)) >> (pattern_bit - 1)));
+
     uint16_t palette_address = PALETTE_TABLE_START;
-    
+
     if ((palette_entry & 0x03) != 0) {
         palette_address += (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry;
     }
@@ -48,15 +50,18 @@ void SDLRenderer::print_pattern(int pattern_num) {
     int pattern_start = pattern_num * cPATTERN_SIZE;
     
     for (int y = 0; y < 8; y++) {
-        std::cout << std::hex << (int) ppu->read_memory(pattern_start + y) + ppu->read_memory(pattern_start + y + 8) << std::endl;
+        std::cout
+            << std::hex
+            << (int) ppu->read_memory(pattern_start + y) + ppu->read_memory(pattern_start + y + 8)
+            << std::endl;
     }
 }
 
-/**
- * Render one scanline to the framebuffer.
- *
- * @param scanline An integer between 0 and 239, inclusive
- */
+//
+// Render one scanline to the framebuffer.
+//
+// @param scanline An integer between 0 and 239, inclusive
+//
 void SDLRenderer::render_scanline(int scanline) {
     if (SDL_MUSTLOCK(screen)) {
         SDL_LockSurface(screen);
@@ -74,8 +79,7 @@ void SDLRenderer::render_scanline(int scanline) {
     ///////////////////////////
     if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
         int x = 0;
-        int tile_column = (x + ppu->regFH) / 8;
-        
+
         while (x < SCREEN_WIDTH) {
             drawPixel(
                 screen,
@@ -94,7 +98,6 @@ void SDLRenderer::render_scanline(int scanline) {
             // roll over to the next tile?
             if ((++x + ppu->regFH) % 8 == 0) {
                 ppu->increment_horizontal_scroll_counter();
-                tile_column++;
             }
         }
     }

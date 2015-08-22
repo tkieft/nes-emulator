@@ -84,17 +84,18 @@ void RomReader::printDebugInfo() {
     std::bitset<8> flags9(header[9]);
     std::bitset<8> flags10(header[10]);
     
-    cout << "File size is " << fileSize << " bytes." << endl << endl;
+    cout
+        << "File size is " << fileSize << " bytes." << endl << endl
     
-    cout << header[0] << header[1] << header[2] << endl;
-    cout << "Size of PRG ROM: " << prg_rom_bytes << " bytes" << endl;
-    cout << "Size of CHR ROM: " << chr_rom_bytes << " bytes" << endl;
-    cout << "Size of PRG RAM: " << prg_ram_bytes << " bytes" << endl << endl;
+        << header[0] << header[1] << header[2] << endl
+        << "Size of PRG ROM: " << prg_rom_bytes << " bytes" << endl
+        << "Size of CHR ROM: " << chr_rom_bytes << " bytes" << endl
+        << "Size of PRG RAM: " << prg_ram_bytes << " bytes" << endl << endl
     
-    cout << "Flags 6: " << flags6 << endl;
-    cout << "Flags 7: " << flags7 << endl;
-    cout << "Flags 9: " << flags9 << endl;
-    cout << "Flags 10: " << flags10 << endl;
+        << "Flags 6: " << flags6 << endl
+        << "Flags 7: " << flags7 << endl
+        << "Flags 9: " << flags9 << endl
+        << "Flags 10: " << flags10 << endl;
     
     // Mirroring type
     cout << endl << "Mirroring Type: ";

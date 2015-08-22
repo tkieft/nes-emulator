@@ -60,21 +60,66 @@ bool PPU::render_scanline(int scanline) {
     return false;
 }
 
+
+//
+// PPU Memory Map
+//
+// --------------------------------------- $4000
+// Mirrors $3F00-$3F1F
+// --------------------------------------- $3F20
+// Sprite Palette
+// --------------------------------------- $3F10
+// Image Palette
+// --------------------------------------- $3F00
+// Mirrors $2000 - $2EFF
+// --------------------------------------- $3000
+// Attribute Table 3
+// --------------------------------------- $2FC0
+// Name Table 3 (32x30 tiles)
+// --------------------------------------- $2C00
+// Attribute Table 2
+// --------------------------------------- $2BC0
+// Name Table 2 (32x30 tiles)
+// --------------------------------------- $2800
+// Attribute Table 1
+// --------------------------------------- $27C0
+// Name Table 1 (32x30 tiles)
+// --------------------------------------- $2400
+// Attribute Table 0
+// --------------------------------------- $23C0
+// Name Table 0 (32x30 tiles)
+// --------------------------------------- $2000
+// Pattern Table 1 (256x2x8, may be VROM)
+// --------------------------------------- $1000
+// Pattern Table 0 (256x2x8, may be VROM)
+// --------------------------------------- $0000
+//
+
+//
+// The Pattern Table may come from VROM.
+//
 void PPU::set_chr_rom(uint8_t *chr_rom) {
     memcpy(vram, chr_rom, PATTERN_TABLE_SIZE);
 }
 
-/** PPU MEMORY **/
 uint16_t PPU::calculate_effective_address(uint16_t address) {
+    // Only consider the least significant 14 bits to form the address
     address &= 0x3FFF;
     
     if (address >= 0x2000 && address < 0x3000) {
-        address &= 0x27FF; // TODO: vertical/horiz mirroring
+        // There is only physical space for two name & attribute tables in the PPU memory
+        // Mirroring bits in the cartridge control how the 4 virtual tables are mapped
+        //
+        // TODO: Support mirroring, right now hard-coded to vertical
+        address &= 0x27FF;
     } else if (address >= 0x3000 && address < 0x3F00) {
+        // 0x3000 - 0x3EFF is a mirror of 0x2000 - 0x2EFF
         address -= 0x1000;
     } else if (address >= 0x3F00 && address < 0x4000) {
+        // Image / Sprite palette are mirrored 8 times from 0x3F00 to 0x4000
         address &= 0x3F1F;
-        
+
+        // 0x3F1x is a mirror of 0x3F0x
         if ((address & 0x03) == 0) {
             address &= 0x3F0F;
         }
@@ -215,11 +260,8 @@ uint16_t PPU::nametable_address() {
     return address;
 }
 
-/** 
- * Use the attribute table to determine which palette to use. The
- * byte in the name table determines the actual color to use in the palette.
- * Returns the two high order bits of the palette entry.
- */
+// Use the attribute table to determine which palette to use. The byte in the name table determines
+// the actual color to use in the palette. Returns the two high order bits of the palette entry.
 uint8_t PPU::palette_select_bits() {
     int attr_byte = read_memory(attributetable_address());
     
@@ -253,8 +295,7 @@ void PPU::increment_scroll_counters() {
     bool vertical_write = ((control_1 & VERTICAL_WRITE_MASK) == VERTICAL_WRITE_ON);
 
     if (!vertical_write) {
-        cntHT++;
-        if (cntHT == 0x20) {
+        if (++cntHT == 0x20) {
             cntHT = 0;
             cntVT++;
         }

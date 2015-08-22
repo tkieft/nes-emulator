@@ -29,12 +29,12 @@ private:
     uint8_t read_buffer;
     
     // PPU Scroll Registers
-    uint8_t regFV; // Fine vertical scroll latch
-    uint8_t regV;  // Vertical name table selection latch
-    uint8_t regH;  // Horizontal name table selection latch
-    uint8_t regVT; // Vertical tile index latch
-    uint8_t regHT; // Horizontal tile index latch
-    uint8_t regFH; // Fine horizontal scroll latch
+    uint8_t regFV; // Fine vertical scroll latch (3 bits)
+    uint8_t regV;  // Vertical name table selection latch (1 bit)
+    uint8_t regH;  // Horizontal name table selection latch (1 bit)
+    uint8_t regVT; // Vertical tile index latch (5 bits)
+    uint8_t regHT; // Horizontal tile index latch (5 bits)
+    uint8_t regFH; // Fine horizontal scroll latch (3 bits)
     uint8_t regS;  // Playfield pattern selection table latch
     
     // PPU Scroll counters
