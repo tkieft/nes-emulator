@@ -25,24 +25,30 @@ Uint32 getPixel(SDL_Surface *surface, int x, int y) {
 }
 
 uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, int palette_select, bool sprite) {
+    // First, calculate the 4-bit palette address
+    // The upper two bits come from palette_select (from the attribute table)
+    // The lower two bits come from the pattern table (the CHR ROM)
+    // x is the horizontal index of the pixel we're looking for
+    uint16_t palette_address = PALETTE_TABLE_START;
+
     uint8_t lower_byte = ppu->read_memory(pattern_start);
     uint8_t higher_byte = ppu->read_memory(pattern_start + 8);
     
     int pattern_bit = 7 - x; // x is ascending left to right; that's H -> L in bit order
     
     uint8_t palette_entry =
-        (palette_select << 2) |
         ((lower_byte & (1 << pattern_bit)) >> pattern_bit) |
         (pattern_bit == 0 ?
          ((higher_byte & (1 << pattern_bit)) << 1) :
          ((higher_byte & (1 << pattern_bit)) >> (pattern_bit - 1)));
 
-    uint16_t palette_address = PALETTE_TABLE_START;
-
-    if ((palette_entry & 0x03) != 0) {
+    // If the last two bits are 00 we always read the background color at PALETTE_TABLE_START
+    if (palette_entry != 0) {
+        palette_entry |= (palette_select << 2);
         palette_address += (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry;
     }
-    
+
+    // Now, use the address to determine the actual color index
     return ppu->read_memory(palette_address);
 }
 
