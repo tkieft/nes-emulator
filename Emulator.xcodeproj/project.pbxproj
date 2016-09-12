@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		064E086C1D85ECAA007BAE9A /* Instructions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 064E086B1D85ECAA007BAE9A /* Instructions.cpp */; };
 		3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B15A8781621EF2600A79745 /* ControllerPad.cpp */; };
 		3B279CA21619F48D00FA7A25 /* SDLRenderer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B7670F31618AC22006F1357 /* SDLRenderer.cpp */; };
 		3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */; };
@@ -38,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		064E086A1D85E87B007BAE9A /* Instructions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Instructions.h; sourceTree = "<group>"; };
+		064E086B1D85ECAA007BAE9A /* Instructions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Instructions.cpp; sourceTree = "<group>"; };
 		3B15A8781621EF2600A79745 /* ControllerPad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ControllerPad.cpp; sourceTree = "<group>"; };
 		3B15A8791621EF2600A79745 /* ControllerPad.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControllerPad.h; sourceTree = "<group>"; };
 		3B22C9C616169F40004B28F1 /* defines.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defines.h; sourceTree = "<group>"; };
@@ -119,6 +122,8 @@
 				3BC7BD4D16134A8E006CAA3D /* PPU.h */,
 				3B15A8781621EF2600A79745 /* ControllerPad.cpp */,
 				3B15A8791621EF2600A79745 /* ControllerPad.h */,
+				064E086A1D85E87B007BAE9A /* Instructions.h */,
+				064E086B1D85ECAA007BAE9A /* Instructions.cpp */,
 			);
 			name = "Core Classes";
 			sourceTree = "<group>";
@@ -325,6 +330,7 @@
 				3B7670E5161750B6006F1357 /* PPU.cpp in Sources */,
 				3B279CA21619F48D00FA7A25 /* SDLRenderer.cpp in Sources */,
 				3B7670D516174F17006F1357 /* TKAppDelegate.mm in Sources */,
+				064E086C1D85ECAA007BAE9A /* Instructions.cpp in Sources */,
 				3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */,
 				3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */,
 				3BA95A5A162B7FFC00B585CC /* SDLMain.m in Sources */,

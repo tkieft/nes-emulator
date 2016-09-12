@@ -10,6 +10,8 @@
 
 #include "Processor.h"
 
+#include "Instructions.h"
+
 Processor::Processor(PPU *ppu, ControllerPad *controller_pad) {
     this->ppu = ppu;
     this->controller_pad = controller_pad;
@@ -242,69 +244,56 @@ void Processor::execute() {
     uint16_t address;                   // address of operand
     uint8_t src;                        // operand
     uint16_t temp;                      // larger temp var for calculations
+
+    Instruction instruction = get_instruction(opcode);
     
     /*** ADDRESSING MODE ***/
-    switch (opcode) {
-        // Immediate
-        case 0x69: case 0x29: case 0xC9: case 0xE0: case 0xC0: case 0x49: case 0xA9:
-        case 0xA2: case 0xA0: case 0x09: case 0xE9:
+    switch (instruction.address_type) {
+        case Immediate:
             address = pc + 1;
             pc += 2;
             break;
-        // Zero-page
-        case 0x65: case 0x25: case 0x06: case 0x24: case 0xC5: case 0xE4: case 0xC4:
-        case 0xC6: case 0x45: case 0xE6: case 0xA5: case 0xA6: case 0xA4: case 0x46:
-        case 0x05: case 0x26: case 0x66: case 0xE5: case 0x85: case 0x86: case 0x84:
+
+        case ZeroPage:
             address = read_memory(pc + 1);
             pc += 2;
             break;
-        // Zero-page,X-indexed
-        case 0x75: case 0x35: case 0x16: case 0xD5: case 0xD6: case 0x55: case 0xF6:
-        case 0xB5: case 0xB6: case 0xB4: case 0x56: case 0x15: case 0x36: case 0x76:
-        case 0xF5: case 0x95: case 0x94:
+
+        case ZeroPageX:
             address = (read_memory(pc + 1) + x) & 0xFF; // Wrap-around addition
             pc += 2;
             break;
-        // Zero-page,Y-indexed
-        case 0x96:
+
+        case ZeroPageY:
             address = (read_memory(pc + 1) + y) & 0xFF; // Wrap-around addition
             pc += 2;
             break;
-        // Implied
-        case 0x00: case 0x18: case 0xD8: case 0x58: case 0xB8: case 0xCA: case 0x88:
-        case 0xE8: case 0xC8: case 0xEA: case 0x48: case 0x08: case 0x68: case 0x28:
-        case 0x40: case 0x60: case 0x38: case 0xF8: case 0x78: case 0xAA: case 0xA8:
-        case 0xBA: case 0x8A: case 0x9A: case 0x98:
+
+        case Implied:
             pc += (opcode == 0x00 ? 2 : 1); // BRK is two-byte opcode
             break;
-        // Accumulator:
-        case 0x0A: case 0x4A: case 0x2A: case 0x6A:
+
+        case Accumulator:
             src = a;
             pc += 1;
             break;
-        // Absolute
-        case 0x6D: case 0x2D: case 0x0E: case 0x2C: case 0xCD: case 0xEC: case 0xCC:
-        case 0xCE: case 0x4D: case 0xEE: case 0x4C: case 0x20: case 0xAD: case 0xAE:
-        case 0xAC: case 0x4E: case 0x0D: case 0x2E: case 0x6E: case 0xED: case 0x8D:
-        case 0x8E: case 0x8C:
+
+        case Absolute:
             address = address_at(pc + 1);
             pc += 3;
             break;
-        // Absolute,X-indexed
-        case 0x7D: case 0x3D: case 0x1E: case 0xDD: case 0xDE: case 0x5D: case 0xFE:
-        case 0xBD: case 0xBC: case 0x5E: case 0x1D: case 0x3E: case 0x7E: case 0xFD:
-        case 0x9D:
+
+        case AbsoluteX:
             address = address_at(pc + 1) + x;
             pc += 3;
             break;
-        // Absolute,Y-indexed
-        case 0x79: case 0x39: case 0xD9: case 0x59: case 0xB9: case 0xBE: case 0x19:
-        case 0xF9: case 0x99:
+
+        case AbsoluteY:
             address = address_at(pc + 1) + y;
             pc += 3;
             break;
-        // Indirect (JMP)
-        case 0x6C: {
+
+        case Indirect: {
             uint16_t indirect_jump_address = address_at(pc + 1);
             if ((indirect_jump_address & 0xFF) == 0xFF) {
                 // Wrap-around JMP bug
@@ -315,34 +304,25 @@ void Processor::execute() {
             pc += 3;
             break;
         }
-        // (Indirect,pre-X-indexed)
-        case 0x61: case 0x21: case 0xC1: case 0x41: case 0xA1: case 0x01: case 0xE1:
-        case 0x81:
+
+        case IndirectPreX:
             address = address_at((read_memory(pc + 1) + x) & 0xFF); // Wrap-around addition
             pc += 2;
             break;
-        // (Indirect),Y-post-indexed
-        case 0x71: case 0x31: case 0xD1: case 0x51: case 0xB1: case 0x11: case 0xF1:
-        case 0x91:
+
+        case IndirectPostY:
             address = address_at(read_memory(pc + 1)) + y;
             pc += 2;
             break;
-        // Relative
-        case 0x90: case 0xB0: case 0xF0: case 0x30: case 0xD0: case 0x10: case 0x50:
-        case 0x70:
+
+        case Relative:
             address = pc + 1;
             pc += 2;
             break;
-            
-        default:
-            std::cerr << "[Addressing mode] "
-                      << "Unrecognized opcode: " << std::hex << opcode
-                      << "at PC: " << std::hex << pc;
     }
     
-    switch (opcode) {
-        /* ADC (Add w/ carry) */
-        case 0x69: case 0x65: case 0x75: case 0x6D: case 0x7D: case 0x79: case 0x61: case 0x71:
+    switch (instruction.function) {
+        case ADC:
             src = read_memory(address);
             temp = (uint16_t)a + src + (if_carry() ? 1 : 0);
 
@@ -356,15 +336,13 @@ void Processor::execute() {
             break;
 
             
-        /* AND */
-        case 0x29: case 0x25: case 0x35: case 0x2D: case 0x3D: case 0x39: case 0x21: case 0x31:
+        case AND:
             a &= read_memory(address);
             set_zero(a);
             set_sign(a);
             break;
         
-        /* ASL (Shift left one bit) */
-        case 0x0A: case 0x06: case 0x16: case 0x0E: case 0x1E:
+        case ASL:
             if (opcode != 0x0A) src = read_memory(address);
             
             set_carry(src & 0x80);
@@ -379,64 +357,56 @@ void Processor::execute() {
             
             break;
         
-        /* BCC (Branch on carry clear) (C = 0) */
-        case 0x90:
+        case BCC:
             src = read_memory(address);
             if (!if_carry()) {
                 pc = rel_addr(pc, src);
             }
             break;
         
-        /* BCS (Branch on carry set) (C = 1) */
-        case 0xB0:
+        case BCS:
             src = read_memory(address);
             if (if_carry()) {
                 pc = rel_addr(pc, src);
             }
             break;
             
-        /* BEQ (Branch on equal) (Z = 1) */
-        case 0xF0:
+        case BEQ:
             src = read_memory(address);
             if (if_zero()) {
                 pc = rel_addr(pc, src);
             }
             break;
         
-        /* BIT (Test bits in memory with accumulator) */
-        case 0x24: case 0x2C:
+        case BIT:
             src = read_memory(address);
             set_overflow(src & OVERFLOW_MASK);
             set_sign(src);
             set_zero(a & src);
             break;
         
-        /* BMI (Branch on result minus) (N = 1) */
-        case 0x30:
+        case BMI:
             src = read_memory(address);
             if (if_sign()) {
                 pc = rel_addr(pc, src);
             }
             break;
             
-        /* BNE (Branch on not equal) (Z = 0) */
-        case 0xD0:
+        case BNE:
             src = read_memory(address);
             if (!if_zero()) {
                 pc = rel_addr(pc, src);
             }
             break;
         
-        /* BPL (Branch on result plus) (N = 0) */
-        case 0x10:
+        case BPL:
             src = read_memory(address);
             if (!if_sign()) {
                 pc = rel_addr(pc, src);
             }
             break;
             
-        /* BRK (Force break) */
-        case 0x00:
+        case BRK:
             stack_push(pc >> 8);
             stack_push(pc);
             set_break(1);
@@ -445,153 +415,131 @@ void Processor::execute() {
             pc = address_at(0xFFFE);
             break;
         
-        /* BVC (Branch on V clear) (V = 0) */
-        case 0x50:
+        case BVC:
             src = read_memory(address);
             if (!if_overflow()) {
                 pc = rel_addr(pc, src);
             }
             break;
             
-        /* BVS (Branch on V set) (V = 1) */
-        case 0x70:
+        case BVS:
             src = read_memory(address);
             if (if_overflow()) {
                 pc = rel_addr(pc, src);
             }
             break;
         
-        /* CLC (Clear carry flag) */
-        case 0x18:
+        case CLC:
             set_carry(0);
             break;
         
-        /* CLD (Clear decimal mode) */
-        case 0xD8:
+        case CLD:
             set_decimal(0);
             break;
         
-        /* CLI (Clear interrupt disable bit) */
-        case 0x58:
+        case CLI:
             set_interrupt(0);
             break;
         
-        /* CLV (Clear overflow flag) */
-        case 0xB8:
+        case CLV:
             set_overflow(0);
             break;
         
-        /* CMP (Compare memory and accumulator) */
-        case 0xC9: case 0xC5: case 0xD5: case 0xCD: case 0xDD: case 0xD9: case 0xC1: case 0xD1:
+        case CMP:
             temp = (uint16_t)a - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if a > src, carry set
             break;
             
-        /* CPX (Compare memory and index x) */
-        case 0xE0: case 0xE4: case 0xEC:
+        case CPX:
             temp = (uint16_t)x - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if x > src, carry set
             break;
             
-        /* CPY (Compare memory and index y) */
-        case 0xC0: case 0xC4: case 0xCC:
+        case CPY:
             temp = (uint16_t)y - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if y > src, carry set
             break;
         
-        /* DEC (Decrement memory by 1) */
-        case 0xC6: case 0xD6: case 0xCE: case 0xDE:
+        case DEC:
             src = read_memory(address) - 1;
             set_zero(src);
             set_sign(src);
             store_memory(address, src);
             break;
         
-        /* DEX (Decrement index X by 1) */
-        case 0xCA:
+        case DEX:
             x--;
             set_zero(x);
             set_sign(x);
             break;
 
-        /* DEY (Decrement index Y by 1) */
-        case 0x88:
+        case DEY:
             y--;
             set_zero(y);
             set_sign(y);
             break;
             
-        /* EOR (XOR memory with accumulator) */
-        case 0x49: case 0x45: case 0x55: case 0x4D: case 0x5D: case 0x59: case 0x41: case 0x51:
+        case EOR:
             a ^= read_memory(address);
             set_sign(a);
             set_zero(a);
             break;
         
-        /* INC (Increment memory by one) */
-        case 0xE6: case 0xF6: case 0xEE: case 0xFE:
+        case INC:
             src = read_memory(address) + 1;
             set_sign(src);
             set_zero(src);
             store_memory(address, src);
             break;
         
-        /* INX (Increment index X by one) */
-        case 0xE8:
+        case INX:
             x++;
             set_sign(x);
             set_zero(x);
             break;
         
-        /* INY (Increment index Y by one) */
-        case 0xC8:
+        case INY:
             y++;
             set_sign(y);
             set_zero(y);
             break;
         
-        /* JMP (Jump to new location) */
-        case 0x4C: case 0x6C:
+        case JMP:
             pc = address;
             break;
         
-        /* JSR (Jump to new location saving return address */
-        case 0x20:
+        case JSR:
             pc--;
             stack_push(pc >> 8);        // Push the higher byte first
             stack_push(pc);
             pc = address;
             break;
         
-        /* LDA (Load accumulator with memory) */
-        case 0xA9: case 0xA5: case 0xB5: case 0xAD: case 0xBD: case 0xB9: case 0xA1: case 0xB1:
+        case LDA:
             a = read_memory(address);
             set_sign(a);
             set_zero(a);
             break;
         
-        /* LDX (Load index X with memory) */
-        case 0xA2: case 0xA6: case 0xB6: case 0xAE: case 0xBE:
+        case LDX:
             x = read_memory(address);
             set_sign(x);
             set_zero(x);
             break;
         
-        /* LDY (Load index Y with memory) */
-        case 0xA0: case 0xA4: case 0xB4: case 0xAC: case 0xBC:
+        case LDY:
             y = read_memory(address);
             set_sign(y);
             set_zero(y);
             break;
         
-        /* LSR (Shift right one bit) */
-        case 0x4A: case 0x46: case 0x56: case 0x4E: case 0x5E:
+        case LSR:
             if (opcode != 0x4A) src = read_memory(address);
             
             set_sign(0);
@@ -606,41 +554,34 @@ void Processor::execute() {
             }
             break;
         
-        /* NOP (no-operation) */
-        case 0xEA:
+        case NOP:
             break;
             
-        /* ORA (Or memory with accumulator) */
-        case 0x09: case 0x05: case 0x15: case 0x0D: case 0x1D: case 0x19: case 0x01: case 0x11:
+        case ORA:
             a |= read_memory(address);
             set_sign(a);
             set_zero(a);
             break;
         
-        /* PHA (Push accumulator on stack) */
-        case 0x48:
+        case PHA:
             stack_push(a);
             break;
         
-        /* PHP (Push processor status on stack) */
-        case 0x08:
+        case PHP:
             stack_push(p | BREAK_MASK); // PHP sets the break flag
             break;
             
-        /* PLA (Pull accumulator from stack) */
-        case 0x68:
+        case PLA:
             a = stack_pop();
             set_sign(a);
             set_zero(a);
             break;
             
-        /* PLP (Pull processor status from stack) */
-        case 0x28:
+        case PLP:
             p = stack_pop() | UNUSED_MASK;
             break;
             
-        /* ROL (Rotate one bit left) (memory or accumulator) */
-        case 0x2A: case 0x26: case 0x36: case 0x2E: case 0x3E:
+        case ROL:
             if (opcode != 0x2A) src = read_memory(address);
             
             temp = (uint16_t)src << 1;
@@ -657,8 +598,7 @@ void Processor::execute() {
             }
             break;
         
-        /* ROR (Rotate one bit right) (memory or accumulator) */
-        case 0x6A: case 0x66: case 0x76: case 0x6E: case 0x7E:
+        case ROR:
             if (opcode != 0x6A) src = read_memory(address);
             
             temp = src & 0x01;
@@ -676,23 +616,20 @@ void Processor::execute() {
             
             break;
      
-        /* RTI (Return from interrupt) */
-        case 0x40:
+        case RTI:
             p = stack_pop();
             // Must make this two instructions so that the compiler doesn't screw us.
             pc = stack_pop();   // Pop the lower byte first
             pc |= (uint16_t)stack_pop() << 8;
             break;
             
-        /* RTS (Return from subroutine) */
-        case 0x60:
+        case RTS:
             pc = stack_pop();   // Pop the lower byte first
             pc |= (uint16_t)stack_pop() << 8;
             pc++; // Must add 1
             break;
         
-        /* SBC (Subtract with carry) */
-        case 0xE9: case 0xE5: case 0xF5: case 0xED: case 0xFD: case 0xF9: case 0xE1: case 0xF1:
+        case SBC:
             src = read_memory(address);
             temp = (uint16_t)a - src - (if_carry() ? 0 : 1);
             set_zero(temp & 0xFF);
@@ -702,80 +639,63 @@ void Processor::execute() {
             a = (uint8_t)temp;
             break;
             
-        /* SEC (Set carry bit) */
-        case 0x38:
+        case SEC:
             set_carry(1);
             break;
         
-        /* SED (Set decimal mode) */
-        case 0xF8:
+        case SED:
             set_decimal(1);
             break;
         
-        /* SEI (Set interrupt disable status) */
-        case 0x78:
+        case SEI:
             set_interrupt(1);
             break;
             
-        /* STA (Store accumulator in memory) */
-        case 0x85: case 0x95: case 0x8D: case 0x9D: case 0x99: case 0x81: case 0x91:
+        case STA:
             store_memory(address, a);
             break;
             
-        /* STX (Store index X in memory) */
-        case 0x86: case 0x96: case 0x8E:
+        case STX:
             store_memory(address, x);
             break;
             
-        /* STY (Store index Y in memory) */
-        case 0x84: case 0x94: case 0x8C:
+        case STY:
             store_memory(address, y);
             break;
             
-        /* TAX (Transfer accumulator to index X) */
-        case 0xAA:
+        case TAX:
             x = a;
             set_sign(x);
             set_zero(x);
             break;
         
-        /* TAY (Transfer accumulator to index Y) */
-        case 0xA8:
+        case TAY:
             y = a;
             set_sign(y);
             set_zero(y);
             break;
             
-        /* TSX (Transfer stack pointer to index X) */
-        case 0xBA:
+        case TSX:
             x = s;
             set_sign(x);
             set_zero(x);
             break;
             
-        /* TXA (Transfer index X to accumulator) */
-        case 0x8A:
+        case TXA:
             a = x;
             set_sign(a);
             set_zero(a);
             break;
         
-        /* TXS (Transfer index X to stack pointer) */
-        case 0x9A:
+        case TXS:
             s = x;
             break;
         
-        /* TYA (Transfer index Y to accumulator) */
-        case 0x98:
+        case TYA:
             a = y;
             set_sign(a);
             set_zero(a);
             break;
-        
-        default:
-            std::cerr << "[Execution] "
-                      << "Unrecognized opcode: " << std::hex << (int)opcode
-                      << " at PC: " << std::hex << pc << std::endl;
     }
 }
 
