@@ -105,17 +105,19 @@ void PPU::set_chr_rom(uint8_t *chr_rom) {
 uint16_t PPU::calculate_effective_address(uint16_t address) {
     // Only consider the least significant 14 bits to form the address
     address &= 0x3FFF;
-    
-    if (address >= 0x2000 && address < 0x3000) {
+
+    if (address < 0x2000) {
+        return address;
+    } else if (address < 0x3000) {
         // There is only physical space for two name & attribute tables in the PPU memory
         // Mirroring bits in the cartridge control how the 4 virtual tables are mapped
         //
         // TODO: Support mirroring, right now hard-coded to vertical
-        address &= 0x27FF;
-    } else if (address >= 0x3000 && address < 0x3F00) {
+        return address & 0x27FF;
+    } else if (address < 0x3F00) {
         // 0x3000 - 0x3EFF is a mirror of 0x2000 - 0x2EFF
-        address -= 0x1000;
-    } else if (address >= 0x3F00 && address < 0x4000) {
+        return address - 0x1000;
+    } else {
         // Image / Sprite palette are mirrored 8 times from 0x3F00 to 0x4000
         address &= 0x3F1F;
 
@@ -123,9 +125,8 @@ uint16_t PPU::calculate_effective_address(uint16_t address) {
         if ((address & 0x03) == 0) {
             address &= 0x3F0F;
         }
+        return address;
     }
-    
-    return address;
 }
 
 uint8_t PPU::read_memory(uint16_t address) {
