@@ -21,9 +21,6 @@ private:
     PPU *ppu;
     ControllerPad *controller_pad;
     
-    int last_pcs[20];
-    int last_pc_index;
-    
     /* REGISTERS */
     uint16_t pc;     // program counter, 16 bits
     uint8_t s;       // stack pointer
