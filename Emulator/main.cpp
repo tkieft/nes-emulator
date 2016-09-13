@@ -45,6 +45,7 @@ int main(int argc, char *argv[]) {
         while (SDL_PollEvent(&event))
         {
             if (event.type == SDL_QUIT) {
+                SDL_Quit();
                 return 0;
             } else if (event.type == SDL_KEYDOWN) {
                 emulator.handle_key_down(event.key.keysym.sym);
@@ -58,8 +59,4 @@ int main(int argc, char *argv[]) {
         while( SDL_GetTicks() - ticks < 1000 / FPS ) {
         }
     }
-
-    SDL_Quit();
-    
-    return 0;
 }
