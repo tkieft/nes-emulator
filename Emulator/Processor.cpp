@@ -310,10 +310,15 @@ void Processor::execute() {
             pc += 2;
             break;
 
-        case IndirectPostY:
-            address = address_at(read_memory(pc + 1)) + y;
+        case IndirectPostY: {
+            uint8_t op_address = read_memory(pc + 1);
+            if (op_address == 0xFF) {
+                throw "unhandled!"; // should wrap around
+            }
+            address = address_at(op_address) + y;
             pc += 2;
             break;
+        }
 
         case Relative:
             address = pc + 1;
