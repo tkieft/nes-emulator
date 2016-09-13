@@ -56,7 +56,11 @@ int main(int argc, char *argv[]) {
 
         emulator.emulate_frame();
 
-        while( SDL_GetTicks() - ticks < 1000 / FPS ) {
+        // subtract the # of ms it took us to render this frame from
+        // the # of ms we have to render each frame
+        int ms_to_sleep = 1000 / FPS - (SDL_GetTicks() - ticks);
+        if (ms_to_sleep > 0) {
+            SDL_Delay(ms_to_sleep);
         }
     }
 }
