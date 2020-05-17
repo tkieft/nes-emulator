@@ -10,7 +10,7 @@
 #define __Emulator__Processor__
 
 #include <iostream>
-#include "stdint.h"
+#include <cstdint>
 
 #include "defines.h"
 #include "PPU.h"

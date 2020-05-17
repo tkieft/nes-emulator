@@ -9,7 +9,7 @@
 #ifndef Emulator_defines_h
 #define Emulator_defines_h
 
-#include <stdint.h>
+#include <cstdint>
 
 #define FPS 60
 #define SCREEN_WIDTH 256

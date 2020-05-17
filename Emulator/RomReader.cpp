@@ -8,13 +8,16 @@
 
 #include "RomReader.h"
 
-RomReader::RomReader(string filename) {
+#include <bitset>
+#include <iostream>
 
-    ifstream file(filename, ios::in|ios::binary|ios::ate);
+RomReader::RomReader(std::string filename) {
+
+    std::ifstream file(filename, std::ios::in|std::ios::binary|std::ios::ate);
 
     if (file.is_open()) {
         fileSize = file.tellg();
-        file.seekg (0, ios::beg);
+        file.seekg (0, std::ios::beg);
         file.read(header, HEADER_SIZE);
 
         if (!(header[0] == 'N' && header[1] == 'E' && header[2] == 'S' && header[3] == '\x1A')) {
@@ -84,43 +87,43 @@ void RomReader::printDebugInfo() {
     std::bitset<8> flags9(header[9]);
     std::bitset<8> flags10(header[10]);
 
-    cout
-        << "File size is " << fileSize << " bytes." << endl << endl
+    std::cout
+        << "File size is " << fileSize << " bytes." << std::endl << std::endl
 
-        << header[0] << header[1] << header[2] << endl
-        << "Size of PRG ROM: " << prg_rom_bytes << " bytes" << endl
-        << "Size of CHR ROM: " << chr_rom_bytes << " bytes" << endl
-        << "Size of PRG RAM: " << prg_ram_bytes << " bytes" << endl << endl
+        << header[0] << header[1] << header[2] << std::endl
+        << "Size of PRG ROM: " << prg_rom_bytes << " bytes" << std::endl
+        << "Size of CHR ROM: " << chr_rom_bytes << " bytes" << std::endl
+        << "Size of PRG RAM: " << prg_ram_bytes << " bytes" << std::endl << std::endl
 
-        << "Flags 6: " << flags6 << endl
-        << "Flags 7: " << flags7 << endl
-        << "Flags 9: " << flags9 << endl
-        << "Flags 10: " << flags10 << endl;
+        << "Flags 6: " << flags6 << std::endl
+        << "Flags 7: " << flags7 << std::endl
+        << "Flags 9: " << flags9 << std::endl
+        << "Flags 10: " << flags10 << std::endl;
 
     // Mirroring type
-    cout << endl << "Mirroring Type: ";
+    std::cout << std::endl << "Mirroring Type: ";
     if (header[6] & FOUR_SCREEN_MIRRORING) {
-        cout << "Four-screen" << endl;
+        std::cout << "Four-screen" << std::endl;
     } else if (header[6] & VERTICAL_MIRRORING) {
-        cout << "Vertical" << endl;
+        std::cout << "Vertical" << std::endl;
     } else {
-        cout << "Horizontal" << endl;
+        std::cout << "Horizontal" << std::endl;
     }
 
     if (header[6] & BATTERY_BACKED_SRAM ) {
-        cout << "Battery backed SRAM in CPU $6000-$7FFF" << endl;
+        std::cout << "Battery backed SRAM in CPU $6000-$7FFF" << std::endl;
     }
 
     if (header[6] & TRAINER) {
-        cout << "512 byte trainer at $7000-$71FF" << endl;
+        std::cout << "512 byte trainer at $7000-$71FF" << std::endl;
     }
 
     int mapper = ((header[6] & MAPPER_MASK) >> 4) | (header[7] & MAPPER_MASK);
     if (mapper) {
-        cout << "Memory Mapper: " << mapper << endl;
+        std::cout << "Memory Mapper: " << mapper << std::endl;
     }
 
     if (header[7] || header[9] || header[10]) {
-        cout << "Unimplemented features in flags 7-10!";
+        std::cout << "Unimplemented features in flags 7-10!";
     }
 }

@@ -9,7 +9,7 @@
 #ifndef Emulator_nes_palette_h
 #define Emulator_nes_palette_h
 
-#include <stdint.h>
+#include <cstdint>
 
 typedef struct color {
     uint8_t r;

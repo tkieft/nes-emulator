@@ -9,7 +9,6 @@
 #ifndef __Emulator__ControllerPad__
 #define __Emulator__ControllerPad__
 
-#include <iostream>
 #include "SDL.h"
 
 class ControllerPad {

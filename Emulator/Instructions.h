@@ -9,7 +9,7 @@
 #ifndef Instructions_h
 #define Instructions_h
 
-#include <stdint.h>
+#include <cstdint>
 
 enum AddressType {
     Immediate,

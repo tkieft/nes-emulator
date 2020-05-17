@@ -6,9 +6,6 @@
 //
 //
 
-#include <iostream>
-#include <string.h>
-
 #include "PPU.h"
 
 PPU::PPU() {

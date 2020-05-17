@@ -28,16 +28,12 @@
 #define CHR_ROM_PAGE_SIZE 8192  // 8kb
 #define PRG_RAM_PAGE_SIZE 8192  // 8kb
 
-#include <bitset>
-#include <iostream>
 #include <fstream>
 #include <string>
 
-using namespace std;
-
 class RomReader {
 private:
-    ifstream::pos_type fileSize;
+    std::ifstream::pos_type fileSize;
     char header[HEADER_SIZE];
     int prg_rom_bytes;
     int chr_rom_bytes;
@@ -48,7 +44,7 @@ private:
     char *prg_ram;
 
 public:
-    RomReader(string filename);
+    RomReader(std::string filename);
     ~RomReader();
 
     char *get_prg_rom();

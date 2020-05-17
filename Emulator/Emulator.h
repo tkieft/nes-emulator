@@ -10,6 +10,7 @@
 #define Emulator_Emulator_h
 
 #include <string>
+
 #include "SDL.h"
 
 #include "PPU.h"
