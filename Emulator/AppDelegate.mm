@@ -1,27 +1,32 @@
 //
-//  main.cpp
-//  Emulator
+//  AppDelegate.h
+//  helloworld
 //
-//  Created by Tyler Kieft on 10/14/12.
+//  Created by Tyler Kieft on 5/17/20.
+//  Copyright © 2020 Tyler Kieft. All rights reserved.
 //
-//
+
+#import "AppDelegate.h"
 
 #include <iostream>
-#include <string>
-#include <unistd.h>
+
 #include "SDL.h"
+
 #include "Emulator.h"
 
-#ifdef __cplusplus
-extern "C"
-#endif
+@implementation AppDelegate
 
-int my_main(int argc, char *argv[]) {
+- (void)applicationWillTerminate:(NSNotification *)notification {
+    SDL_Event event;
+    event.type = SDL_QUIT;
+    SDL_PushEvent(&event);
+}
+
+- (void)applicationDidFinishLaunching:(NSNotification *)notification {
     // initialize SDL
-    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0)
-    {
+    if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0) {
         std::cout << "Unable to initialize SDL: " << SDL_GetError() << std::endl;
-        exit(1);
+        ::exit(1);
     }
 
     SDL_version version;
@@ -38,16 +43,14 @@ int my_main(int argc, char *argv[]) {
     //emulator.load_rom("/Users/tkieft/code/NES Emulator Dev Resources/NEStress/NEStress.nes");
 
     // main loop
-    while (true)
-    {
+    while (true) {
         int ticks = SDL_GetTicks();
 
         SDL_Event event;
-        while (SDL_PollEvent(&event))
-        {
+        while (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 SDL_Quit();
-                return 0;
+                [NSApp terminate:self];
             } else if (event.type == SDL_KEYDOWN) {
                 emulator.handle_key_down(event.key.keysym);
             } else if (event.type == SDL_KEYUP) {
@@ -65,3 +68,4 @@ int my_main(int argc, char *argv[]) {
         }
     }
 }
+@end

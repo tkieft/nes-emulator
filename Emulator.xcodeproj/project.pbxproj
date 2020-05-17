@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		060DD96924717245005A8134 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 060DD96724717245005A8134 /* Main.storyboard */; };
+		060DD96B2471797B005A8134 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 060DD96A2471797B005A8134 /* main.m */; };
 		064E086C1D85ECAA007BAE9A /* Instructions.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 064E086B1D85ECAA007BAE9A /* Instructions.cpp */; };
 		066632A5246B7B7700D364F6 /* SDL2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 066632A1246B332D00D364F6 /* SDL2.framework */; };
 		3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3B15A8781621EF2600A79745 /* ControllerPad.cpp */; };
@@ -23,8 +25,7 @@
 		3B7670E3161750B6006F1357 /* Emulator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC3377F161119D2002D75EE /* Emulator.cpp */; };
 		3B7670E4161750B6006F1357 /* RomReader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD41161269FC006CAA3D /* RomReader.cpp */; };
 		3B7670E5161750B6006F1357 /* PPU.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BC7BD4C16134A8E006CAA3D /* PPU.cpp */; };
-		3BA95A5A162B7FFC00B585CC /* SDLMain.m in Sources */ = {isa = PBXBuildFile; fileRef = 3BA95A59162B7FFC00B585CC /* SDLMain.m */; };
-		3BA95A62162B87C200B585CC /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3BA95A61162B87C200B585CC /* main.cpp */; };
+		3BA95A5A162B7FFC00B585CC /* AppDelegate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 3BA95A59162B7FFC00B585CC /* AppDelegate.mm */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -38,6 +39,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		060DD96824717245005A8134 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		060DD96A2471797B005A8134 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		064E086A1D85E87B007BAE9A /* Instructions.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = Instructions.h; sourceTree = "<group>"; };
 		064E086B1D85ECAA007BAE9A /* Instructions.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Instructions.cpp; sourceTree = "<group>"; };
 		066632A1246B332D00D364F6 /* SDL2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL2.framework; path = ../../../../Library/Frameworks/SDL2.framework; sourceTree = "<group>"; };
@@ -53,7 +56,7 @@
 		3B76705516174C9F006F1357 /* TKAppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = TKAppDelegate.mm; sourceTree = "<group>"; };
 		3B76705B16174D12006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = Credits.rtf; sourceTree = "<group>"; };
 		3B76705D16174D12006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = InfoPlist.strings; sourceTree = "<group>"; };
-		3B76706016174D12006F1357 /* Emulator-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "Emulator-Info.plist"; sourceTree = "<group>"; };
+		3B76706016174D12006F1357 /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		3B76706416174DC0006F1357 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Cocoa.framework; sourceTree = DEVELOPER_DIR; };
 		3B76706616174DC6006F1357 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/AppKit.framework; sourceTree = DEVELOPER_DIR; };
 		3B76706816174DCB006F1357 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.8.sdk/System/Library/Frameworks/Foundation.framework; sourceTree = DEVELOPER_DIR; };
@@ -67,9 +70,8 @@
 		3B7670D116174ECE006F1357 /* Emulator-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Emulator-Prefix.pch"; sourceTree = "<group>"; };
 		3B7670F21618AC22006F1357 /* SDLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = SDLRenderer.h; sourceTree = "<group>"; };
 		3B7670F31618AC22006F1357 /* SDLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLRenderer.cpp; sourceTree = "<group>"; };
-		3BA95A58162B7FFC00B585CC /* SDLMain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDLMain.h; sourceTree = "<group>"; };
-		3BA95A59162B7FFC00B585CC /* SDLMain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLMain.m; sourceTree = "<group>"; };
-		3BA95A61162B87C200B585CC /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		3BA95A58162B7FFC00B585CC /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		3BA95A59162B7FFC00B585CC /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = AppDelegate.mm; sourceTree = "<group>"; };
 		3BC3377F161119D2002D75EE /* Emulator.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = Emulator.cpp; sourceTree = "<group>"; };
 		3BC7BD41161269FC006CAA3D /* RomReader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RomReader.cpp; sourceTree = "<group>"; };
 		3BC7BD42161269FC006CAA3D /* RomReader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RomReader.h; sourceTree = "<group>"; };
@@ -202,13 +204,14 @@
 		3BC33775161119D2002D75EE /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
-				3BA95A58162B7FFC00B585CC /* SDLMain.h */,
-				3BA95A59162B7FFC00B585CC /* SDLMain.m */,
-				3BA95A61162B87C200B585CC /* main.cpp */,
+				060DD96724717245005A8134 /* Main.storyboard */,
+				3BA95A58162B7FFC00B585CC /* AppDelegate.h */,
+				3BA95A59162B7FFC00B585CC /* AppDelegate.mm */,
 				3B7670D116174ECE006F1357 /* Emulator-Prefix.pch */,
 				3B76705A16174D12006F1357 /* Credits.rtf */,
 				3B76705C16174D12006F1357 /* InfoPlist.strings */,
-				3B76706016174D12006F1357 /* Emulator-Info.plist */,
+				3B76706016174D12006F1357 /* Info.plist */,
+				060DD96A2471797B005A8134 /* main.m */,
 			);
 			name = "Supporting Files";
 			sourceTree = "<group>";
@@ -220,9 +223,9 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 3B7670CB16174EA5006F1357 /* Build configuration list for PBXNativeTarget "Emulator" */;
 			buildPhases = (
-				3B7670A116174EA5006F1357 /* Resources */,
 				3B76709F16174EA5006F1357 /* Sources */,
 				3B7670A016174EA5006F1357 /* Frameworks */,
+				3B7670A116174EA5006F1357 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -285,6 +288,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				060DD96924717245005A8134 /* Main.storyboard in Resources */,
 				3B7670D816174F34006F1357 /* Credits.rtf in Resources */,
 				3B7670D716174F32006F1357 /* InfoPlist.strings in Resources */,
 			);
@@ -330,8 +334,8 @@
 				064E086C1D85ECAA007BAE9A /* Instructions.cpp in Sources */,
 				3B3BD4451620FE5B00FC5048 /* nes_palette.cpp in Sources */,
 				3B15A87A1621EF2600A79745 /* ControllerPad.cpp in Sources */,
-				3BA95A5A162B7FFC00B585CC /* SDLMain.m in Sources */,
-				3BA95A62162B87C200B585CC /* main.cpp in Sources */,
+				3BA95A5A162B7FFC00B585CC /* AppDelegate.mm in Sources */,
+				060DD96B2471797B005A8134 /* main.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -354,6 +358,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		060DD96724717245005A8134 /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				060DD96824717245005A8134 /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
 		3B76705A16174D12006F1357 /* Credits.rtf */ = {
 			isa = PBXVariantGroup;
 			children = (
@@ -419,8 +431,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL2.Framework/Headers;
-				INFOPLIST_FILE = "Emulator/Emulator-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				INFOPLIST_FILE = Emulator/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tylerkieft.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -460,8 +472,8 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /Library/Frameworks/SDL2.Framework/Headers;
-				INFOPLIST_FILE = "Emulator/Emulator-Info.plist";
-				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				INFOPLIST_FILE = Emulator/Info.plist;
+				MACOSX_DEPLOYMENT_TARGET = 10.15;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.tylerkieft.${PRODUCT_NAME:rfc1034identifier}";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
