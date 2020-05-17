@@ -14,11 +14,11 @@
 #include "defines.h"
 #include "SDLRenderer.h"
 
-const int kVRAMSize = 0x4000;
-const int kPatternTableSize = 0x2000;
-const int kSprRAMSize = 0x100;
-const int kPaletteTableStart = 0x3F00;
-const int kPaletteTableSpriteOffset = 16;
+const dbyte kVRAMSize = 0x4000;
+const dbyte kPatternTableSize = 0x2000;
+const dbyte kSprRAMSize = 0x100;
+const dbyte kPaletteTableStart = 0x3F00;
+const dbyte kPaletteTableSpriteOffset = 16;
 
 
 class PPU {
@@ -27,37 +27,37 @@ class PPU {
 private:
     std::unique_ptr<SDLRenderer> renderer;
 
-    uint8_t vram[kVRAMSize];
-    uint8_t spr_ram[kSprRAMSize];
+    byte vram[kVRAMSize];
+    byte spr_ram[kSprRAMSize];
 
-    uint8_t control_1;
-    uint8_t control_2;
-    uint8_t status;
-    uint8_t sprite_memory_address;
+    byte control_1;
+    byte control_2;
+    byte status;
+    byte sprite_memory_address;
 
-    uint8_t read_buffer;
+    byte read_buffer;
 
     // PPU Scroll Registers
-    uint8_t regFV; // Fine vertical scroll latch (3 bits)
-    uint8_t regV;  // Vertical name table selection latch (1 bit)
-    uint8_t regH;  // Horizontal name table selection latch (1 bit)
-    uint8_t regVT; // Vertical tile index latch (5 bits)
-    uint8_t regHT; // Horizontal tile index latch (5 bits)
-    uint8_t regFH; // Fine horizontal scroll latch (3 bits)
-    uint8_t regS;  // Playfield pattern selection table latch
+    byte regFV; // Fine vertical scroll latch (3 bits)
+    byte regV;  // Vertical name table selection latch (1 bit)
+    byte regH;  // Horizontal name table selection latch (1 bit)
+    byte regVT; // Vertical tile index latch (5 bits)
+    byte regHT; // Horizontal tile index latch (5 bits)
+    byte regFH; // Fine horizontal scroll latch (3 bits)
+    byte regS;  // Playfield pattern selection table latch
 
     // PPU Scroll counters
-    uint8_t cntFV;
-    uint8_t cntV;
-    uint8_t cntH;
-    uint8_t cntVT;
-    uint8_t cntHT;
+    byte cntFV;
+    byte cntV;
+    byte cntH;
+    byte cntVT;
+    byte cntHT;
 
     bool first_write;
 
-    uint16_t calculate_effective_address(uint16_t address);
-    uint8_t read_memory(uint16_t address);
-    void store_memory(uint16_t address, uint8_t word);
+    dbyte calculate_effective_address(dbyte address);
+    byte read_memory(dbyte address);
+    void store_memory(dbyte address, byte word);
 
     void reset_vblank_flag();
 
@@ -70,14 +70,14 @@ private:
     bool enable_background();
     bool enable_sprites();
     bool use_8x16_sprites();
-    int sprite_pattern_table_address();
+    dbyte sprite_pattern_table_address();
 
-    uint16_t vram_address();
-    uint16_t nametable_address();
-    uint16_t attributetable_address();
-    uint16_t patterntable_address();
+    dbyte vram_address();
+    dbyte nametable_address();
+    dbyte attributetable_address();
+    dbyte patterntable_address();
 
-    uint8_t palette_select_bits();
+    byte palette_select_bits();
 
     void increment_scroll_counters();
     void increment_horizontal_scroll_counter();
@@ -90,24 +90,24 @@ public:
     PPU();
 
     bool render_scanline(int scanline);
-    void set_chr_rom(std::unique_ptr<uint8_t[]> chr_rom);
+    void set_chr_rom(std::unique_ptr<byte[]> chr_rom);
 
-    uint8_t read_status();
-    uint8_t read_control_1();
-    void write_control_1(uint8_t value);
-    uint8_t read_control_2();
-    void write_control_2(uint8_t value);
+    byte read_status();
+    byte read_control_1();
+    void write_control_1(byte value);
+    byte read_control_2();
+    void write_control_2(byte value);
 
-    void write_spr_ram(char* start); // DMA
-    void set_sprite_memory_address(uint8_t value);
-    uint8_t read_sprite_data();
-    void write_sprite_data(uint8_t value);
+    void write_spr_ram(byte* start); // DMA
+    void set_sprite_memory_address(byte value);
+    byte read_sprite_data();
+    void write_sprite_data(byte value);
 
-    void write_scroll_register(uint8_t value);
+    void write_scroll_register(byte value);
 
-    void write_vram_address(uint8_t value);
-    uint8_t read_vram_data();
-    void write_vram_data(uint8_t value);
+    void write_vram_address(byte value);
+    byte read_vram_data();
+    void write_vram_data(byte value);
 
 };
 

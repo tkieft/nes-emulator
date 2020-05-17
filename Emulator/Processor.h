@@ -9,7 +9,6 @@
 #ifndef __Emulator__Processor__
 #define __Emulator__Processor__
 
-#include <cstdint>
 #include <memory>
 
 #include "defines.h"
@@ -22,59 +21,59 @@ private:
     ControllerPad *controller_pad;
 
     /* REGISTERS */
-    uint16_t pc;     // program counter, 16 bits
-    uint8_t s;       // stack pointer
-    uint8_t p;       // processor status
-    uint8_t a;       // accumulator
-    uint8_t x;       // index register x
-    uint8_t y;       // index register y
+    dbyte pc;     // program counter, 16 bits
+    byte s;       // stack pointer
+    byte p;       // processor status
+    byte a;       // accumulator
+    byte x;       // index register x
+    byte y;       // index register y
 
     /* MEMORY */
     static const int kCPURAMSize = 2048;
     static const int kSRAMSize = 8192;
 
-    std::unique_ptr<uint8_t[]> prg_rom;
-    uint8_t cpu_ram[kCPURAMSize];
-    uint8_t sram[kSRAMSize];
+    std::unique_ptr<byte[]> prg_rom;
+    byte cpu_ram[kCPURAMSize];
+    byte sram[kSRAMSize];
 
-    uint8_t read_memory(uint16_t address);
-    void store_memory(uint16_t address, uint8_t word);
-    uint16_t address_at(uint16_t memloc);
+    byte read_memory(dbyte address);
+    void store_memory(dbyte address, byte word);
+    dbyte address_at(dbyte memloc);
 
     /* STACK */
-    void stack_push(uint8_t value);
-    uint8_t stack_pop();
+    void stack_push(byte value);
+    byte stack_pop();
 
     /* STATUS REGISTER */
-    void set_p_bit(uint bit, bool value);
+    void set_p_bit(int bit, bool value);
 
-    void set_carry(uint8_t result);
+    void set_carry(byte result);
     bool if_carry();
 
-    void set_zero(uint8_t result);
+    void set_zero(byte result);
     bool if_zero();
 
-    void set_interrupt(uint8_t result);
+    void set_interrupt(byte result);
     bool if_interrupt();
 
-    void set_decimal(uint8_t value);
+    void set_decimal(byte value);
     bool if_decimal();
 
-    void set_break(uint8_t result);
+    void set_break(byte result);
     bool if_break();
 
-    void set_overflow(uint8_t result);
+    void set_overflow(byte result);
     bool if_overflow();
 
-    void set_sign(uint8_t result);
+    void set_sign(byte result);
     bool if_sign();
 
     /* HELPER FUNCTIONS */
-    uint16_t rel_addr(uint16_t addr, uint8_t offset);
+    dbyte rel_addr(dbyte addr, byte offset);
 
 public:
     Processor(PPU *ppu, ControllerPad *controller_pad);
-    void set_prg_rom(std::unique_ptr<uint8_t[]> prg_rom);
+    void set_prg_rom(std::unique_ptr<byte[]> prg_rom);
     void execute();
     void reset();
     void non_maskable_interrupt();

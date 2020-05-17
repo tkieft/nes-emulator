@@ -11,10 +11,12 @@
 
 #include "SDL.h"
 
+#include "defines.h"
+
 class ControllerPad {
 private:
     int current_read_key;
-    uint8_t previous_value;
+    byte previous_value;
 
     bool controller_1_select;
     bool controller_1_start;
@@ -32,9 +34,9 @@ public:
     bool record_key_down(SDL_Keysym sym);
     bool record_key_up(SDL_Keysym sym);
 
-    uint8_t read_controller_1_state();
-    uint8_t read_controller_2_state();
-    void write_value(uint8_t value);
+    byte read_controller_1_state();
+    byte read_controller_2_state();
+    void write_value(byte value);
 };
 
 #endif /* defined(__Emulator__ControllerPad__) */

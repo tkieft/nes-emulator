@@ -36,7 +36,7 @@ Processor::Processor(PPU *ppu, ControllerPad *controller_pad) : ppu(ppu),
                                                                 sram(),
                                                                 prg_rom(nullptr) {}
 
-void Processor::set_prg_rom(std::unique_ptr<uint8_t[]> prg_rom) {
+void Processor::set_prg_rom(std::unique_ptr<byte[]> prg_rom) {
     this->prg_rom = std::move(prg_rom);
 }
 
@@ -60,7 +60,7 @@ void Processor::non_maskable_interrupt() {
     }
 }
 
-void Processor::set_p_bit(uint bit, bool value) {
+void Processor::set_p_bit(int bit, bool value) {
     value ? p |= 1 << bit : p &= ~(1 << bit);
 }
 
@@ -69,7 +69,7 @@ void Processor::set_p_bit(uint bit, bool value) {
  * This means that you should pass in only the higher-order byte(s) of any
  * calculation.
  */
-void Processor::set_carry(uint8_t result) {
+void Processor::set_carry(byte result) {
     set_p_bit(kCarryBit, result);
 }
 bool Processor::if_carry() {
@@ -79,28 +79,28 @@ bool Processor::if_carry() {
 /**
  * If result is zero, set the zero bit. Otherwise, clear it.
  */
-void Processor::set_zero(uint8_t result) {
+void Processor::set_zero(byte result) {
     set_p_bit(kZeroBit, !result);
 }
 bool Processor::if_zero() {
     return p & kZeroMask;
 }
 
-void Processor::set_interrupt(uint8_t result) {
+void Processor::set_interrupt(byte result) {
     set_p_bit(kInterruptBit, result);
 }
 bool Processor::if_interrupt() {
     return p & kInterruptMask;
 }
 
-void Processor::set_decimal(uint8_t result) {
+void Processor::set_decimal(byte result) {
     set_p_bit(kDecimalBit, result);
 }
 bool Processor::if_decimal() {
     return p & kDecimalMask;
 }
 
-void Processor::set_break(uint8_t result) {
+void Processor::set_break(byte result) {
     set_p_bit(kBreakBit, result);
 }
 bool Processor::if_break() {
@@ -110,14 +110,14 @@ bool Processor::if_break() {
 /**
  * If result is nonzero, set the overflow bit. Otherwise, clear it.
  */
-void Processor::set_overflow(uint8_t result) {
+void Processor::set_overflow(byte result) {
     set_p_bit(kOverflowBit, result);
 }
 bool Processor::if_overflow() {
     return p & kOverflowMask;
 }
 
-void Processor::set_sign(uint8_t result) {
+void Processor::set_sign(byte result) {
     // we look at the 7th bit to determine the sign (this happens to be the same
     // bit as the sign bit in the control register)
     set_p_bit(kSignBit, result & kSignMask);
@@ -126,27 +126,27 @@ bool Processor::if_sign() {
     return p & kSignMask;
 }
 
-uint16_t Processor::address_at(uint16_t memloc) {
-    return ((uint16_t)read_memory(memloc + 1) << 8) + read_memory(memloc);
+dbyte Processor::address_at(dbyte memloc) {
+    return static_cast<dbyte>(read_memory(memloc + 1)) << 8 | read_memory(memloc);
 }
 
-uint16_t Processor::rel_addr(uint16_t addr, uint8_t offset) {
+dbyte Processor::rel_addr(dbyte addr, byte offset) {
     // offset is actually a signed number. is there a better way to do this?
     if (offset & kSignMask) {
-        return addr - (uint8_t)(~offset + 1);
+        return addr - static_cast<byte>(~offset + 1);
     } else {
         return addr + offset;
     }
 }
 
-void Processor::stack_push(uint8_t value) {
+void Processor::stack_push(byte value) {
     store_memory(0x100 + s--, value);
 }
-uint8_t Processor::stack_pop() {
+byte Processor::stack_pop() {
     return read_memory(0x100 + ++s);
 }
 
-uint8_t Processor::read_memory(uint16_t address) {
+byte Processor::read_memory(dbyte address) {
     if (address >= 0x8000) {
         // Program ROM space
         return prg_rom[address - 0x8000];
@@ -188,7 +188,7 @@ uint8_t Processor::read_memory(uint16_t address) {
     return cpu_ram[address & 0x07FF];
 }
 
-void Processor::store_memory(uint16_t address, uint8_t value) {
+void Processor::store_memory(dbyte address, byte value) {
     if (address < 0x2000) {
         // CPU Ram
         cpu_ram[address & 0x07FF] = value;
@@ -222,7 +222,7 @@ void Processor::store_memory(uint16_t address, uint8_t value) {
         // Sound and other I/O registers
         switch (address) {
             case 0x4014:
-                ppu->write_spr_ram((char *)(cpu_ram + value * 0x100));
+                ppu->write_spr_ram(cpu_ram + value * 0x100);
                 break;
             case 0x4016:
                 controller_pad->write_value(value);
@@ -238,10 +238,10 @@ void Processor::store_memory(uint16_t address, uint8_t value) {
 }
 
 void Processor::execute() {
-    uint8_t opcode = read_memory(pc);   // opcode of instruction
-    uint16_t address;                   // address of operand
-    uint8_t src;                        // operand
-    uint16_t temp;                      // larger temp var for calculations
+    byte opcode = read_memory(pc);   // opcode of instruction
+    dbyte address;                   // address of operand
+    byte src;                        // operand
+    dbyte temp;                      // larger temp var for calculations
 
     Instruction instruction = get_instruction(opcode);
 
@@ -292,10 +292,10 @@ void Processor::execute() {
             break;
 
         case Indirect: {
-            uint16_t indirect_jump_address = address_at(pc + 1);
+            dbyte indirect_jump_address = address_at(pc + 1);
             if ((indirect_jump_address & 0xFF) == 0xFF) {
                 // Wrap-around JMP bug
-                address = ((uint16_t)read_memory(indirect_jump_address & 0xFF00) << 8) + read_memory(indirect_jump_address);
+                address = (static_cast<dbyte>(read_memory(indirect_jump_address & 0xFF00)) << 8) + read_memory(indirect_jump_address);
             } else {
                 address = address_at(indirect_jump_address);
             }
@@ -309,7 +309,7 @@ void Processor::execute() {
             break;
 
         case IndirectPostY: {
-            uint8_t op_address = read_memory(pc + 1);
+            byte op_address = read_memory(pc + 1);
             if (op_address == 0xFF) {
                 throw "unhandled!"; // should wrap around
             }
@@ -327,7 +327,7 @@ void Processor::execute() {
     switch (instruction.function) {
         case ADC:
             src = read_memory(address);
-            temp = (uint16_t)a + src + (if_carry() ? 1 : 0);
+            temp = static_cast<dbyte>(a) + src + (if_carry() ? 1 : 0);
 
             set_carry(temp > 0xFF);
             set_zero(temp & 0xFF); // only look at last byte
@@ -335,7 +335,7 @@ void Processor::execute() {
             // If we add two numbers of the same sign and get a different sign, there's overflow
             set_overflow(!((a ^ src) & kSignMask) && ((a ^ temp) & kSignMask));
 
-            a = (uint8_t)temp;
+            a = static_cast<byte>(temp);
             break;
 
 
@@ -449,21 +449,21 @@ void Processor::execute() {
             break;
 
         case CMP:
-            temp = (uint16_t)a - read_memory(address);
+            temp = static_cast<dbyte>(a) - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if a > src, carry set
             break;
 
         case CPX:
-            temp = (uint16_t)x - read_memory(address);
+            temp = static_cast<dbyte>(x) - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if x > src, carry set
             break;
 
         case CPY:
-            temp = (uint16_t)y - read_memory(address);
+            temp = static_cast<dbyte>(y) - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if y > src, carry set
@@ -587,10 +587,10 @@ void Processor::execute() {
         case ROL:
             if (opcode != 0x2A) src = read_memory(address);
 
-            temp = (uint16_t)src << 1;
+            temp = static_cast<dbyte>(src) << 1;
             if (if_carry()) temp |= 0x01;
             set_carry(temp >> 8);
-            src = (uint8_t)temp;
+            src = static_cast<byte>(temp);
             set_sign(src);
             set_zero(src);
 
@@ -623,23 +623,23 @@ void Processor::execute() {
             p = stack_pop();
             // Must make this two instructions so that the compiler doesn't screw us.
             pc = stack_pop();   // Pop the lower byte first
-            pc |= (uint16_t)stack_pop() << 8;
+            pc |= static_cast<dbyte>(stack_pop()) << 8;
             break;
 
         case RTS:
             pc = stack_pop();   // Pop the lower byte first
-            pc |= (uint16_t)stack_pop() << 8;
+            pc |= static_cast<dbyte>(stack_pop()) << 8;
             pc++; // Must add 1
             break;
 
         case SBC:
             src = read_memory(address);
-            temp = (uint16_t)a - src - (if_carry() ? 0 : 1);
+            temp = static_cast<dbyte>(a) - src - (if_carry() ? 0 : 1);
             set_zero(temp & 0xFF);
             set_sign(temp);
             set_overflow(((a ^ temp) & 0x80) && ((a ^ src) & 0x80));
             set_carry(temp < 0x100);
-            a = (uint8_t)temp;
+            a = static_cast<byte>(temp);
             break;
 
         case SEC:

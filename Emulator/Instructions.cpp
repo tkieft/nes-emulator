@@ -6,11 +6,12 @@
 //
 //
 
+#include "defines.h"
 #include "Instructions.h"
 
 #include <map>
 
-static std::map<uint8_t, Instruction> INSTRUCTIONS = {
+static std::map<byte, Instruction> INSTRUCTIONS = {
     {0x00, {BRK, Implied}},
     {0x01, {ORA, IndirectPreX}},
     {0x05, {ORA, ZeroPage}},
@@ -179,7 +180,7 @@ static std::map<uint8_t, Instruction> INSTRUCTIONS = {
     {0xFE, {INC, AbsoluteX}},
 };
 
-Instruction get_instruction(uint8_t opcode) {
+Instruction get_instruction(byte opcode) {
     // Throws an exception if opcode not found
     return INSTRUCTIONS.at(opcode);
 }

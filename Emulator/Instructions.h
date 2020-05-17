@@ -9,7 +9,7 @@
 #ifndef Instructions_h
 #define Instructions_h
 
-#include <cstdint>
+#include "defines.h"
 
 enum AddressType {
     Immediate,
@@ -91,6 +91,6 @@ typedef struct Instruction {
     AddressType address_type;
 } Instruction;
 
-extern Instruction get_instruction(uint8_t opcode);
+extern Instruction get_instruction(byte opcode);
 
 #endif /* Instructions_h */

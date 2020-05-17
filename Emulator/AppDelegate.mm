@@ -44,7 +44,7 @@
 
     // main loop
     while (true) {
-        int ticks = SDL_GetTicks();
+        Uint32 ticks = SDL_GetTicks();
 
         SDL_Event event;
         while (SDL_PollEvent(&event)) {
@@ -62,9 +62,9 @@
 
         // subtract the # of ms it took us to render this frame from
         // the # of ms we have to render each frame
-        int ms_to_sleep = 1000 / kFPS - (SDL_GetTicks() - ticks);
+        int ms_to_sleep = 1000 / kFPS - static_cast<int>(SDL_GetTicks() - ticks);
         if (ms_to_sleep > 0) {
-            SDL_Delay(ms_to_sleep);
+            SDL_Delay(static_cast<Uint32>(ms_to_sleep));
         }
     }
 }

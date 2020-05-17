@@ -9,6 +9,7 @@
 #include "RomReader.h"
 
 #include <bitset>
+#include <fstream>
 #include <iostream>
 
 RomReader::RomReader(std::string filename) {
@@ -17,8 +18,8 @@ RomReader::RomReader(std::string filename) {
 
     if (file.is_open()) {
         fileSize = file.tellg();
-        file.seekg (0, std::ios::beg);
-        file.read(header, HEADER_SIZE);
+        file.seekg(0, std::ios::beg);
+        file.read(reinterpret_cast<char*>(header), HEADER_SIZE);
 
         if (!(header[0] == 'N' && header[1] == 'E' && header[2] == 'S' && header[3] == '\x1A')) {
             file.close();
@@ -43,17 +44,17 @@ RomReader::RomReader(std::string filename) {
             throw "Inconsistent file size";
         }
 
-        prg_rom = std::make_unique<uint8_t[]>(prg_rom_bytes);
-        file.read((char *)prg_rom.get(), prg_rom_bytes);
+        prg_rom = std::make_unique<byte[]>(static_cast<size_t>(prg_rom_bytes));
+        file.read(reinterpret_cast<char*>(prg_rom.get()), prg_rom_bytes);
 
         chr_rom = nullptr;
         if (chr_rom_bytes) {
-            chr_rom = std::make_unique<uint8_t[]>(chr_rom_bytes);
-            file.read((char *)chr_rom.get(), chr_rom_bytes);
+            chr_rom = std::make_unique<byte[]>(static_cast<size_t>(chr_rom_bytes));
+            file.read(reinterpret_cast<char*>(chr_rom.get()), chr_rom_bytes);
         }
 
-        prg_ram = std::make_unique<uint8_t[]>(prg_ram_bytes);
-        file.read((char *)prg_ram.get(), prg_ram_bytes);
+        prg_ram = std::make_unique<byte[]>(static_cast<size_t>(prg_ram_bytes));
+        file.read(reinterpret_cast<char*>(prg_ram.get()), prg_ram_bytes);
 
         file.close();
     } else {
@@ -61,11 +62,11 @@ RomReader::RomReader(std::string filename) {
     }
 }
 
-std::unique_ptr<uint8_t[]>&& RomReader::get_prg_rom() {
+std::unique_ptr<byte[]>&& RomReader::get_prg_rom() {
     return std::move(prg_rom);
 }
 
-std::unique_ptr<uint8_t[]>&& RomReader::get_chr_rom() {
+std::unique_ptr<byte[]>&& RomReader::get_chr_rom() {
     return std::move(chr_rom);
 }
 

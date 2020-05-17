@@ -11,7 +11,7 @@
 
 #include "SDL.h"
 
-#include "nes_palette.h"
+#include "defines.h"
 
 class PPU;
 
@@ -21,7 +21,7 @@ private:
     SDL_Surface *screen;
     PPU *ppu;
 
-    uint8_t color_index_for_pattern_bit(int x, uint16_t pattern_start, int attr_high_bits, bool sprite);
+    byte color_index_for_pattern_bit(int x, dbyte pattern_start, int attr_high_bits, bool sprite);
 
 public:
     SDLRenderer(PPU *ppu);

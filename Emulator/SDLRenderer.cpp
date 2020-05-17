@@ -7,9 +7,12 @@
 //
 
 #include "SDLRenderer.h"
-#include "PPU.h"
 
 #include <iostream>
+
+#include "defines.h"
+#include "nes_palette.h"
+#include "PPU.h"
 
 static const int kPatternSizeBytes = 16;
 
@@ -23,19 +26,19 @@ Uint32 getPixel(SDL_Surface *surface, int x, int y) {
     return *p;
 }
 
-uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, int palette_select, bool sprite) {
+byte SDLRenderer::color_index_for_pattern_bit(int x, dbyte pattern_start, int palette_select, bool sprite) {
     // First, calculate the 4-bit palette address
     // The upper two bits come from palette_select (from the attribute table)
     // The lower two bits come from the pattern table (the CHR ROM)
     // x is the horizontal index of the pixel we're looking for
-    uint16_t palette_address = kPaletteTableStart;
+    dbyte palette_address = kPaletteTableStart;
 
-    uint8_t lower_byte = ppu->read_memory(pattern_start);
-    uint8_t higher_byte = ppu->read_memory(pattern_start + 8);
+    byte lower_byte = ppu->read_memory(pattern_start);
+    byte higher_byte = ppu->read_memory(pattern_start + 8);
 
     int pattern_bit = 7 - x; // x is ascending left to right; that's H -> L in bit order
 
-    uint8_t palette_entry =
+    byte palette_entry =
         ((lower_byte & (1 << pattern_bit)) >> pattern_bit) |
         (pattern_bit == 0 ?
          ((higher_byte & (1 << pattern_bit)) << 1) :
@@ -101,7 +104,7 @@ void SDLRenderer::render_scanline(int scanline) {
             throw "Unimplemented sprite size 8x16!";
         }
 
-        uint8_t transparency_color_index = ppu->read_memory(kPaletteTableStart);
+        byte transparency_color_index = ppu->read_memory(kPaletteTableStart);
         color_t transparency_color = NES_PALETTE[transparency_color_index];
         Uint32 transparency_color_sdl = SDL_MapRGB(screen->format, transparency_color.r, transparency_color.b, transparency_color.g);
 
@@ -123,20 +126,20 @@ void SDLRenderer::render_scanline(int scanline) {
                 break;
             }
 
-            int pattern_base = ppu->sprite_pattern_table_address();
+            dbyte pattern_base = ppu->sprite_pattern_table_address();
 
-            int pattern_num     = ppu->spr_ram[i * 4 + 1];
-            uint8_t color_attr  = ppu->spr_ram[i * 4 + 2];
-            uint8_t xpos        = ppu->spr_ram[i * 4 + 3];
+            byte pattern_num = ppu->spr_ram[i * 4 + 1];
+            byte color_attr  = ppu->spr_ram[i * 4 + 2];
+            byte xpos        = ppu->spr_ram[i * 4 + 3];
 
-            int upper_color_bits = color_attr & 0x03;
+            byte upper_color_bits = color_attr & 0x03;
             bool flip_horizontal = color_attr & 0x40;
             bool flip_vertical = color_attr & 0x80;
 
             int y = scanline - ypos;
             for (int x = 0; x < 8; x++) {
-                uint16_t pattern_start = pattern_base + pattern_num * kPatternSizeBytes + (flip_vertical ? 7 - y : y);
-                uint8_t color_index =
+                dbyte pattern_start = pattern_base + pattern_num * kPatternSizeBytes + (flip_vertical ? 7 - y : y);
+                byte color_index =
                     color_index_for_pattern_bit((flip_horizontal ? 7 - x : x), pattern_start, upper_color_bits, true);
 
                 if (color_index != transparency_color_index) {

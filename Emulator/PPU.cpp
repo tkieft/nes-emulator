@@ -127,11 +127,11 @@ bool PPU::render_scanline(int scanline) {
 //
 // The Pattern Table may come from VROM.
 //
-void PPU::set_chr_rom(std::unique_ptr<uint8_t[]> chr_rom) {
+void PPU::set_chr_rom(std::unique_ptr<byte[]> chr_rom) {
     ::memcpy(vram, chr_rom.get(), kPatternTableSize);
 }
 
-uint16_t PPU::calculate_effective_address(uint16_t address) {
+dbyte PPU::calculate_effective_address(dbyte address) {
     // Only consider the least significant 14 bits to form the address
     address &= 0x3FFF;
 
@@ -158,11 +158,11 @@ uint16_t PPU::calculate_effective_address(uint16_t address) {
     }
 }
 
-uint8_t PPU::read_memory(uint16_t address) {
+byte PPU::read_memory(dbyte address) {
     return vram[calculate_effective_address(address)];
 }
 
-void PPU::store_memory(uint16_t address, uint8_t word) {
+void PPU::store_memory(dbyte address, byte word) {
     vram[calculate_effective_address(address)] = word;
 }
 
@@ -201,22 +201,22 @@ bool PPU::use_8x16_sprites() {
     return control_2 & kSpriteSizeMask;
 }
 
-int PPU::sprite_pattern_table_address() {
+dbyte PPU::sprite_pattern_table_address() {
     return control_1 & kSpritePatternTableAddressMask ? 0x1000 : 0;
 }
 
 /** REGISTER READS AND WRITES */
 
-uint8_t PPU::read_status() {
-    uint8_t temp = status;
+byte PPU::read_status() {
+    byte result = status;
     reset_vblank_flag();    // reset vblank flag
     first_write = true;     // reset toggle
-    return temp;
+    return result;
 }
-uint8_t PPU::read_control_1() {
+byte PPU::read_control_1() {
     return control_1;
 }
-void PPU::write_control_1(uint8_t value) {
+void PPU::write_control_1(byte value) {
     control_1 = value;
 
     regH = (value & kNameTableXScrollMask) >> kNameTableXScrollBit;
@@ -224,25 +224,25 @@ void PPU::write_control_1(uint8_t value) {
     regS = (value & kBackgroundPatternTableAddressMask) >> kBackgroundPatternTableAddressBit;
 }
 
-uint8_t PPU::read_control_2() {
+byte PPU::read_control_2() {
     return control_2;
 }
-void PPU::write_control_2(uint8_t value) {
+void PPU::write_control_2(byte value) {
     control_2 = value;
 }
-void PPU::write_spr_ram(char* start) {
+void PPU::write_spr_ram(byte* start) {
     ::memcpy(spr_ram, start, kSprRAMSize);
 }
-void PPU::set_sprite_memory_address(uint8_t value) {
+void PPU::set_sprite_memory_address(byte value) {
     sprite_memory_address = value;
 }
-void PPU::write_sprite_data(uint8_t value) {
+void PPU::write_sprite_data(byte value) {
     spr_ram[sprite_memory_address++] = value;
 }
-uint8_t PPU::read_sprite_data() {
+byte PPU::read_sprite_data() {
     return spr_ram[sprite_memory_address++];
 }
-void PPU::write_scroll_register(uint8_t value) {
+void PPU::write_scroll_register(byte value) {
     if (first_write) {
         regFH = value & 0x07;
         regHT = (value & 0xF8) >> 3;
@@ -253,7 +253,7 @@ void PPU::write_scroll_register(uint8_t value) {
 
     first_write = !first_write;
 }
-void PPU::write_vram_address(uint8_t value) {
+void PPU::write_vram_address(byte value) {
     if (first_write) {
         regVT = (regVT & 0x07) | ((value & 0x03) << 3);
         regH = (value & 0x04) >> 2;
@@ -269,8 +269,8 @@ void PPU::write_vram_address(uint8_t value) {
     first_write = !first_write;
 }
 
-uint8_t PPU::read_vram_data() {
-    uint8_t result;
+byte PPU::read_vram_data() {
+    byte result;
 
     if (vram_address() >= kPaletteTableStart) {
         result = read_memory(vram_address());
@@ -283,55 +283,55 @@ uint8_t PPU::read_vram_data() {
     return result;
 }
 
-void PPU::write_vram_data(uint8_t value) {
+void PPU::write_vram_data(byte value) {
     store_memory(vram_address(), value);
     increment_scroll_counters();
 }
 
-uint16_t PPU::vram_address() {
-    uint16_t address = (uint16_t)cntHT;
-    address |= ((uint16_t)cntVT) << 5;
-    address |= ((uint16_t)cntH)  << 10;
-    address |= ((uint16_t)cntV)  << 11;
-    address |= ((uint16_t)cntFV & 0x03) << 12;
+dbyte PPU::vram_address() {
+    dbyte address = static_cast<dbyte>(cntHT);
+    address |= static_cast<dbyte>(cntVT) << 5;
+    address |= static_cast<dbyte>(cntH)  << 10;
+    address |= static_cast<dbyte>(cntV)  << 11;
+    address |= (static_cast<dbyte>(cntFV) & 0x03) << 12;
     return address;
 }
 
-uint16_t PPU::nametable_address() {
-    uint16_t address = 0x2000;
-    address |= (uint16_t)cntHT;
-    address |= (uint16_t)cntVT << 5;
-    address |= (uint16_t)cntH  << 10;
-    address |= (uint16_t)cntV  << 11;
+dbyte PPU::nametable_address() {
+    dbyte address = 0x2000;
+    address |= static_cast<dbyte>(cntHT);
+    address |= static_cast<dbyte>(cntVT) << 5;
+    address |= static_cast<dbyte>(cntH)  << 10;
+    address |= static_cast<dbyte>(cntV)  << 11;
     return address;
 }
 
 // Use the attribute table to determine which palette to use. The byte in the name table determines
 // the actual color to use in the palette. Returns the two high order bits of the palette entry.
-uint8_t PPU::palette_select_bits() {
-    int attr_byte = read_memory(attributetable_address());
+byte PPU::palette_select_bits() {
+    byte attr_byte = read_memory(attributetable_address());
 
-    // Figure out which two bits to take
+    // Figurex out which two bits to take
     int bits_offset = ((cntVT & 0x02) << 1) | (cntHT & 0x02);
 
     // Mask and shift
     return (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
 }
 
-uint16_t PPU::attributetable_address() {
-    uint16_t address = 0x23C0;
-    address |= ((uint16_t)cntHT & 0x1C) >> 2;
-    address |= ((uint16_t)cntVT & 0x1C) << 1;
-    address |= (uint16_t)cntH  << 10;
-    address |= (uint16_t)cntV  << 11;
+dbyte PPU::attributetable_address() {
+    dbyte address = 0x23C0;
+    address |= (static_cast<dbyte>(cntHT) & 0x1C) >> 2;
+    address |= (static_cast<dbyte>(cntVT) & 0x1C) << 1;
+    address |= static_cast<dbyte>(cntH)  << 10;
+    address |= static_cast<dbyte>(cntV)  << 11;
     return address;
 }
 
-uint16_t PPU::patterntable_address() {
-    uint8_t pattern_index = read_memory(nametable_address());
+dbyte PPU::patterntable_address() {
+    byte pattern_index = read_memory(nametable_address());
 
-    uint16_t address = (uint16_t)regS << 12;
-    address |= (uint16_t)pattern_index << 4;
+    dbyte address = static_cast<dbyte>(regS) << 12;
+    address |= static_cast<dbyte>(pattern_index) << 4;
     address |= cntFV;
     return address;
 }

@@ -19,7 +19,7 @@ ControllerPad::ControllerPad() {
     controller_1_down = false;
 }
 
-uint8_t ControllerPad::read_controller_1_state() {
+byte ControllerPad::read_controller_1_state() {
     current_read_key += 1;
 
     switch (current_read_key) {
@@ -44,12 +44,12 @@ uint8_t ControllerPad::read_controller_1_state() {
     }
 }
 
-uint8_t ControllerPad::read_controller_2_state() {
+byte ControllerPad::read_controller_2_state() {
     // TODO
     return 0;
 }
 
-void ControllerPad::write_value(uint8_t value) {
+void ControllerPad::write_value(byte value) {
     if (value == 0x00 && previous_value == 0x01) {
         current_read_key = 0;
     }
