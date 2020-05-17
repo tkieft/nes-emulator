@@ -67,7 +67,6 @@
 		3B7670C616174EA5006F1357 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		3B7670C816174EA5006F1357 /* EmulatorTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = EmulatorTests.h; sourceTree = "<group>"; };
 		3B7670C916174EA5006F1357 /* EmulatorTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = EmulatorTests.m; sourceTree = "<group>"; };
-		3B7670D116174ECE006F1357 /* Emulator-Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Emulator-Prefix.pch"; sourceTree = "<group>"; };
 		3B7670F21618AC22006F1357 /* SDLRenderer.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.h; fileEncoding = 4; path = SDLRenderer.h; sourceTree = "<group>"; };
 		3B7670F31618AC22006F1357 /* SDLRenderer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SDLRenderer.cpp; sourceTree = "<group>"; };
 		3BA95A58162B7FFC00B585CC /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
@@ -207,7 +206,6 @@
 				060DD96724717245005A8134 /* Main.storyboard */,
 				3BA95A58162B7FFC00B585CC /* AppDelegate.h */,
 				3BA95A59162B7FFC00B585CC /* AppDelegate.mm */,
-				3B7670D116174ECE006F1357 /* Emulator-Prefix.pch */,
 				3B76705A16174D12006F1357 /* Credits.rtf */,
 				3B76705C16174D12006F1357 /* InfoPlist.strings */,
 				3B76706016174D12006F1357 /* Info.plist */,
@@ -420,7 +418,6 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Emulator/Emulator-Prefix.pch";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"$(inherited)",
@@ -466,7 +463,6 @@
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
-				GCC_PREFIX_HEADER = "Emulator/Emulator-Prefix.pch";
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNINITIALIZED_AUTOS = YES;
