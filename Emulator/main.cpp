@@ -9,14 +9,14 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
-#include "SDL/SDL.h"
+#include "SDL.h"
 #include "Emulator.h"
 
 #ifdef __cplusplus
 extern "C"
 #endif
 
-int main(int argc, char *argv[]) {
+int my_main(int argc, char *argv[]) {
     // initialize SDL
     if (SDL_Init( SDL_INIT_VIDEO | SDL_INIT_TIMER | SDL_INIT_AUDIO ) < 0)
     {
@@ -24,12 +24,13 @@ int main(int argc, char *argv[]) {
         exit(1);
     }
 
-    const SDL_version* version = SDL_Linked_Version();
+    SDL_version version;
+    SDL_GetVersion(&version);
     std::cout
         << "Emulator - Tyler Kieft - SDL Version "
-        << (int) version->major << "."
-        << (int) version->minor << "."
-        << (int) version->patch << std::endl;
+        << (int)version.major << "."
+        << (int)version.minor << "."
+        << (int)version.patch << std::endl;
 
     // initialize the engine
     Emulator emulator;
@@ -48,9 +49,9 @@ int main(int argc, char *argv[]) {
                 SDL_Quit();
                 return 0;
             } else if (event.type == SDL_KEYDOWN) {
-                emulator.handle_key_down(event.key.keysym.sym);
+                emulator.handle_key_down(event.key.keysym);
             } else if (event.type == SDL_KEYUP) {
-                emulator.handle_key_up(event.key.keysym.sym);
+                emulator.handle_key_up(event.key.keysym);
             }
         }
 

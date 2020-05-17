@@ -178,7 +178,7 @@ void SDLRenderer::render_scanline(int scanline) {
     }
     
     if (scanline == 239) {
-        SDL_Flip(screen);
+        SDL_UpdateWindowSurface(window);
     }
     
     ppu->increment_vertical_scroll_counter();
@@ -188,19 +188,21 @@ SDLRenderer::SDLRenderer(PPU *ppu) {
     this->ppu = ppu;
     
     // create the screen surface
-    screen = SDL_SetVideoMode( SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP, SDL_SWSURFACE );// | SDL_FULLSCREEN );
+    window = SDL_CreateWindow("Emulator",
+                              SDL_WINDOWPOS_UNDEFINED,
+                              SDL_WINDOWPOS_UNDEFINED,
+                              SCREEN_WIDTH,
+                              SCREEN_HEIGHT,
+                              0);
     
-    if (!screen)
-    {
+    if (!window) {
         std::cout << "Unable to set 256x240 video: " << SDL_GetError() << std::endl;
         exit(1);
     }
     
-    const std::string window_title = "Emulator";
-    
-    // set the title bar text
-    SDL_WM_SetCaption( window_title.c_str(), window_title.c_str() );
+    screen = SDL_GetWindowSurface(window);
 }
 
 SDLRenderer::~SDLRenderer() {
+    SDL_DestroyWindow(window);
 }

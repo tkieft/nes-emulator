@@ -9,7 +9,7 @@
 #ifndef SDL_Renderer_h
 #define SDL_Renderer_h
 
-#include "SDL/SDL.h"
+#include "SDL.h"
 
 #include "nes_palette.h"
 
@@ -23,6 +23,7 @@ static const int cPATTERN_SIZE = 16;
 
 class SDLRenderer {
 private:
+    SDL_Window *window;
     SDL_Surface *screen;
     PPU *ppu;
     

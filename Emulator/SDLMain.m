@@ -5,7 +5,7 @@
     Feel free to customize this file to suit your needs
 */
 
-#include "SDL/SDL.h"
+#include "SDL.h"
 #include "SDLMain.h"
 #include <sys/param.h> /* for MAXPATHLEN */
 #include <unistd.h>
@@ -265,12 +265,12 @@ static void CustomApplicationMain (int argc, char **argv)
     return TRUE;
 }
 
+extern int my_main(int, char **);
+
 
 /* Called when the internal event loop has just started running */
 - (void) applicationDidFinishLaunching: (NSNotification *) note
 {
-    int status;
-
     /* Set the working directory to the .app's parent directory */
     [self setupWorkingDirectory:gFinderLaunch];
 
@@ -281,7 +281,8 @@ static void CustomApplicationMain (int argc, char **argv)
 
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
-    status = SDL_main (gArgc, gArgv);
+    
+    int status = my_main(gArgc, gArgv);
 
     /* We're done, thank you for playing */
     exit(status);

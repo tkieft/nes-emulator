@@ -10,7 +10,7 @@
 #define Emulator_Emulator_h
 
 #include <string>
-#include <SDL/SDL_keysym.h>
+#include "SDL.h"
 
 #include "PPU.h"
 #include "Processor.h"
@@ -28,8 +28,8 @@ public:
     void load_rom(std::string filename);
     void emulate_frame();
     
-    bool handle_key_up(SDLKey sym);
-    bool handle_key_down(SDLKey sym);
+    bool handle_key_up(SDL_Keysym sym);
+    bool handle_key_down(SDL_Keysym sym);
 };
 
 #endif

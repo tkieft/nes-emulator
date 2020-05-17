@@ -57,49 +57,49 @@ void ControllerPad::write_value(uint8_t value) {
     previous_value = value;
 }
 
-bool ControllerPad::record_key_down(SDLKey sym) {
+bool ControllerPad::record_key_down(SDL_Keysym sym) {
     return record_key_private(sym, true);
 }
 
-bool ControllerPad::record_key_up(SDLKey sym) {
+bool ControllerPad::record_key_up(SDL_Keysym sym) {
     return record_key_private(sym, false);
 }
 
-bool ControllerPad::record_key_private(unsigned short key_code, bool value) {
-    switch (key_code) {
-
-        case SDLK_TAB:
+bool ControllerPad::record_key_private(SDL_Keysym sym, bool value) {
+    switch (sym.scancode) {
+        case SDL_SCANCODE_TAB:
             controller_1_select = value;
             return true;
 
-        case SDLK_RETURN:
+        case SDL_SCANCODE_RETURN:
             controller_1_start = value;
             return true;
             
-        case SDLK_LEFT:
+        case SDL_SCANCODE_LEFT:
             controller_1_left = value;
             return true;
         
-        case SDLK_RIGHT:
+        case SDL_SCANCODE_RIGHT:
             controller_1_right = value;
             return true;
             
-        case SDLK_UP:
+        case SDL_SCANCODE_UP:
             controller_1_up = value;
             return true;
         
-        case SDLK_DOWN:
+        case SDL_SCANCODE_DOWN:
             controller_1_down = value;
             return true;
         
-        case SDLK_z:
+        case SDL_SCANCODE_Z:
             controller_1_a = value;
             return true;
         
-        case SDLK_x:
+        case SDL_SCANCODE_X:
             controller_1_b = value;
             return true;
+            
+        default:
+            return false;
     }
-    
-    return false;
 }

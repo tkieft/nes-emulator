@@ -57,10 +57,10 @@ void Emulator::emulate_frame() {
     }
 }
 
-bool Emulator::handle_key_down(SDLKey sym) {
+bool Emulator::handle_key_down(SDL_Keysym sym) {
     return controller_pad->record_key_down(sym);
 }
 
-bool Emulator::handle_key_up(SDLKey sym) {
+bool Emulator::handle_key_up(SDL_Keysym sym) {
     return controller_pad->record_key_up(sym);
 }
