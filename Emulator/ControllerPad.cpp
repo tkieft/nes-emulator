@@ -1,4 +1,4 @@
-    //
+//
 //  ControllerPad.cpp
 //  Emulator
 //
