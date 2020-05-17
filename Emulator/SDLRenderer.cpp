@@ -10,9 +10,6 @@
 #include "PPU.h"
 
 #include <iostream>
-#include <iomanip>
-#include <stdio.h>
-#include <stdlib.h>
 
 static const int kPatternSizeBytes = 16;
 
@@ -52,17 +49,6 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, 
 
     // Now, use the address to determine the actual color index
     return ppu->read_memory(palette_address);
-}
-
-void SDLRenderer::print_pattern(int pattern_num) {
-    int pattern_start = pattern_num * kPatternSizeBytes;
-
-    for (int y = 0; y < 8; y++) {
-        std::cout
-            << std::hex
-            << (int) ppu->read_memory(pattern_start + y) + ppu->read_memory(pattern_start + y + 8)
-            << std::endl;
-    }
 }
 
 //
