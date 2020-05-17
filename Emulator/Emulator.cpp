@@ -11,26 +11,12 @@
 #include "RomReader.h"
 #include "ControllerPad.h"
 
-Emulator::Emulator() {
-    ppu = new PPU();
-    controller_pad = new ControllerPad();
-    processor = new Processor(ppu, controller_pad);
-}
-
-Emulator::~Emulator() {
-    delete ppu;
-    delete processor;
-    delete controller_pad;
-}
+Emulator::Emulator() : processor(std::make_unique<Processor>(&ppu, &controller_pad)) {}
 
 void Emulator::load_rom(std::string filename) {
     RomReader reader(filename);
-
-    if (reader.get_chr_rom() != NULL) {
-        ppu->set_chr_rom((uint8_t *)reader.get_chr_rom());
-    }
-
-    processor->set_prg_rom((uint8_t *)reader.get_prg_rom());
+    ppu.set_chr_rom(reader.get_chr_rom());
+    processor->set_prg_rom(reader.get_prg_rom());
     processor->reset();
 }
 
@@ -51,16 +37,16 @@ void Emulator::emulate_frame() {
             clock += 3; // TODO: Holy shit accurate clock cycles.
         }
 
-        if (ppu->render_scanline(scanline)) {
+        if (ppu.render_scanline(scanline)) {
             processor->non_maskable_interrupt();
         }
     }
 }
 
 bool Emulator::handle_key_down(SDL_Keysym sym) {
-    return controller_pad->record_key_down(sym);
+    return controller_pad.record_key_down(sym);
 }
 
 bool Emulator::handle_key_up(SDL_Keysym sym) {
-    return controller_pad->record_key_up(sym);
+    return controller_pad.record_key_up(sym);
 }

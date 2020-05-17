@@ -43,17 +43,17 @@ RomReader::RomReader(std::string filename) {
             throw "Inconsistent file size";
         }
 
-        prg_rom = new char[prg_rom_bytes];
-        file.read(prg_rom, prg_rom_bytes);
+        prg_rom = std::make_unique<uint8_t[]>(prg_rom_bytes);
+        file.read((char *)prg_rom.get(), prg_rom_bytes);
 
-        chr_rom = NULL;
+        chr_rom = nullptr;
         if (chr_rom_bytes) {
-            chr_rom = new char[chr_rom_bytes];
-            file.read(chr_rom, chr_rom_bytes);
+            chr_rom = std::make_unique<uint8_t[]>(chr_rom_bytes);
+            file.read((char *)chr_rom.get(), chr_rom_bytes);
         }
 
-        prg_ram = new char[prg_ram_bytes];
-        file.read(prg_ram, prg_ram_bytes);
+        prg_ram = std::make_unique<uint8_t[]>(prg_ram_bytes);
+        file.read((char *)prg_ram.get(), prg_ram_bytes);
 
         file.close();
     } else {
@@ -61,24 +61,12 @@ RomReader::RomReader(std::string filename) {
     }
 }
 
-RomReader::~RomReader() {
-    // TODO: The RomReader should own this and be able to delete it.
-    //delete prg_rom;
-
-    if (chr_rom != NULL) {
-        delete chr_rom;
-    }
-
-    // What is this even for?
-    delete prg_ram;
+std::unique_ptr<uint8_t[]>&& RomReader::get_prg_rom() {
+    return std::move(prg_rom);
 }
 
-char *RomReader::get_prg_rom() {
-    return prg_rom;
-}
-
-char *RomReader::get_chr_rom() {
-    return chr_rom;
+std::unique_ptr<uint8_t[]>&& RomReader::get_chr_rom() {
+    return std::move(chr_rom);
 }
 
 void RomReader::printDebugInfo() {

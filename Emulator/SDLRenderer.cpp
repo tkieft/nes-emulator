@@ -167,9 +167,7 @@ void SDLRenderer::render_scanline(int scanline) {
     ppu->increment_vertical_scroll_counter();
 }
 
-SDLRenderer::SDLRenderer(PPU *ppu) {
-    this->ppu = ppu;
-
+SDLRenderer::SDLRenderer(PPU *ppu) : ppu(ppu) {
     // create the screen surface
     window = SDL_CreateWindow("Emulator",
                               SDL_WINDOWPOS_UNDEFINED,

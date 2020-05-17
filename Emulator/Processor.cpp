@@ -30,37 +30,14 @@ const int kUnusedMask = 1 << kUnusedBit;
 const int kOverflowMask = 1 << kOverflowBit;
 const int kSignMask = 1 << kSignBit;
 
-const int kCPURAMSize = 2048;
-const int kSRAMSize = 8192;
+Processor::Processor(PPU *ppu, ControllerPad *controller_pad) : ppu(ppu),
+                                                                controller_pad(controller_pad),
+                                                                cpu_ram(),
+                                                                sram(),
+                                                                prg_rom(nullptr) {}
 
-Processor::Processor(PPU *ppu, ControllerPad *controller_pad) {
-    this->ppu = ppu;
-    this->controller_pad = controller_pad;
-
-    prg_rom = NULL;
-    cpu_ram = new uint8_t[kCPURAMSize];
-    sram = new uint8_t[kSRAMSize];
-
-    for (int i = 0; i < kCPURAMSize; i++) {
-        cpu_ram[i] = 0;
-    }
-
-    for (int i = 0; i < kSRAMSize; i++) {
-        sram[i] = 0;
-    }
-}
-
-Processor::~Processor() {
-    delete cpu_ram;
-    delete sram;
-
-    if (prg_rom != NULL) {
-        delete prg_rom;
-    }
-}
-
-void Processor::set_prg_rom(uint8_t *prg_rom) {
-    this->prg_rom = prg_rom;
+void Processor::set_prg_rom(std::unique_ptr<uint8_t[]> prg_rom) {
+    this->prg_rom = std::move(prg_rom);
 }
 
 void Processor::reset() {

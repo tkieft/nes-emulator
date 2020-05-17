@@ -9,8 +9,8 @@
 #ifndef __Emulator__Processor__
 #define __Emulator__Processor__
 
-#include <iostream>
 #include <cstdint>
+#include <memory>
 
 #include "defines.h"
 #include "PPU.h"
@@ -30,9 +30,12 @@ private:
     uint8_t y;       // index register y
 
     /* MEMORY */
-    uint8_t *prg_rom;
-    uint8_t *cpu_ram;
-    uint8_t *sram;
+    static const int kCPURAMSize = 2048;
+    static const int kSRAMSize = 8192;
+
+    std::unique_ptr<uint8_t[]> prg_rom;
+    uint8_t cpu_ram[kCPURAMSize];
+    uint8_t sram[kSRAMSize];
 
     uint8_t read_memory(uint16_t address);
     void store_memory(uint16_t address, uint8_t word);
@@ -71,8 +74,7 @@ private:
 
 public:
     Processor(PPU *ppu, ControllerPad *controller_pad);
-    ~Processor();
-    void set_prg_rom(uint8_t *prg_rom);
+    void set_prg_rom(std::unique_ptr<uint8_t[]> prg_rom);
     void execute();
     void reset();
     void non_maskable_interrupt();

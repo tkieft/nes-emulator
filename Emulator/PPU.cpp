@@ -52,24 +52,12 @@ const int kPPUStatusSpriteOverflowMask = 1 << kPPUStatusSpriteOverflowBit;
 const int kPPUStatusSprite0Mask = 1 << kPPUStatusSprite0Bit;
 const int kPPUStatusVBlankMask = 1 << kPPUStatusVBlankBit;
 
-PPU::PPU() {
-    control_1 = 0;
-    control_2 = 0;
-    status = 0;
-
-    // set toggle
-    first_write = true;
-
-    for (int i = 0; i < kVRAMSize; i++) {
-        vram[i] = 0;
-    }
-
-    renderer = new SDLRenderer(this);
-}
-
-PPU::~PPU() {
-    delete renderer;
-}
+PPU::PPU() : control_1(0),
+             control_2(0),
+             status(0),
+             vram(),
+             first_write(true),  // set toggle
+             renderer(std::make_unique<SDLRenderer>(this)) {}
 
 bool PPU::render_scanline(int scanline) {
     if (scanline == 0) {
@@ -139,8 +127,8 @@ bool PPU::render_scanline(int scanline) {
 //
 // The Pattern Table may come from VROM.
 //
-void PPU::set_chr_rom(uint8_t *chr_rom) {
-    ::memcpy(vram, chr_rom, kPatternTableSize);
+void PPU::set_chr_rom(std::unique_ptr<uint8_t[]> chr_rom) {
+    ::memcpy(vram, chr_rom.get(), kPatternTableSize);
 }
 
 uint16_t PPU::calculate_effective_address(uint16_t address) {

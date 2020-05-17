@@ -9,6 +9,8 @@
 #ifndef __Emulator__PPU__
 #define __Emulator__PPU__
 
+#include <memory>
+
 #include "defines.h"
 #include "SDLRenderer.h"
 
@@ -23,7 +25,7 @@ class PPU {
     friend class SDLRenderer;
 
 private:
-    SDLRenderer *renderer;
+    std::unique_ptr<SDLRenderer> renderer;
 
     uint8_t vram[kVRAMSize];
     uint8_t spr_ram[kSprRAMSize];
@@ -86,10 +88,9 @@ private:
 
 public:
     PPU();
-    ~PPU();
 
     bool render_scanline(int scanline);
-    void set_chr_rom(uint8_t *chr_rom);
+    void set_chr_rom(std::unique_ptr<uint8_t[]> chr_rom);
 
     uint8_t read_status();
     uint8_t read_control_1();
