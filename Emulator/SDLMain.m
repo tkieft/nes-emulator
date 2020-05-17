@@ -50,7 +50,7 @@ static NSString *getApplicationName(void)
     dict = (__bridge const NSDictionary *)CFBundleGetInfoDictionary(CFBundleGetMainBundle());
     if (dict)
         appName = [dict objectForKey: @"CFBundleName"];
-    
+
     if (![appName length])
         appName = [[NSProcessInfo processInfo] processName];
 
@@ -124,10 +124,10 @@ static void setApplicationMenu(void)
     NSMenuItem *menuItem;
     NSString *title;
     NSString *appName;
-    
+
     appName = getApplicationName();
     appleMenu = [[NSMenu alloc] initWithTitle:@""];
-    
+
     /* Add menu items */
     title = [@"About " stringByAppendingString:appName];
     [appleMenu addItemWithTitle:title action:@selector(orderFrontStandardAboutPanel:) keyEquivalent:@""];
@@ -147,7 +147,7 @@ static void setApplicationMenu(void)
     title = [@"Quit " stringByAppendingString:appName];
     [appleMenu addItemWithTitle:title action:@selector(terminate:) keyEquivalent:@"q"];
 
-    
+
     /* Put menu into the menubar */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"" action:nil keyEquivalent:@""];
     [menuItem setSubmenu:appleMenu];
@@ -165,16 +165,16 @@ static void setupWindowMenu(void)
     NSMenuItem  *menuItem;
 
     windowMenu = [[NSMenu alloc] initWithTitle:@"Window"];
-    
+
     /* "Minimize" item */
     menuItem = [[NSMenuItem alloc] initWithTitle:@"Minimize" action:@selector(performMiniaturize:) keyEquivalent:@"m"];
     [windowMenu addItem:menuItem];
-    
+
     /* Put menu into the menubar */
     windowMenuItem = [[NSMenuItem alloc] initWithTitle:@"Window" action:nil keyEquivalent:@""];
     [windowMenuItem setSubmenu:windowMenu];
     [[NSApp mainMenu] addItem:windowMenuItem];
-    
+
     /* Tell the application object that this is now the window menu */
     [NSApp setWindowsMenu:windowMenu];
 }
@@ -186,7 +186,7 @@ static void CustomApplicationMain (int argc, char **argv)
 
     /* Ensure the application object is initialised */
     NSApplication *application = [NSApplication sharedApplication];
-    
+
 #ifdef SDL_USE_CPS
     {
         CPSProcessSerNum PSN;
@@ -209,7 +209,7 @@ static void CustomApplicationMain (int argc, char **argv)
     /* Create SDLMain and make it the app delegate */
     sdlMain = [[SDLMain alloc] init];
     [application setDelegate:sdlMain];
-    
+
     /* Start the main event loop */
     [application run];
 }
@@ -281,7 +281,7 @@ extern int my_main(int, char **);
 
     /* Hand off to main application code */
     gCalledAppMainline = TRUE;
-    
+
     int status = my_main(gArgc, gArgv);
 
     /* We're done, thank you for playing */
@@ -303,27 +303,27 @@ extern int my_main(int, char **);
 
     bufferSize = selfLen + aStringLen - aRange.length;
     buffer = (unichar *)NSAllocateMemoryPages(bufferSize*sizeof(unichar));
-    
+
     /* Get first part into buffer */
     localRange.location = 0;
     localRange.length = aRange.location;
     [self getCharacters:buffer range:localRange];
-    
+
     /* Get middle part into buffer */
     localRange.location = 0;
     localRange.length = aStringLen;
     [aString getCharacters:(buffer+aRange.location) range:localRange];
-     
+
     /* Get last part into buffer */
     localRange.location = aRange.location + aRange.length;
     localRange.length = selfLen - localRange.location;
     [self getCharacters:(buffer+aRange.location+aStringLen) range:localRange];
-    
+
     /* Build output string */
     result = [NSString stringWithCharacters:buffer length:bufferSize];
-    
+
     NSDeallocateMemoryPages(buffer, bufferSize);
-    
+
     return result;
 }
 
@@ -363,4 +363,3 @@ int main (int argc, char **argv)
 #endif
     return 0;
 }
-

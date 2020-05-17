@@ -42,18 +42,18 @@ private:
     int prg_rom_bytes;
     int chr_rom_bytes;
     int prg_ram_bytes;
-    
+
     char *prg_rom;
     char *chr_rom;
     char *prg_ram;
-    
+
 public:
     RomReader(string filename);
     ~RomReader();
-    
+
     char *get_prg_rom();
     char *get_chr_rom();
-    
+
     void printDebugInfo();
 };
 

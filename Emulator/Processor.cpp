@@ -15,15 +15,15 @@
 Processor::Processor(PPU *ppu, ControllerPad *controller_pad) {
     this->ppu = ppu;
     this->controller_pad = controller_pad;
-    
+
     prg_rom = NULL;
     cpu_ram = new uint8_t[CPU_RAM_SIZE];
     sram = new uint8_t[SRAM_SIZE];
-    
+
     for (int i = 0; i < CPU_RAM_SIZE; i++) {
         cpu_ram[i] = 0;
     }
-    
+
     for (int i = 0; i < SRAM_SIZE; i++) {
         sram[i] = 0;
     }
@@ -32,7 +32,7 @@ Processor::Processor(PPU *ppu, ControllerPad *controller_pad) {
 Processor::~Processor() {
     delete cpu_ram;
     delete sram;
-    
+
     if (prg_rom != NULL) {
         delete prg_rom;
     }
@@ -57,7 +57,7 @@ void Processor::non_maskable_interrupt() {
         stack_push(pc >> 8);
         stack_push(pc);
         stack_push(p & ~BREAK_MASK);  // NMI pushes 0 for break bit
-        
+
         pc = address_at(0xFFFA);
     }
 }
@@ -185,7 +185,7 @@ uint8_t Processor::read_memory(uint16_t address) {
                 throw "Unrecognized I/O read.";
         }
     }
-    
+
     // Must be in 0x0000 -> 0x2000 (CPU RAM, mirrored 4x)
     return cpu_ram[address & 0x07FF];
 }
@@ -246,7 +246,7 @@ void Processor::execute() {
     uint16_t temp;                      // larger temp var for calculations
 
     Instruction instruction = get_instruction(opcode);
-    
+
     /*** ADDRESSING MODE ***/
     switch (instruction.address_type) {
         case Immediate:
@@ -325,7 +325,7 @@ void Processor::execute() {
             pc += 2;
             break;
     }
-    
+
     switch (instruction.function) {
         case ADC:
             src = read_memory(address);
@@ -340,77 +340,77 @@ void Processor::execute() {
             a = (uint8_t)temp;
             break;
 
-            
+
         case AND:
             a &= read_memory(address);
             set_zero(a);
             set_sign(a);
             break;
-        
+
         case ASL:
             if (opcode != 0x0A) src = read_memory(address);
-            
+
             set_carry(src & 0x80);
             src <<= 1;
             set_zero(src);
             set_sign(src);
-            
+
             if (opcode == 0x0A)
                 a = src;
             else
                 store_memory(address, src);
-            
+
             break;
-        
+
         case BCC:
             src = read_memory(address);
             if (!if_carry()) {
                 pc = rel_addr(pc, src);
             }
             break;
-        
+
         case BCS:
             src = read_memory(address);
             if (if_carry()) {
                 pc = rel_addr(pc, src);
             }
             break;
-            
+
         case BEQ:
             src = read_memory(address);
             if (if_zero()) {
                 pc = rel_addr(pc, src);
             }
             break;
-        
+
         case BIT:
             src = read_memory(address);
             set_overflow(src & OVERFLOW_MASK);
             set_sign(src);
             set_zero(a & src);
             break;
-        
+
         case BMI:
             src = read_memory(address);
             if (if_sign()) {
                 pc = rel_addr(pc, src);
             }
             break;
-            
+
         case BNE:
             src = read_memory(address);
             if (!if_zero()) {
                 pc = rel_addr(pc, src);
             }
             break;
-        
+
         case BPL:
             src = read_memory(address);
             if (!if_sign()) {
                 pc = rel_addr(pc, src);
             }
             break;
-            
+
         case BRK:
             stack_push(pc >> 8);
             stack_push(pc);
@@ -419,65 +419,65 @@ void Processor::execute() {
             set_interrupt(1); // disable interrupts
             pc = address_at(0xFFFE);
             break;
-        
+
         case BVC:
             src = read_memory(address);
             if (!if_overflow()) {
                 pc = rel_addr(pc, src);
             }
             break;
-            
+
         case BVS:
             src = read_memory(address);
             if (if_overflow()) {
                 pc = rel_addr(pc, src);
             }
             break;
-        
+
         case CLC:
             set_carry(0);
             break;
-        
+
         case CLD:
             set_decimal(0);
             break;
-        
+
         case CLI:
             set_interrupt(0);
             break;
-        
+
         case CLV:
             set_overflow(0);
             break;
-        
+
         case CMP:
             temp = (uint16_t)a - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if a > src, carry set
             break;
-            
+
         case CPX:
             temp = (uint16_t)x - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if x > src, carry set
             break;
-            
+
         case CPY:
             temp = (uint16_t)y - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if y > src, carry set
             break;
-        
+
         case DEC:
             src = read_memory(address) - 1;
             set_zero(src);
             set_sign(src);
             store_memory(address, src);
             break;
-        
+
         case DEX:
             x--;
             set_zero(x);
@@ -489,151 +489,151 @@ void Processor::execute() {
             set_zero(y);
             set_sign(y);
             break;
-            
+
         case EOR:
             a ^= read_memory(address);
             set_sign(a);
             set_zero(a);
             break;
-        
+
         case INC:
             src = read_memory(address) + 1;
             set_sign(src);
             set_zero(src);
             store_memory(address, src);
             break;
-        
+
         case INX:
             x++;
             set_sign(x);
             set_zero(x);
             break;
-        
+
         case INY:
             y++;
             set_sign(y);
             set_zero(y);
             break;
-        
+
         case JMP:
             pc = address;
             break;
-        
+
         case JSR:
             pc--;
             stack_push(pc >> 8);        // Push the higher byte first
             stack_push(pc);
             pc = address;
             break;
-        
+
         case LDA:
             a = read_memory(address);
             set_sign(a);
             set_zero(a);
             break;
-        
+
         case LDX:
             x = read_memory(address);
             set_sign(x);
             set_zero(x);
             break;
-        
+
         case LDY:
             y = read_memory(address);
             set_sign(y);
             set_zero(y);
             break;
-        
+
         case LSR:
             if (opcode != 0x4A) src = read_memory(address);
-            
+
             set_sign(0);
             set_carry(src & 0x01);
             src >>= 1;
             set_zero(src);
-            
+
             if (opcode == 0x4A) {
                 a = src;
             } else {
                 store_memory(address, src);
             }
             break;
-        
+
         case NOP:
             break;
-            
+
         case ORA:
             a |= read_memory(address);
             set_sign(a);
             set_zero(a);
             break;
-        
+
         case PHA:
             stack_push(a);
             break;
-        
+
         case PHP:
             stack_push(p | BREAK_MASK); // PHP sets the break flag
             break;
-            
+
         case PLA:
             a = stack_pop();
             set_sign(a);
             set_zero(a);
             break;
-            
+
         case PLP:
             p = stack_pop() | UNUSED_MASK;
             break;
-            
+
         case ROL:
             if (opcode != 0x2A) src = read_memory(address);
-            
+
             temp = (uint16_t)src << 1;
             if (if_carry()) temp |= 0x01;
             set_carry(temp >> 8);
             src = (uint8_t)temp;
             set_sign(src);
             set_zero(src);
-            
+
             if (opcode == 0x2A) {
                 a = src;
             } else {
                 store_memory(address, src);
             }
             break;
-        
+
         case ROR:
             if (opcode != 0x6A) src = read_memory(address);
-            
+
             temp = src & 0x01;
             src >>= 1;
             if (if_carry()) src |= 0x80;
             set_carry(temp);
             set_sign(src);
             set_zero(src);
-            
+
             if (opcode == 0x6A) {
                 a = src;
             } else {
                 store_memory(address, src);
             }
-            
+
             break;
-     
+
         case RTI:
             p = stack_pop();
             // Must make this two instructions so that the compiler doesn't screw us.
             pc = stack_pop();   // Pop the lower byte first
             pc |= (uint16_t)stack_pop() << 8;
             break;
-            
+
         case RTS:
             pc = stack_pop();   // Pop the lower byte first
             pc |= (uint16_t)stack_pop() << 8;
             pc++; // Must add 1
             break;
-        
+
         case SBC:
             src = read_memory(address);
             temp = (uint16_t)a - src - (if_carry() ? 0 : 1);
@@ -643,59 +643,59 @@ void Processor::execute() {
             set_carry(temp < 0x100);
             a = (uint8_t)temp;
             break;
-            
+
         case SEC:
             set_carry(1);
             break;
-        
+
         case SED:
             set_decimal(1);
             break;
-        
+
         case SEI:
             set_interrupt(1);
             break;
-            
+
         case STA:
             store_memory(address, a);
             break;
-            
+
         case STX:
             store_memory(address, x);
             break;
-            
+
         case STY:
             store_memory(address, y);
             break;
-            
+
         case TAX:
             x = a;
             set_sign(x);
             set_zero(x);
             break;
-        
+
         case TAY:
             y = a;
             set_sign(y);
             set_zero(y);
             break;
-            
+
         case TSX:
             x = s;
             set_sign(x);
             set_zero(x);
             break;
-            
+
         case TXA:
             a = x;
             set_sign(a);
             set_zero(a);
             break;
-        
+
         case TXS:
             s = x;
             break;
-        
+
         case TYA:
             a = y;
             set_sign(a);
@@ -703,4 +703,3 @@ void Processor::execute() {
             break;
     }
 }
-

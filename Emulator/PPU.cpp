@@ -15,14 +15,14 @@ PPU::PPU() {
     control_1 = 0;
     control_2 = 0;
     status = 0;
-    
+
     // set toggle
     first_write = true;
-    
+
     for (int i = 0; i < VRAM_SIZE; i++) {
         vram[i] = 0;
     }
-    
+
     renderer = new SDLRenderer(this);
 }
 
@@ -34,16 +34,16 @@ bool PPU::render_scanline(int scanline) {
     if (scanline == 0) {
         reset_sprite_0_flag();
     }
-    
+
     if (scanline == 20 && is_screen_enabled()) {
         // This should happen at clock cycle 256!
         update_scroll_counters_from_registers();
     }
-    
+
     // These are the actual drawing scanlines
     if (scanline >= 21 && scanline <= 260 && is_screen_enabled()) {
         renderer->render_scanline(scanline - 21);
-        
+
         // H & HT counters are updated at the end of hblank
         cntH = regH;
         cntHT = regHT;
@@ -52,11 +52,11 @@ bool PPU::render_scanline(int scanline) {
     if (scanline == 261) {
         // Set the VBlank flag in the status register
         status |= PPU_STATUS_VBLANK_MASK;
-        
+
         // If VBlank interrupts are enabled, return true which will generate an interrupt
         return control_1 & VBLANK_INTERRUPT_ENABLE_MASK;
     }
-    
+
     return false;
 }
 
@@ -173,7 +173,7 @@ uint8_t PPU::read_control_1() {
 }
 void PPU::write_control_1(uint8_t value) {
     control_1 = value;
-    
+
     regH = (value & NAME_TABLE_X_SCROLL_MASK) >> NAME_TABLE_X_SCROLL_BIT;
     regV = (value & NAME_TABLE_Y_SCROLL_MASK) >> NAME_TABLE_Y_SCROLL_BIT;
     regS = (value & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) >> BACKGROUND_PATTERN_TABLE_ADDRESS_BIT;
@@ -205,7 +205,7 @@ void PPU::write_scroll_register(uint8_t value) {
         regFV = value & 0x07;
         regVT = (value & 0xF8) >> 3;
     }
-    
+
     first_write = !first_write;
 }
 void PPU::write_vram_address(uint8_t value) {
@@ -217,23 +217,23 @@ void PPU::write_vram_address(uint8_t value) {
     } else {
         regHT = (value & 0x1F);
         regVT = (regVT & 0x18) | ((value & 0xE0) >> 5);
-        
+
         update_scroll_counters_from_registers();
     }
-    
+
     first_write = !first_write;
 }
 
 uint8_t PPU::read_vram_data() {
     uint8_t result;
-    
+
     if (vram_address() >= PALETTE_TABLE_START) {
         result = read_memory(vram_address());
     } else {
         result = read_buffer;
         read_buffer = read_memory(vram_address());
     }
-    
+
     increment_scroll_counters();
     return result;
 }
@@ -265,10 +265,10 @@ uint16_t PPU::nametable_address() {
 // the actual color to use in the palette. Returns the two high order bits of the palette entry.
 uint8_t PPU::palette_select_bits() {
     int attr_byte = read_memory(attributetable_address());
-    
+
     // Figure out which two bits to take
     int bits_offset = ((cntVT & 0x02) << 1) | (cntHT & 0x02);
-    
+
     // Mask and shift
     return (attr_byte & (0x03 << (bits_offset))) >> bits_offset;
 }
@@ -284,7 +284,7 @@ uint16_t PPU::attributetable_address() {
 
 uint16_t PPU::patterntable_address() {
     uint8_t pattern_index = read_memory(nametable_address());
-    
+
     uint16_t address = (uint16_t)regS << 12;
     address |= (uint16_t)pattern_index << 4;
     address |= cntFV;
@@ -303,16 +303,16 @@ void PPU::increment_scroll_counters() {
     } else {
         cntVT++;
     }
-    
+
     if (cntVT == 0x20) {
         cntVT = 0;
-    
+
         if (++cntH == 0x02) {
             cntH = 0;
-            
+
             if (++cntV == 0x02) {
                 cntV = 0;
-                
+
                 if (++cntFV == 0x08) {
                     cntFV = 0;
                 }
@@ -325,7 +325,7 @@ void PPU::increment_scroll_counters() {
 void PPU::increment_horizontal_scroll_counter() {
     if (++cntHT == 0x20) {
         cntHT = 0;
-        
+
         if (++cntH == 0x02) {
             cntH = 0;
         }
@@ -335,10 +335,10 @@ void PPU::increment_horizontal_scroll_counter() {
 void PPU::increment_vertical_scroll_counter() {
     if (++cntFV == 0x08) {
         cntFV = 0;
-        
+
         if (++cntVT == 30) { // Is this correct??
             cntVT = 0;
-            
+
             if (++cntV == 0x02) {
                 cntV = 0;
             }
