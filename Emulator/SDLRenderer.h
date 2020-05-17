@@ -15,12 +15,6 @@
 
 class PPU;
 
-// The pattern tables from 0x0000 - 0x2000 hold 512 8x8 patterns.
-// static const int cPATTERNS = 512;
-
-// 16 bytes per pattern
-static const int cPATTERN_SIZE = 16;
-
 class SDLRenderer {
 private:
     SDL_Window *window;

@@ -8,6 +8,50 @@
 
 #include "PPU.h"
 
+// PPU CONTROL REGISTER 1
+const int kNameTableXScrollBit = 0;
+const int kNameTableYScrollBit = 1;
+const int kVerticalWriteBit = 2;
+const int kSpritePatternTableAddressBit = 3;
+const int kBackgroundPatternTableAddressBit = 4;
+const int kSpriteSizeBit = 5;
+const int kVBlankInterruptEnableBit = 7;
+
+const int kNameTableXScrollMask = 1 << kNameTableXScrollBit;
+const int kNameTableYScrollMask = 1 << kNameTableYScrollBit;
+const int kVerticalWriteMask = 1 << kVerticalWriteBit;
+const int kSpritePatternTableAddressMask = 1 << kSpritePatternTableAddressBit;
+const int kBackgroundPatternTableAddressMask = 1 << kBackgroundPatternTableAddressBit;
+const int kSpriteSizeMask = 1 << kSpriteSizeBit;
+const int kVBlankInterruptEnableMask = 1 << kVBlankInterruptEnableBit;
+
+// For 8x8 sprites only
+#define SPRITE_PATTERN_TABLE_ADDRESS_0000 0x00
+#define SPRITE_PATTERN_TABLE_ADDRESS_1000 0x08
+
+// compare with regs
+#define REGS_BACKGROUND_PATTERN_TABLE_ADDRESS_0000 0x00
+#define REGS_BACKGROUND_PATTERN_TABLE_ADDRESS_1000 0x01
+
+#define SPRITE_SIZE_8x8 0x00
+#define SPRITE_SIZE_8x16 0x20
+
+// PPU CONTROL REGISTER 2
+const int kBackgroundEnableBit = 3;
+const int kSpritesEnableBit = 4;
+
+const int kBackgroundEnableMask = 1 << kBackgroundEnableBit;
+const int kSpritesEnableMask = 1 << kSpritesEnableBit;
+
+// PPU STATUS REGISTER
+const int kPPUStatusSpriteOverflowBit = 5;  // ~= More than 8 sprites on a scanline
+const int kPPUStatusSprite0Bit = 6;
+const int kPPUStatusVBlankBit = 7;
+
+const int kPPUStatusSpriteOverflowMask = 1 << kPPUStatusSpriteOverflowBit;
+const int kPPUStatusSprite0Mask = 1 << kPPUStatusSprite0Bit;
+const int kPPUStatusVBlankMask = 1 << kPPUStatusVBlankBit;
+
 PPU::PPU() {
     control_1 = 0;
     control_2 = 0;
@@ -16,7 +60,7 @@ PPU::PPU() {
     // set toggle
     first_write = true;
 
-    for (int i = 0; i < VRAM_SIZE; i++) {
+    for (int i = 0; i < kVRAMSize; i++) {
         vram[i] = 0;
     }
 
@@ -48,10 +92,10 @@ bool PPU::render_scanline(int scanline) {
 
     if (scanline == 261) {
         // Set the VBlank flag in the status register
-        status |= PPU_STATUS_VBLANK_MASK;
+        status |= kPPUStatusVBlankMask;
 
         // If VBlank interrupts are enabled, return true which will generate an interrupt
-        return control_1 & VBLANK_INTERRUPT_ENABLE_MASK;
+        return control_1 & kVBlankInterruptEnableMask;
     }
 
     return false;
@@ -96,7 +140,7 @@ bool PPU::render_scanline(int scanline) {
 // The Pattern Table may come from VROM.
 //
 void PPU::set_chr_rom(uint8_t *chr_rom) {
-    memcpy(vram, chr_rom, PATTERN_TABLE_SIZE);
+    ::memcpy(vram, chr_rom, kPatternTableSize);
 }
 
 uint16_t PPU::calculate_effective_address(uint16_t address) {
@@ -136,25 +180,41 @@ void PPU::store_memory(uint16_t address, uint8_t word) {
 
 /** VBLANK **/
 void PPU::reset_vblank_flag() {
-    status &= ~PPU_STATUS_VBLANK_MASK;
+    status &= ~kPPUStatusVBlankMask;
 }
 
 /** SPRITE HIT **/
 void PPU::reset_sprite_0_flag() {
-    status &= ~PPU_STATUS_SPRITE_0_HIT_MASK;
+    status &= ~kPPUStatusSprite0Mask;
 }
 
 void PPU::set_sprite_0_flag() {
-    status |= PPU_STATUS_SPRITE_0_HIT_MASK;
+    status |= kPPUStatusSprite0Mask;
 }
 
 /** MORE THAN 8 SPRITES ON A SCANLINE **/
 void PPU::reset_more_than_8_sprites_flag() {
-    status &= ~PPU_STATUS_MORE_THAN_8_SPRITES_HIT_MASK;
+    status &= ~kPPUStatusSpriteOverflowMask;
 }
 
 void PPU::set_more_than_8_sprites_flag() {
-    status |= PPU_STATUS_MORE_THAN_8_SPRITES_HIT_MASK;
+    status |= kPPUStatusSpriteOverflowMask;
+}
+
+bool PPU::enable_background() {
+    return control_2 & kBackgroundEnableMask;
+}
+
+bool PPU::enable_sprites() {
+    return control_2 & kSpritesEnableMask;
+}
+
+bool PPU::use_8x16_sprites() {
+    return control_2 & kSpriteSizeMask;
+}
+
+int PPU::sprite_pattern_table_address() {
+    return control_1 & kSpritePatternTableAddressMask ? 0x1000 : 0;
 }
 
 /** REGISTER READS AND WRITES */
@@ -171,9 +231,9 @@ uint8_t PPU::read_control_1() {
 void PPU::write_control_1(uint8_t value) {
     control_1 = value;
 
-    regH = (value & NAME_TABLE_X_SCROLL_MASK) >> NAME_TABLE_X_SCROLL_BIT;
-    regV = (value & NAME_TABLE_Y_SCROLL_MASK) >> NAME_TABLE_Y_SCROLL_BIT;
-    regS = (value & BACKGROUND_PATTERN_TABLE_ADDRESS_MASK) >> BACKGROUND_PATTERN_TABLE_ADDRESS_BIT;
+    regH = (value & kNameTableXScrollMask) >> kNameTableXScrollBit;
+    regV = (value & kNameTableYScrollMask) >> kNameTableYScrollBit;
+    regS = (value & kBackgroundPatternTableAddressMask) >> kBackgroundPatternTableAddressBit;
 }
 
 uint8_t PPU::read_control_2() {
@@ -183,7 +243,7 @@ void PPU::write_control_2(uint8_t value) {
     control_2 = value;
 }
 void PPU::write_spr_ram(char* start) {
-    memcpy(spr_ram, start, SPR_RAM_SIZE);
+    ::memcpy(spr_ram, start, kSprRAMSize);
 }
 void PPU::set_sprite_memory_address(uint8_t value) {
     sprite_memory_address = value;
@@ -224,7 +284,7 @@ void PPU::write_vram_address(uint8_t value) {
 uint8_t PPU::read_vram_data() {
     uint8_t result;
 
-    if (vram_address() >= PALETTE_TABLE_START) {
+    if (vram_address() >= kPaletteTableStart) {
         result = read_memory(vram_address());
     } else {
         result = read_buffer;
@@ -290,7 +350,7 @@ uint16_t PPU::patterntable_address() {
 
 // For use during R/W of $2007
 void PPU::increment_scroll_counters() {
-    bool vertical_write = ((control_1 & VERTICAL_WRITE_MASK) == VERTICAL_WRITE_ON);
+    bool vertical_write = control_1 & kVerticalWriteMask;
 
     if (!vertical_write) {
         if (++cntHT == 0x20) {
@@ -352,6 +412,6 @@ void PPU::update_scroll_counters_from_registers() {
 }
 
 bool PPU::is_screen_enabled() {
-    return (control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE ||
-           (control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE;
+    return control_2 & kBackgroundEnableMask ||
+           control_2 & kSpritesEnableMask;
 }

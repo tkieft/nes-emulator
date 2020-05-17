@@ -12,14 +12,21 @@
 #include "defines.h"
 #include "SDLRenderer.h"
 
+const int kVRAMSize = 0x4000;
+const int kPatternTableSize = 0x2000;
+const int kSprRAMSize = 0x100;
+const int kPaletteTableStart = 0x3F00;
+const int kPaletteTableSpriteOffset = 16;
+
+
 class PPU {
     friend class SDLRenderer;
 
 private:
     SDLRenderer *renderer;
 
-    uint8_t vram[VRAM_SIZE];
-    uint8_t spr_ram[SPR_RAM_SIZE];
+    uint8_t vram[kVRAMSize];
+    uint8_t spr_ram[kSprRAMSize];
 
     uint8_t control_1;
     uint8_t control_2;
@@ -57,6 +64,11 @@ private:
 
     void reset_more_than_8_sprites_flag();
     void set_more_than_8_sprites_flag();
+
+    bool enable_background();
+    bool enable_sprites();
+    bool use_8x16_sprites();
+    int sprite_pattern_table_address();
 
     uint16_t vram_address();
     uint16_t nametable_address();

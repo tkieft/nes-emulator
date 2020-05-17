@@ -14,6 +14,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+static const int kPatternSizeBytes = 16;
+
 void drawPixel(SDL_Surface *surface, int x, int y, color_t color) {
     Uint32 *p = (Uint32 *)surface->pixels + y * surface->pitch / 4 + x;
     *p = SDL_MapRGB(surface->format, color.r, color.g, color.b);
@@ -29,7 +31,7 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, 
     // The upper two bits come from palette_select (from the attribute table)
     // The lower two bits come from the pattern table (the CHR ROM)
     // x is the horizontal index of the pixel we're looking for
-    uint16_t palette_address = PALETTE_TABLE_START;
+    uint16_t palette_address = kPaletteTableStart;
 
     uint8_t lower_byte = ppu->read_memory(pattern_start);
     uint8_t higher_byte = ppu->read_memory(pattern_start + 8);
@@ -45,7 +47,7 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, 
     // If the last two bits are 00 we always read the background color at PALETTE_TABLE_START
     if (palette_entry != 0) {
         palette_entry |= (palette_select << 2);
-        palette_address += (sprite ? PALETTE_TABLE_SPRITE_OFFSET : 0) + palette_entry;
+        palette_address += (sprite ? kPaletteTableSpriteOffset : 0) + palette_entry;
     }
 
     // Now, use the address to determine the actual color index
@@ -53,7 +55,7 @@ uint8_t SDLRenderer::color_index_for_pattern_bit(int x, uint16_t pattern_start, 
 }
 
 void SDLRenderer::print_pattern(int pattern_num) {
-    int pattern_start = pattern_num * cPATTERN_SIZE;
+    int pattern_start = pattern_num * kPatternSizeBytes;
 
     for (int y = 0; y < 8; y++) {
         std::cout
@@ -73,9 +75,6 @@ void SDLRenderer::render_scanline(int scanline) {
         SDL_LockSurface(screen);
     }
 
-    uint8_t control_1 = ppu->read_control_1();
-    uint8_t control_2 = ppu->read_control_2();
-
     ppu->reset_more_than_8_sprites_flag();
 
     // TODO: Render Sprites & Background at the same time
@@ -83,10 +82,10 @@ void SDLRenderer::render_scanline(int scanline) {
     ///////////////////////////
     // RENDER THE BACKGROUND //
     ///////////////////////////
-    if ((control_2 & BACKGROUND_ENABLE_MASK) == BACKGROUND_ENABLE) {
+    if (ppu->enable_background()) {
         int x = 0;
 
-        while (x < SCREEN_WIDTH) {
+        while (x < kScreenWidth) {
             drawPixel(
                 screen,
                 x,
@@ -111,12 +110,12 @@ void SDLRenderer::render_scanline(int scanline) {
     ////////////////////////
     // RENDER THE SPRITES //
     ////////////////////////
-    if ((control_2 & SPRITES_ENABLE_MASK) == SPRITES_ENABLE) {
-        if ((control_2 & SPRITE_SIZE_MASK) == SPRITE_SIZE_8x16) {
+    if (ppu->enable_sprites()) {
+        if (ppu->use_8x16_sprites()) {
             throw "Unimplemented sprite size 8x16!";
         }
 
-        uint8_t transparency_color_index = ppu->read_memory(PALETTE_TABLE_START);
+        uint8_t transparency_color_index = ppu->read_memory(kPaletteTableStart);
         color_t transparency_color = NES_PALETTE[transparency_color_index];
         Uint32 transparency_color_sdl = SDL_MapRGB(screen->format, transparency_color.r, transparency_color.b, transparency_color.g);
 
@@ -138,13 +137,11 @@ void SDLRenderer::render_scanline(int scanline) {
                 break;
             }
 
+            int pattern_base = ppu->sprite_pattern_table_address();
+
             int pattern_num     = ppu->spr_ram[i * 4 + 1];
             uint8_t color_attr  = ppu->spr_ram[i * 4 + 2];
             uint8_t xpos        = ppu->spr_ram[i * 4 + 3];
-
-            if ((control_1 & SPRITE_PATTERN_TABLE_ADDRESS_MASK) == SPRITE_PATTERN_TABLE_ADDRESS_1000) {
-                pattern_num += 256;
-            }
 
             int upper_color_bits = color_attr & 0x03;
             bool flip_horizontal = color_attr & 0x40;
@@ -152,7 +149,7 @@ void SDLRenderer::render_scanline(int scanline) {
 
             int y = scanline - ypos;
             for (int x = 0; x < 8; x++) {
-                uint16_t pattern_start = pattern_num * cPATTERN_SIZE + (flip_vertical ? 7 - y : y);
+                uint16_t pattern_start = pattern_base + pattern_num * kPatternSizeBytes + (flip_vertical ? 7 - y : y);
                 uint8_t color_index =
                     color_index_for_pattern_bit((flip_horizontal ? 7 - x : x), pattern_start, upper_color_bits, true);
 
@@ -191,8 +188,8 @@ SDLRenderer::SDLRenderer(PPU *ppu) {
     window = SDL_CreateWindow("Emulator",
                               SDL_WINDOWPOS_UNDEFINED,
                               SDL_WINDOWPOS_UNDEFINED,
-                              SCREEN_WIDTH,
-                              SCREEN_HEIGHT,
+                              kScreenWidth,
+                              kScreenHeight,
                               0);
 
     if (!window) {

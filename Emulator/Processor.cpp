@@ -12,19 +12,40 @@
 
 #include "Instructions.h"
 
+const int kCarryBit = 0;       // Set when the result of the computation is < 0 or > 255 (unsigned)
+const int kZeroBit = 1;        // Set when the result of the computation is 0
+const int kInterruptBit = 2;
+const int kDecimalBit = 3;     // unused in the NES version of the 6502
+const int kBreakBit = 4;
+const int kUnusedBit = 5;
+const int kOverflowBit = 6;    // Set when there is a 2's complement overflow
+const int kSignBit = 7;        // Indicates the sign of the result (set when negative)
+
+const int kCarryMask = 1 << kCarryBit;
+const int kZeroMask = 1 << kZeroBit;
+const int kInterruptMask = 1 << kInterruptBit;
+const int kDecimalMask = 1 << kDecimalBit;
+const int kBreakMask = 1 << kBreakBit;
+const int kUnusedMask = 1 << kUnusedBit;
+const int kOverflowMask = 1 << kOverflowBit;
+const int kSignMask = 1 << kSignBit;
+
+const int kCPURAMSize = 2048;
+const int kSRAMSize = 8192;
+
 Processor::Processor(PPU *ppu, ControllerPad *controller_pad) {
     this->ppu = ppu;
     this->controller_pad = controller_pad;
 
     prg_rom = NULL;
-    cpu_ram = new uint8_t[CPU_RAM_SIZE];
-    sram = new uint8_t[SRAM_SIZE];
+    cpu_ram = new uint8_t[kCPURAMSize];
+    sram = new uint8_t[kSRAMSize];
 
-    for (int i = 0; i < CPU_RAM_SIZE; i++) {
+    for (int i = 0; i < kCPURAMSize; i++) {
         cpu_ram[i] = 0;
     }
 
-    for (int i = 0; i < SRAM_SIZE; i++) {
+    for (int i = 0; i < kSRAMSize; i++) {
         sram[i] = 0;
     }
 }
@@ -47,7 +68,7 @@ void Processor::reset() {
 
     s = 0xFF;
     a = 0;
-    p = 1 << UNUSED_BIT;
+    p = 1 << kUnusedBit;
     x = 0;
     y = 0;
 }
@@ -56,7 +77,7 @@ void Processor::non_maskable_interrupt() {
     if (if_interrupt()) {
         stack_push(pc >> 8);
         stack_push(pc);
-        stack_push(p & ~BREAK_MASK);  // NMI pushes 0 for break bit
+        stack_push(p & ~kBreakMask);  // NMI pushes 0 for break bit
 
         pc = address_at(0xFFFA);
     }
@@ -72,60 +93,60 @@ void Processor::set_p_bit(uint bit, bool value) {
  * calculation.
  */
 void Processor::set_carry(uint8_t result) {
-    set_p_bit(CARRY_BIT, result);
+    set_p_bit(kCarryBit, result);
 }
 bool Processor::if_carry() {
-    return p & CARRY_MASK;
+    return p & kCarryMask;
 }
 
 /**
  * If result is zero, set the zero bit. Otherwise, clear it.
  */
 void Processor::set_zero(uint8_t result) {
-    set_p_bit(ZERO_BIT, !result);
+    set_p_bit(kZeroBit, !result);
 }
 bool Processor::if_zero() {
-    return p & ZERO_MASK;
+    return p & kZeroMask;
 }
 
 void Processor::set_interrupt(uint8_t result) {
-    set_p_bit(INTERRUPT_BIT, result);
+    set_p_bit(kInterruptBit, result);
 }
 bool Processor::if_interrupt() {
-    return p & INTERRUPT_MASK;
+    return p & kInterruptMask;
 }
 
 void Processor::set_decimal(uint8_t result) {
-    set_p_bit(DECIMAL_BIT, result);
+    set_p_bit(kDecimalBit, result);
 }
 bool Processor::if_decimal() {
-    return p & DECIMAL_MASK;
+    return p & kDecimalMask;
 }
 
 void Processor::set_break(uint8_t result) {
-    set_p_bit(BREAK_BIT, result);
+    set_p_bit(kBreakBit, result);
 }
 bool Processor::if_break() {
-    return p & BREAK_MASK;
+    return p & kBreakMask;
 }
 
 /**
  * If result is nonzero, set the overflow bit. Otherwise, clear it.
  */
 void Processor::set_overflow(uint8_t result) {
-    set_p_bit(OVERFLOW_BIT, result);
+    set_p_bit(kOverflowBit, result);
 }
 bool Processor::if_overflow() {
-    return p & OVERFLOW_MASK;
+    return p & kOverflowMask;
 }
 
 void Processor::set_sign(uint8_t result) {
     // we look at the 7th bit to determine the sign (this happens to be the same
     // bit as the sign bit in the control register)
-    set_p_bit(SIGN_BIT, result & SIGN_MASK);
+    set_p_bit(kSignBit, result & kSignMask);
 }
 bool Processor::if_sign() {
-    return p & SIGN_MASK;
+    return p & kSignMask;
 }
 
 uint16_t Processor::address_at(uint16_t memloc) {
@@ -134,7 +155,7 @@ uint16_t Processor::address_at(uint16_t memloc) {
 
 uint16_t Processor::rel_addr(uint16_t addr, uint8_t offset) {
     // offset is actually a signed number. is there a better way to do this?
-    if (offset & SIGN_MASK) {
+    if (offset & kSignMask) {
         return addr - (uint8_t)(~offset + 1);
     } else {
         return addr + offset;
@@ -335,7 +356,7 @@ void Processor::execute() {
             set_zero(temp & 0xFF); // only look at last byte
             set_sign(temp);
             // If we add two numbers of the same sign and get a different sign, there's overflow
-            set_overflow(!((a ^ src) & SIGN_MASK) && ((a ^ temp) & SIGN_MASK));
+            set_overflow(!((a ^ src) & kSignMask) && ((a ^ temp) & kSignMask));
 
             a = (uint8_t)temp;
             break;
@@ -385,7 +406,7 @@ void Processor::execute() {
 
         case BIT:
             src = read_memory(address);
-            set_overflow(src & OVERFLOW_MASK);
+            set_overflow(src & kOverflowMask);
             set_sign(src);
             set_zero(a & src);
             break;
@@ -415,7 +436,7 @@ void Processor::execute() {
             stack_push(pc >> 8);
             stack_push(pc);
             set_break(1);
-            stack_push(p | BREAK_MASK);
+            stack_push(p | kBreakMask);
             set_interrupt(1); // disable interrupts
             pc = address_at(0xFFFE);
             break;
@@ -573,7 +594,7 @@ void Processor::execute() {
             break;
 
         case PHP:
-            stack_push(p | BREAK_MASK); // PHP sets the break flag
+            stack_push(p | kBreakMask); // PHP sets the break flag
             break;
 
         case PLA:
@@ -583,7 +604,7 @@ void Processor::execute() {
             break;
 
         case PLP:
-            p = stack_pop() | UNUSED_MASK;
+            p = stack_pop() | kUnusedMask;
             break;
 
         case ROL:
