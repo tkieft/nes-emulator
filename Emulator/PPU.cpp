@@ -255,13 +255,13 @@ void PPU::write_scroll_register(byte value) {
 }
 void PPU::write_vram_address(byte value) {
     if (first_write) {
-        regVT = (regVT & 0x07) | ((value & 0x03) << 3);
+        regVT = (regVT & 0x07) | (value & 0x03) << 3;
         regH = (value & 0x04) >> 2;
         regV = (value & 0x08) >> 3;
         regFV = (value & 0x30) >> 4;
     } else {
         regHT = (value & 0x1F);
-        regVT = (regVT & 0x18) | ((value & 0xE0) >> 5);
+        regVT = (regVT & 0x18) | (value & 0xE0) >> 5;
 
         update_scroll_counters_from_registers();
     }
@@ -289,21 +289,19 @@ void PPU::write_vram_data(byte value) {
 }
 
 dbyte PPU::vram_address() {
-    dbyte address = static_cast<dbyte>(cntHT);
-    address |= static_cast<dbyte>(cntVT) << 5;
-    address |= static_cast<dbyte>(cntH)  << 10;
-    address |= static_cast<dbyte>(cntV)  << 11;
-    address |= (static_cast<dbyte>(cntFV) & 0x03) << 12;
-    return address;
+    return cntHT |
+           cntVT << 5 |
+           cntH  << 10 |
+           cntV  << 11 |
+           (cntFV & 0x03) << 12;
 }
 
 dbyte PPU::nametable_address() {
-    dbyte address = 0x2000;
-    address |= static_cast<dbyte>(cntHT);
-    address |= static_cast<dbyte>(cntVT) << 5;
-    address |= static_cast<dbyte>(cntH)  << 10;
-    address |= static_cast<dbyte>(cntV)  << 11;
-    return address;
+    return 0x2000 |
+           cntHT  |
+           cntVT << 5 |
+           cntH  << 10 |
+           cntV  << 11;
 }
 
 // Use the attribute table to determine which palette to use. The byte in the name table determines
@@ -319,21 +317,19 @@ byte PPU::palette_select_bits() {
 }
 
 dbyte PPU::attributetable_address() {
-    dbyte address = 0x23C0;
-    address |= (static_cast<dbyte>(cntHT) & 0x1C) >> 2;
-    address |= (static_cast<dbyte>(cntVT) & 0x1C) << 1;
-    address |= static_cast<dbyte>(cntH)  << 10;
-    address |= static_cast<dbyte>(cntV)  << 11;
-    return address;
+    return 0x23C0 |
+           (cntHT & 0x1C) >> 2 |
+           (cntVT & 0x1C) << 1 |
+           cntH  << 10 |
+           cntV  << 11;
 }
 
 dbyte PPU::patterntable_address() {
     byte pattern_index = read_memory(nametable_address());
 
-    dbyte address = static_cast<dbyte>(regS) << 12;
-    address |= static_cast<dbyte>(pattern_index) << 4;
-    address |= cntFV;
-    return address;
+    return regS << 12 |
+           pattern_index << 4 |
+           cntFV;
 }
 
 // For use during R/W of $2007
