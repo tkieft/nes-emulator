@@ -25,17 +25,6 @@ const int kBackgroundPatternTableAddressMask = 1 << kBackgroundPatternTableAddre
 const int kSpriteSizeMask = 1 << kSpriteSizeBit;
 const int kVBlankInterruptEnableMask = 1 << kVBlankInterruptEnableBit;
 
-// For 8x8 sprites only
-#define SPRITE_PATTERN_TABLE_ADDRESS_0000 0x00
-#define SPRITE_PATTERN_TABLE_ADDRESS_1000 0x08
-
-// compare with regs
-#define REGS_BACKGROUND_PATTERN_TABLE_ADDRESS_0000 0x00
-#define REGS_BACKGROUND_PATTERN_TABLE_ADDRESS_1000 0x01
-
-#define SPRITE_SIZE_8x8 0x00
-#define SPRITE_SIZE_8x16 0x20
-
 // PPU CONTROL REGISTER 2
 const int kBackgroundEnableBit = 3;
 const int kSpritesEnableBit = 4;
@@ -202,6 +191,7 @@ bool PPU::use_8x16_sprites() {
 }
 
 dbyte PPU::sprite_pattern_table_address() {
+    // For 8x8 sprites only
     return control_1 & kSpritePatternTableAddressMask ? 0x1000 : 0;
 }
 
