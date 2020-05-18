@@ -127,7 +127,7 @@ bool Processor::if_sign() {
 }
 
 dbyte Processor::address_at(dbyte memloc) {
-    return static_cast<dbyte>(read_memory(memloc + 1)) << 8 | read_memory(memloc);
+    return read_memory(memloc + 1) << 8 | read_memory(memloc);
 }
 
 dbyte Processor::rel_addr(dbyte addr, byte offset) {
@@ -295,7 +295,7 @@ void Processor::execute() {
             dbyte indirect_jump_address = address_at(pc + 1);
             if ((indirect_jump_address & 0xFF) == 0xFF) {
                 // Wrap-around JMP bug
-                address = (static_cast<dbyte>(read_memory(indirect_jump_address & 0xFF00)) << 8) + read_memory(indirect_jump_address);
+                address = (read_memory(indirect_jump_address & 0xFF00) << 8) + read_memory(indirect_jump_address);
             } else {
                 address = address_at(indirect_jump_address);
             }
@@ -327,7 +327,7 @@ void Processor::execute() {
     switch (instruction.function) {
         case ADC:
             src = read_memory(address);
-            temp = static_cast<dbyte>(a) + src + (if_carry() ? 1 : 0);
+            temp = a + src + (if_carry() ? 1 : 0);
 
             set_carry(temp > 0xFF);
             set_zero(temp & 0xFF); // only look at last byte
@@ -335,7 +335,7 @@ void Processor::execute() {
             // If we add two numbers of the same sign and get a different sign, there's overflow
             set_overflow(!((a ^ src) & kSignMask) && ((a ^ temp) & kSignMask));
 
-            a = static_cast<byte>(temp);
+            a = temp;
             break;
 
 
@@ -449,21 +449,21 @@ void Processor::execute() {
             break;
 
         case CMP:
-            temp = static_cast<dbyte>(a) - read_memory(address);
+            temp = a - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if a > src, carry set
             break;
 
         case CPX:
-            temp = static_cast<dbyte>(x) - read_memory(address);
+            temp = x - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if x > src, carry set
             break;
 
         case CPY:
-            temp = static_cast<dbyte>(y) - read_memory(address);
+            temp = y - read_memory(address);
             set_sign(temp);
             set_zero(temp);
             set_carry(temp < 0x100); // if y > src, carry set
@@ -587,10 +587,10 @@ void Processor::execute() {
         case ROL:
             if (opcode != 0x2A) src = read_memory(address);
 
-            temp = static_cast<dbyte>(src) << 1;
+            temp = src << 1;
             if (if_carry()) temp |= 0x01;
             set_carry(temp >> 8);
-            src = static_cast<byte>(temp);
+            src = temp;
             set_sign(src);
             set_zero(src);
 
@@ -623,23 +623,23 @@ void Processor::execute() {
             p = stack_pop();
             // Must make this two instructions so that the compiler doesn't screw us.
             pc = stack_pop();   // Pop the lower byte first
-            pc |= static_cast<dbyte>(stack_pop()) << 8;
+            pc |= stack_pop() << 8;
             break;
 
         case RTS:
             pc = stack_pop();   // Pop the lower byte first
-            pc |= static_cast<dbyte>(stack_pop()) << 8;
+            pc |= stack_pop() << 8;
             pc++; // Must add 1
             break;
 
         case SBC:
             src = read_memory(address);
-            temp = static_cast<dbyte>(a) - src - (if_carry() ? 0 : 1);
+            temp = a - src - (if_carry() ? 0 : 1);
             set_zero(temp & 0xFF);
             set_sign(temp);
             set_overflow(((a ^ temp) & 0x80) && ((a ^ src) & 0x80));
             set_carry(temp < 0x100);
-            a = static_cast<byte>(temp);
+            a = temp;
             break;
 
         case SEC:
