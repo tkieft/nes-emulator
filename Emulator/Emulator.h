@@ -12,25 +12,24 @@
 #include <memory>
 #include <string>
 
-#include "SDL.h"
-
+#include "ControllerPad.h"
 #include "PPU.h"
 #include "Processor.h"
-#include "ControllerPad.h"
+#include "SDL.h"
 
 class Emulator {
-private:
-    PPU ppu;
-    ControllerPad controller_pad;
-    std::unique_ptr<Processor> processor;
+ private:
+  PPU ppu;
+  ControllerPad controller_pad;
+  std::unique_ptr<Processor> processor;
 
-public:
-    Emulator();
-    void load_rom(std::string filename);
-    void emulate_frame();
+ public:
+  Emulator();
+  void load_rom(std::string filename);
+  void emulate_frame();
 
-    bool handle_key_up(SDL_Keysym sym);
-    bool handle_key_down(SDL_Keysym sym);
+  bool handle_key_up(SDL_Keysym sym);
+  bool handle_key_down(SDL_Keysym sym);
 };
 
 #endif

@@ -6,11 +6,13 @@
 //
 //
 
-#include "defines.h"
 #include "Instructions.h"
 
 #include <map>
 
+#include "defines.h"
+
+// clang-format off
 static std::map<byte, Instruction> INSTRUCTIONS = {
     {0x00, {BRK, Implied}},
     {0x01, {ORA, IndirectPreX}},
@@ -179,8 +181,9 @@ static std::map<byte, Instruction> INSTRUCTIONS = {
     {0xFD, {SBC, AbsoluteX}},
     {0xFE, {INC, AbsoluteX}},
 };
+// clang-format on
 
 Instruction get_instruction(byte opcode) {
-    // Throws an exception if opcode not found
-    return INSTRUCTIONS.at(opcode);
+  // Throws an exception if opcode not found
+  return INSTRUCTIONS.at(opcode);
 }

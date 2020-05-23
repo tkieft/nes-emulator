@@ -12,9 +12,9 @@
 #include "defines.h"
 
 typedef struct color {
-    byte r;
-    byte g;
-    byte b;
+  byte r;
+  byte g;
+  byte b;
 } color_t;
 
 extern const color_t NES_PALETTE[64];

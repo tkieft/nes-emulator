@@ -18,4 +18,4 @@ const int kScreenHeight = 240;
 typedef uint8_t byte;
 typedef uint16_t dbyte;
 
-#endif // Emulator_defines_h
+#endif  // Emulator_defines_h

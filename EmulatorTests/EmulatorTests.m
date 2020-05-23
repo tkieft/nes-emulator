@@ -10,23 +10,20 @@
 
 @implementation EmulatorTests
 
-- (void)setUp
-{
-    [super setUp];
+- (void)setUp {
+  [super setUp];
 
-    // Set-up code here.
+  // Set-up code here.
 }
 
-- (void)tearDown
-{
-    // Tear-down code here.
+- (void)tearDown {
+  // Tear-down code here.
 
-    [super tearDown];
+  [super tearDown];
 }
 
-- (void)testExample
-{
-    XCTFail(@"Unit tests are not implemented yet in EmulatorTests");
+- (void)testExample {
+  XCTFail(@"Unit tests are not implemented yet in EmulatorTests");
 }
 
 @end

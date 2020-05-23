@@ -24,9 +24,9 @@
 
 #define MAPPER_MASK 0xF0
 
-#define PRG_ROM_PAGE_SIZE 16384 // 16kb
-#define CHR_ROM_PAGE_SIZE 8192  // 8kb
-#define PRG_RAM_PAGE_SIZE 8192  // 8kb
+#define PRG_ROM_PAGE_SIZE 16384  // 16kb
+#define CHR_ROM_PAGE_SIZE 8192   // 8kb
+#define PRG_RAM_PAGE_SIZE 8192   // 8kb
 
 #include <memory>
 #include <string>
@@ -34,25 +34,25 @@
 #include "defines.h"
 
 class RomReader {
-private:
-    long fileSize;
-    byte header[HEADER_SIZE];
+ private:
+  long fileSize;
+  byte header[HEADER_SIZE];
 
-    long prg_rom_bytes;
-    long chr_rom_bytes;
-    long prg_ram_bytes;
+  long prg_rom_bytes;
+  long chr_rom_bytes;
+  long prg_ram_bytes;
 
-    std::unique_ptr<byte[]> prg_rom;
-    std::unique_ptr<byte[]> chr_rom;
-    std::unique_ptr<byte[]> prg_ram;
+  std::unique_ptr<byte[]> prg_rom;
+  std::unique_ptr<byte[]> chr_rom;
+  std::unique_ptr<byte[]> prg_ram;
 
-public:
-    RomReader(std::string filename);
+ public:
+  RomReader(std::string filename);
 
-    std::unique_ptr<byte[]>&& get_prg_rom();
-    std::unique_ptr<byte[]>&& get_chr_rom();
+  std::unique_ptr<byte[]>&& get_prg_rom();
+  std::unique_ptr<byte[]>&& get_chr_rom();
 
-    void printDebugInfo();
+  void printDebugInfo();
 };
 
 #endif /* defined(__Emulator__RomReader__) */
