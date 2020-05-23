@@ -29,6 +29,9 @@
     ::exit(1);
   }
 
+  // SDL starts with TextInput enabled??
+  SDL_StopTextInput();
+
   SDL_version version;
   SDL_GetVersion(&version);
   std::cout << "Emulator - Tyler Kieft - SDL Version " << (int)version.major << "."
