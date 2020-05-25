@@ -86,9 +86,6 @@ bool Processor::if_interrupt() { return p & kInterruptMask; }
 void Processor::set_decimal(byte result) { set_p_bit(kDecimalBit, result); }
 bool Processor::if_decimal() { return p & kDecimalMask; }
 
-void Processor::set_break(byte result) { set_p_bit(kBreakBit, result); }
-bool Processor::if_break() { return p & kBreakMask; }
-
 /**
  * If result is nonzero, set the overflow bit. Otherwise, clear it.
  */
@@ -209,13 +206,14 @@ void Processor::store_memory(dbyte address, byte value) {
   }
 }
 
-void Processor::execute() {
+int Processor::execute() {
   byte opcode = read_memory(pc);  // opcode of instruction
   dbyte address;                  // address of operand
   byte src;                       // operand
   dbyte temp;                     // larger temp var for calculations
 
   Instruction instruction = get_instruction(opcode);
+  int cycles = instruction.cycles;
 
   /*** ADDRESSING MODE ***/
   switch (instruction.address_type) {
@@ -240,7 +238,7 @@ void Processor::execute() {
       break;
 
     case Implied:
-      pc += (opcode == 0x00 ? 2 : 1);  // BRK is two-byte opcode
+      pc += (instruction.function == BRK ? 2 : 1);  // BRK is two-byte opcode
       break;
 
     case Accumulator:
@@ -256,11 +254,21 @@ void Processor::execute() {
     case AbsoluteX:
       address = address_at(pc + 1) + x;
       pc += 3;
+      if (is_read_instruction(instruction.function) &&
+          (read_memory(pc + 1) & 0xFF) == 0xFF) {
+        // Page boundary crossed
+        cycles++;
+      }
       break;
 
     case AbsoluteY:
       address = address_at(pc + 1) + y;
       pc += 3;
+      if (is_read_instruction(instruction.function) &&
+          (read_memory(pc + 1) & 0xFF) == 0xFF) {
+        // Page boundary crossed
+        cycles++;
+      }
       break;
 
     case Indirect: {
@@ -289,6 +297,11 @@ void Processor::execute() {
       }
       address = address_at(op_address) + y;
       pc += 2;
+      if (is_read_instruction(instruction.function) &&
+          (read_memory(address) & 0xFF) == 0xFF) {
+        // Page boundary crossed
+        cycles++;
+      }
       break;
     }
 
@@ -320,38 +333,47 @@ void Processor::execute() {
       break;
 
     case ASL:
-      if (opcode != 0x0A) src = read_memory(address);
+      if (instruction.address_type != Accumulator) {
+        src = read_memory(address);
+      }
 
       set_carry(src & 0x80);
       src <<= 1;
       set_zero(src);
       set_sign(src);
 
-      if (opcode == 0x0A)
+      if (instruction.address_type == Accumulator) {
         a = src;
-      else
+      } else {
         store_memory(address, src);
+      }
 
       break;
 
     case BCC:
-      src = read_memory(address);
       if (!if_carry()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
     case BCS:
-      src = read_memory(address);
       if (if_carry()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
     case BEQ:
-      src = read_memory(address);
       if (if_zero()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
@@ -363,46 +385,55 @@ void Processor::execute() {
       break;
 
     case BMI:
-      src = read_memory(address);
       if (if_sign()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
     case BNE:
-      src = read_memory(address);
       if (!if_zero()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
     case BPL:
-      src = read_memory(address);
       if (!if_sign()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
     case BRK:
       stack_push(pc >> 8);
       stack_push(pc);
-      set_break(1);
       stack_push(p | kBreakMask);
       set_interrupt(1);  // disable interrupts
       pc = address_at(0xFFFE);
       break;
 
     case BVC:
-      src = read_memory(address);
       if (!if_overflow()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
     case BVS:
-      src = read_memory(address);
       if (if_overflow()) {
-        pc = rel_addr(pc, src);
+        src = read_memory(address);
+        temp = rel_addr(pc, src);
+        cycles += ((temp & 0xFF00) == (pc & 0xFF00)) ? 1 : 2;
+        pc = temp;
       }
       break;
 
@@ -426,21 +457,21 @@ void Processor::execute() {
       temp = a - read_memory(address);
       set_sign(temp);
       set_zero(temp);
-      set_carry(temp < 0x100);  // if a > src, carry set
+      set_carry(temp <= 0xFF);  // if a > src, carry set
       break;
 
     case CPX:
       temp = x - read_memory(address);
       set_sign(temp);
       set_zero(temp);
-      set_carry(temp < 0x100);  // if x > src, carry set
+      set_carry(temp <= 0xFF);  // if x > src, carry set
       break;
 
     case CPY:
       temp = y - read_memory(address);
       set_sign(temp);
       set_zero(temp);
-      set_carry(temp < 0x100);  // if y > src, carry set
+      set_carry(temp <= 0xFF);  // if y > src, carry set
       break;
 
     case DEC:
@@ -517,14 +548,16 @@ void Processor::execute() {
       break;
 
     case LSR:
-      if (opcode != 0x4A) src = read_memory(address);
+      if (instruction.address_type != Accumulator) {
+        src = read_memory(address);
+      }
 
       set_sign(0);
       set_carry(src & 0x01);
       src >>= 1;
       set_zero(src);
 
-      if (opcode == 0x4A) {
+      if (instruction.address_type == Accumulator) {
         a = src;
       } else {
         store_memory(address, src);
@@ -559,7 +592,9 @@ void Processor::execute() {
       break;
 
     case ROL:
-      if (opcode != 0x2A) src = read_memory(address);
+      if (instruction.address_type != Accumulator) {
+        src = read_memory(address);
+      }
 
       temp = src << 1;
       if (if_carry()) temp |= 0x01;
@@ -568,7 +603,7 @@ void Processor::execute() {
       set_sign(src);
       set_zero(src);
 
-      if (opcode == 0x2A) {
+      if (instruction.address_type == Accumulator) {
         a = src;
       } else {
         store_memory(address, src);
@@ -576,7 +611,9 @@ void Processor::execute() {
       break;
 
     case ROR:
-      if (opcode != 0x6A) src = read_memory(address);
+      if (instruction.address_type != Accumulator) {
+        src = read_memory(address);
+      }
 
       temp = src & 0x01;
       src >>= 1;
@@ -585,7 +622,7 @@ void Processor::execute() {
       set_sign(src);
       set_zero(src);
 
-      if (opcode == 0x6A) {
+      if (instruction.address_type == Accumulator) {
         a = src;
       } else {
         store_memory(address, src);
@@ -595,7 +632,6 @@ void Processor::execute() {
 
     case RTI:
       p = stack_pop();
-      // Must make this two instructions so that the compiler doesn't screw us.
       pc = stack_pop();  // Pop the lower byte first
       pc |= stack_pop() << 8;
       break;
@@ -673,5 +709,10 @@ void Processor::execute() {
       set_sign(a);
       set_zero(a);
       break;
+
+    default:
+      throw "Unrecognized instruction";
   }
+
+  return cycles;
 }

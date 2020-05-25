@@ -89,8 +89,11 @@ enum Function {
 typedef struct Instruction {
   Function function;
   AddressType address_type;
+  int cycles;
 } Instruction;
 
 extern Instruction get_instruction(byte opcode);
+
+extern bool is_read_instruction(Function function);
 
 #endif /* Instructions_h */

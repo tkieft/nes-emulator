@@ -31,17 +31,19 @@ void Emulator::emulate_frame() {
   // 1 Dummy scanline
   // 240 Picture scanlines
   // 1 Dummy scanline -> VINT set afterwards
+  int clock = 0;
   for (int scanline = 0; scanline <= 261; scanline++) {
-    int clock = 0;
-
     while (clock < 113) {
-      processor->execute();
-      clock += 3;  // TODO: Holy shit accurate clock cycles.
+      clock += processor->execute();
     }
 
     if (ppu.render_scanline(scanline)) {
       processor->non_maskable_interrupt();
+      // NMI takes 7 cycles to execute
+      clock += 7;
     }
+
+    clock -= 113;
   }
 }
 

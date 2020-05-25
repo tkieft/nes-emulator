@@ -74,7 +74,7 @@ class Processor {
  public:
   Processor(PPU* ppu, ControllerPad* controller_pad);
   void set_prg_rom(std::unique_ptr<byte[]> prg_rom);
-  void execute();
+  int execute();
   void reset();
   void non_maskable_interrupt();
 };
