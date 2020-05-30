@@ -190,6 +190,8 @@
 				3B22C9C616169F40004B28F1 /* defines.h */,
 				3B3BD4441620FE5B00FC5048 /* nes_palette.cpp */,
 				3B3BD450162123EA00FC5048 /* nes_palette.h */,
+				3BA95A58162B7FFC00B585CC /* AppDelegate.h */,
+				3BA95A59162B7FFC00B585CC /* AppDelegate.mm */,
 				3BC33775161119D2002D75EE /* Supporting Files */,
 			);
 			path = Emulator;
@@ -199,8 +201,6 @@
 			isa = PBXGroup;
 			children = (
 				060DD96724717245005A8134 /* Main.storyboard */,
-				3BA95A58162B7FFC00B585CC /* AppDelegate.h */,
-				3BA95A59162B7FFC00B585CC /* AppDelegate.mm */,
 				3B76705A16174D12006F1357 /* Credits.rtf */,
 				3B76705C16174D12006F1357 /* InfoPlist.strings */,
 				3B76706016174D12006F1357 /* Info.plist */,
