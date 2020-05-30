@@ -12,13 +12,30 @@
 #include <fstream>
 #include <iostream>
 
+static const int kPRGROMByte = 4;
+static const int kCHRROMByte = 5;
+static const int kPRGRAMByte = 8;
+
+static const int kFourScreenMirroring = 0x08;
+static const int kHorizontalMirroring = 0x00;
+static const int kVerticalMirroring = 0x01;
+
+static const int kBatteryBackedSRAM = 0x02;
+static const int kTrainer = 0x04;
+
+static const int kMapperMask = 0xF0;
+
+static const int kPRGROMPageSize = 16384;  // 16kb
+static const int kCHRROMPageSize = 8192;   // 8kb
+static const int kPRGRAMPageSize = 8192;   // 8kb
+
 RomReader::RomReader(std::string filename) {
   std::ifstream file(filename, std::ios::in | std::ios::binary | std::ios::ate);
 
   if (file.is_open()) {
     fileSize = file.tellg();
     file.seekg(0, std::ios::beg);
-    file.read(reinterpret_cast<char*>(header), HEADER_SIZE);
+    file.read(reinterpret_cast<char*>(header), kROMHeaderSize);
 
     if (!(header[0] == 'N' && header[1] == 'E' && header[2] == 'S' &&
           header[3] == '\x1A')) {
@@ -26,14 +43,14 @@ RomReader::RomReader(std::string filename) {
       throw "This is not a valid NES ROM!";
     }
 
-    prg_rom_bytes = header[PRG_ROM_BYTE] * PRG_ROM_PAGE_SIZE;
-    chr_rom_bytes = header[CHR_ROM_BYTE] * CHR_ROM_PAGE_SIZE;
-    prg_ram_bytes = header[PRG_RAM_BYTE] * PRG_RAM_PAGE_SIZE;
+    prg_rom_bytes = header[kPRGROMByte] * kPRGROMPageSize;
+    chr_rom_bytes = header[kCHRROMByte] * kCHRROMPageSize;
+    prg_ram_bytes = header[kPRGRAMByte] * kPRGRAMPageSize;
 
     if (!prg_ram_bytes) {
       // This can be 0 in an old value of the .NES file format; assume 1 page if
       // so
-      prg_ram_bytes = PRG_RAM_PAGE_SIZE;
+      prg_ram_bytes = kPRGRAMPageSize;
     }
 
     // Error checking
@@ -41,7 +58,7 @@ RomReader::RomReader(std::string filename) {
       throw "Program ROM bytes = 0";
     }
 
-    if (HEADER_SIZE + prg_rom_bytes + chr_rom_bytes != fileSize) {
+    if (kROMHeaderSize + prg_rom_bytes + chr_rom_bytes != fileSize) {
       throw "Inconsistent file size";
     }
 
@@ -93,23 +110,23 @@ void RomReader::printDebugInfo() {
 
   // Mirroring type
   std::cout << std::endl << "Mirroring Type: ";
-  if (header[6] & FOUR_SCREEN_MIRRORING) {
+  if (header[6] & kFourScreenMirroring) {
     std::cout << "Four-screen" << std::endl;
-  } else if (header[6] & VERTICAL_MIRRORING) {
+  } else if (header[6] & kVerticalMirroring) {
     std::cout << "Vertical" << std::endl;
-  } else {
+  } else if (header[6] & kHorizontalMirroring) {
     std::cout << "Horizontal" << std::endl;
   }
 
-  if (header[6] & BATTERY_BACKED_SRAM) {
+  if (header[6] & kBatteryBackedSRAM) {
     std::cout << "Battery backed SRAM in CPU $6000-$7FFF" << std::endl;
   }
 
-  if (header[6] & TRAINER) {
+  if (header[6] & kTrainer) {
     std::cout << "512 byte trainer at $7000-$71FF" << std::endl;
   }
 
-  int mapper = ((header[6] & MAPPER_MASK) >> 4) | (header[7] & MAPPER_MASK);
+  int mapper = ((header[6] & kMapperMask) >> 4) | (header[7] & kMapperMask);
   if (mapper) {
     std::cout << "Memory Mapper: " << mapper << std::endl;
   }
